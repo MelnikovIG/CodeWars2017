@@ -28,5 +28,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             GlobalHelper.Move.X = x;
             GlobalHelper.Move.Y = y;
         }
+
+        public static void SetSelectedGroup(int groupId)
+        {
+            GlobalHelper.Move.Action = ActionType.Assign;
+            GlobalHelper.Move.Group = groupId;
+        }
     }
 }
