@@ -12,10 +12,28 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             var rewindClient = RewindClient.RewindClient.Instance;
             rewindClient.Circle(0,0,100,Color.Black);
+
+            foreach(var newVehicle in world.NewVehicles){
+                UnitHelper.Units.Add(newVehicle.Id, new MyLivingUnit()
+                {
+                    Id = newVehicle.Id,
+                    X = newVehicle.X,
+                    Y = newVehicle.Y
+                });
+            }
+
+
             foreach (var vehicleUpdate in world.VehicleUpdates)
             {
+                var vehicle = UnitHelper.Units[vehicleUpdate.Id];
+                vehicle.X = vehicleUpdate.X;
+                vehicle.Y = vehicleUpdate.Y;
+            }
+
+            foreach(var unit in UnitHelper.Units.Values)
+            {
                 //rewindClient.Circle(vehicleUpdate.X, vehicleUpdate.Y, game.VehicleRadius, Color.Red);
-                rewindClient.LivingUnit(vehicleUpdate.X, vehicleUpdate.Y, game.VehicleRadius, 0, 0, RewindClient.Side.Enemy);
+                rewindClient.LivingUnit(unit.X, unit.Y, game.VehicleRadius, 0, 0, RewindClient.Side.Enemy);
             }
 
             rewindClient.End();

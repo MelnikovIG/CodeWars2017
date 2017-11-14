@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
+{
+    public static class UnitHelper
+    {
+        public static Dictionary<long, MyLivingUnit> Units { get; set; } = new Dictionary<long, MyLivingUnit>(1000);
+    }
+
+    public class MyLivingUnit
+    {
+        public long Id { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+}
