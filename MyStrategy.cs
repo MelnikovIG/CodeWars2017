@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
+using RewindClient;
 
 namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
     public sealed class MyStrategy : IStrategy {
@@ -11,7 +12,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             GlobalHelper.Move = move;
 
             var rewindClient = RewindClient.RewindClient.Instance;
-            rewindClient.Circle(0,0,100,Color.Black);
 
             foreach(var newVehicle in world.NewVehicles){
                 UnitHelper.Units.Add(newVehicle.Id, new MyLivingUnit()
@@ -21,7 +21,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                     Y = newVehicle.Y
                 });
             }
-
 
             foreach (var vehicleUpdate in world.VehicleUpdates)
             {
@@ -35,6 +34,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 //rewindClient.Circle(vehicleUpdate.X, vehicleUpdate.Y, game.VehicleRadius, Color.Red);
                 rewindClient.LivingUnit(unit.X, unit.Y, game.VehicleRadius, 0, 0, RewindClient.Side.Enemy);
             }
+
+
+            //for (int i = 0; i < 32; i++)
+            //{
+            //    for (int j = 0; j < 32; j++)
+            //    {
+            //        var a = (AreaType)world.TerrainByCellXY[i][j];
+            //        rewindClient.AreaDescription(i, j, a);
+            //    }
+            //}
 
             rewindClient.End();
 
