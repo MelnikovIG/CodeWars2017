@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Threading;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 
 namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
@@ -9,10 +11,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
         private readonly string token;
 
         public static void Main(string[] args) {
-            //var appSettings = ConfigurationManager.AppSettings;
-            //var localRunnerPath = appSettings["LocalRunnerPath"];
-            //Process.Start("CMD.exe", "/c cd D:\\Downloads\\Chrome\\local-runner-ru && D: && local-runner.bat");
-            //return;
+            var appSettings = ConfigurationManager.AppSettings;
+            var localRunnerPath = appSettings["LocalRunnerPath"];
+
+            Process.Start(localRunnerPath);
+            Process.Start("C:\\Git\\CodeWars2017\\rewindviewer_win_binaries\\start.bat");
 
             new Runner(args.Length == 3 ? args : new[] {"127.0.0.1", "31001", "0000000000000000"}).Run();
         }
@@ -49,9 +52,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                         remoteProcessClient.WriteMoveMessage(move);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    System.Console.WriteLine("Потеря соединения... Выход через 3 сек");
+                    System.Console.WriteLine("Ошибка... Выход через 3 сек");
+                    System.Console.WriteLine(ex);
                     System.Threading.Thread.Sleep(3000);
                 }
             } finally {

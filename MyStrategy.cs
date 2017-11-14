@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Linq;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
@@ -9,27 +10,37 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
 
-            var groupItems = world.VehicleUpdates.Where(x => x.Groups.Contains(1)).ToList();
-
-            if (groupItems.Count > 0)
+            var rewindClient = RewindClient.RewindClient.Instance;
+            rewindClient.Circle(0,0,100,Color.Black);
+            foreach (var vehicleUpdate in world.VehicleUpdates)
             {
-                var right = groupItems.Max(x => x.X);
-                var left = groupItems.Min(x => x.X);
-                var top = groupItems.Max(x => x.Y);
-                var bot = groupItems.Min(x => x.Y);
+                //rewindClient.Circle(vehicleUpdate.X, vehicleUpdate.Y, game.VehicleRadius, Color.Red);
+                rewindClient.LivingUnit(vehicleUpdate.X, vehicleUpdate.Y, game.VehicleRadius, 0, 0, RewindClient.Side.Enemy);
+            }
 
-                var centerX = right + left / 2;
-                var centerY = top + bot / 2;
-                Console.WriteLine($"X: {centerX}\t Y: {centerY}");
-            }
-            else
-            {
-                Console.WriteLine($"X: - \t Y: -");
-            }
+            rewindClient.End();
+
+            //var groupItems = world.VehicleUpdates.Where(x => x.Groups.Contains(1)).ToList();
+
+            //if (groupItems.Count > 0)
+            //{
+            //    var right = groupItems.Max(x => x.X);
+            //    var left = groupItems.Min(x => x.X);
+            //    var top = groupItems.Max(x => x.Y);
+            //    var bot = groupItems.Min(x => x.Y);
+
+            //    var centerX = right + left / 2;
+            //    var centerY = top + bot / 2;
+            //    Console.WriteLine($"X: {centerX}\t Y: {centerY}");
+            //}
+            //else
+            //{
+            //    Console.WriteLine($"X: - \t Y: -");
+            //}
 
             if (world.TickIndex == 0)
             {
-                ActionHelper.Select(0, 0, world.Width, world.Height,VehicleType.Ifv);
+                ActionHelper.Select(0, 0, world.Width, world.Height, VehicleType.Ifv);
                 return;
             }
 
