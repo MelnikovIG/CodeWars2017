@@ -111,8 +111,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             var nextPpPoint = PotetialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
             rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size, (nextPpPoint.Y + 1) * size, Color.Black);
 
+            if (world.TickIndex % 5 == 0)
+            {
+                var vx = nextPpPoint.X * size + size/2d - cx;
+                var vy = nextPpPoint.Y * size + size/2d - cy;
+                ActionHelper.Move(vx, vy);
 
-            ActionHelper.Move(cx - nextPpPoint.X, cy - nextPpPoint.Y);
+                Console.WriteLine($"vx {vx}\tvy {vy}\tRemainingActionCooldownTicks {me.RemainingActionCooldownTicks}");
+            }
             return;
         }
 

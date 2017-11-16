@@ -2,55 +2,55 @@ arguments: rewindviewer.exe
 Current dir: C:\Git\CodeWars2017\rewindviewer_win_binaries
 File verbosity level: 7
 date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
-2017-11-16 20:50:11.128 (   0.003s) [main thread     ]             loguru.hpp:1971     0| Logging to 'rewindviewer-debug.log', mode: 'w', verbosity: 7
-2017-11-16 20:50:11.129 (   0.003s) [main thread     ]             loguru.hpp:1971     0| Logging to 'rewindviewer.log', mode: 'w', verbosity: 0
-2017-11-16 20:50:11.129 (   0.003s) [main thread     ]               main.cpp:29       0| Init GLFW
-2017-11-16 20:50:11.204 (   0.078s) [main thread     ]               main.cpp:88       0| Create main window
-2017-11-16 20:50:12.013 (   0.887s) [main thread     ]               main.cpp:106      0| Setup application icon
-2017-11-16 20:50:12.016 (   0.891s) [main thread     ]               main.cpp:41       0| Load OpenGL functions
-2017-11-16 20:50:12.018 (   0.892s) [main thread     ]               main.cpp:47       0| OpenGL 3.3.0 NVIDIA 376.53, GLSL 3.30 NVIDIA via Cg compiler
-2017-11-16 20:50:12.018 (   0.892s) [main thread     ]               main.cpp:48       0| Driver NVIDIA Corporation, Renderer GeForce GTX 1050 Ti/PCIe/SSE2
-2017-11-16 20:50:12.018 (   0.892s) [main thread     ]               main.cpp:59       0| Setup vertical sync to 60fps
-2017-11-16 20:50:12.018 (   0.892s) [main thread     ]               main.cpp:62       0| Start main draw loop
-2017-11-16 20:50:12.018 (   0.892s) [main thread     ]               main.cpp:118      0| Create camera
-2017-11-16 20:50:12.018 (   0.893s) [main thread     ]               main.cpp:122      0| Create Resource manager
-2017-11-16 20:50:12.018 (   0.893s) [main thread     ]               main.cpp:124      0| Create Scene
-2017-11-16 20:50:12.018 (   0.893s) [main thread     ]              Scene.cpp:61       0| Initialize needed attributes
-2017-11-16 20:50:12.018 (   0.893s) [main thread     ]              Scene.cpp:70       0| Compile shaders
-2017-11-16 20:50:12.018 (   0.893s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/simple.vert, fragment=resources/shaders/uniform_color.frag
-2017-11-16 20:50:12.019 (   0.893s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
-2017-11-16 20:50:12.019 (   0.894s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
-2017-11-16 20:50:12.019 (   0.894s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
-2017-11-16 20:50:12.021 (   0.895s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
-2017-11-16 20:50:12.022 (   0.896s) [main thread     ]             Shader.cpp:101      0| Link shader program
-2017-11-16 20:50:12.023 (   0.897s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/circle.vert, fragment=resources/shaders/circle.frag
-2017-11-16 20:50:12.023 (   0.897s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
-2017-11-16 20:50:12.023 (   0.898s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
-2017-11-16 20:50:12.023 (   0.898s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
-2017-11-16 20:50:12.024 (   0.899s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
-2017-11-16 20:50:12.025 (   0.900s) [main thread     ]             Shader.cpp:101      0| Link shader program
-2017-11-16 20:50:12.026 (   0.901s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/lines.vert, fragment=resources/shaders/lines.frag
-2017-11-16 20:50:12.027 (   0.901s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
-2017-11-16 20:50:12.027 (   0.901s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
-2017-11-16 20:50:12.027 (   0.902s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
-2017-11-16 20:50:12.028 (   0.903s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
-2017-11-16 20:50:12.029 (   0.903s) [main thread     ]             Shader.cpp:101      0| Link shader program
-2017-11-16 20:50:12.031 (   0.905s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/simple.vert, fragment=resources/shaders/textured.frag
-2017-11-16 20:50:12.031 (   0.905s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
-2017-11-16 20:50:12.031 (   0.906s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
-2017-11-16 20:50:12.031 (   0.906s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
-2017-11-16 20:50:12.033 (   0.907s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
-2017-11-16 20:50:12.034 (   0.908s) [main thread     ]             Shader.cpp:101      0| Link shader program
-2017-11-16 20:50:12.036 (   0.910s) [main thread     ]              Scene.cpp:74       0| Load background texture
-2017-11-16 20:50:12.039 (   0.913s) [main thread     ]              Scene.cpp:78       0| Load unit textures
-2017-11-16 20:50:12.138 (   1.013s) [main thread     ]              Scene.cpp:98       0| Create rectangle for future rendering
-2017-11-16 20:50:12.147 (   1.021s) [main thread     ]              Scene.cpp:122      0| Create Uniform buffer
-2017-11-16 20:50:12.150 (   1.025s) [main thread     ]              Scene.cpp:130      0| Bind Uniform buffer to shaders
-2017-11-16 20:50:12.150 (   1.025s) [main thread     ]               main.cpp:126      0| Create GUI controller
-2017-11-16 20:50:12.178 (   1.052s) [main thread     ]               main.cpp:130      0| Start networking thread
-2017-11-16 20:50:12.234 (   1.108s) [                ]        NetListener.cpp:31       0| NetClient:: Start listening
-2017-11-16 20:50:12.234 (   1.108s) [main thread     ]               main.cpp:146      0| Start render loop
-2017-11-16 20:50:12.313 (   1.187s) [                ]        NetListener.cpp:40       0| NetListener:: Got connection from 222.147.127.0:2
-2017-11-16 21:29:22.582 (2351.457s) [                ]        NetListener.cpp:31       0| NetClient:: Start listening
-2017-11-16 21:29:22.583 (2351.458s) [                ]        NetListener.cpp:40       0| NetListener:: Got connection from 222.148.127.0:2
-2017-11-16 21:29:22.585 (2351.460s) [                ]        NetListener.cpp:31       0| NetClient:: Start listening
+2017-11-16 22:01:28.430 (   0.003s) [main thread     ]             loguru.hpp:1971     0| Logging to 'rewindviewer-debug.log', mode: 'w', verbosity: 7
+2017-11-16 22:01:28.430 (   0.004s) [main thread     ]             loguru.hpp:1971     0| Logging to 'rewindviewer.log', mode: 'w', verbosity: 0
+2017-11-16 22:01:28.430 (   0.004s) [main thread     ]               main.cpp:29       0| Init GLFW
+2017-11-16 22:01:28.489 (   0.063s) [main thread     ]               main.cpp:88       0| Create main window
+2017-11-16 22:01:29.974 (   1.547s) [main thread     ]               main.cpp:106      0| Setup application icon
+2017-11-16 22:01:29.977 (   1.551s) [main thread     ]               main.cpp:41       0| Load OpenGL functions
+2017-11-16 22:01:29.981 (   1.555s) [main thread     ]               main.cpp:47       0| OpenGL 3.3.0 NVIDIA 376.53, GLSL 3.30 NVIDIA via Cg compiler
+2017-11-16 22:01:29.981 (   1.555s) [main thread     ]               main.cpp:48       0| Driver NVIDIA Corporation, Renderer GeForce GTX 1050 Ti/PCIe/SSE2
+2017-11-16 22:01:29.981 (   1.555s) [main thread     ]               main.cpp:59       0| Setup vertical sync to 60fps
+2017-11-16 22:01:29.981 (   1.555s) [main thread     ]               main.cpp:62       0| Start main draw loop
+2017-11-16 22:01:29.981 (   1.555s) [main thread     ]               main.cpp:118      0| Create camera
+2017-11-16 22:01:29.982 (   1.555s) [main thread     ]               main.cpp:122      0| Create Resource manager
+2017-11-16 22:01:29.982 (   1.555s) [main thread     ]               main.cpp:124      0| Create Scene
+2017-11-16 22:01:29.982 (   1.555s) [main thread     ]              Scene.cpp:61       0| Initialize needed attributes
+2017-11-16 22:01:29.982 (   1.555s) [main thread     ]              Scene.cpp:70       0| Compile shaders
+2017-11-16 22:01:29.982 (   1.555s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/simple.vert, fragment=resources/shaders/uniform_color.frag
+2017-11-16 22:01:29.982 (   1.556s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
+2017-11-16 22:01:29.983 (   1.556s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
+2017-11-16 22:01:29.985 (   1.559s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
+2017-11-16 22:01:29.986 (   1.560s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
+2017-11-16 22:01:29.987 (   1.561s) [main thread     ]             Shader.cpp:101      0| Link shader program
+2017-11-16 22:01:29.989 (   1.562s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/circle.vert, fragment=resources/shaders/circle.frag
+2017-11-16 22:01:29.989 (   1.562s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
+2017-11-16 22:01:29.989 (   1.563s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
+2017-11-16 22:01:29.989 (   1.563s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
+2017-11-16 22:01:29.991 (   1.564s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
+2017-11-16 22:01:29.992 (   1.566s) [main thread     ]             Shader.cpp:101      0| Link shader program
+2017-11-16 22:01:29.995 (   1.569s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/lines.vert, fragment=resources/shaders/lines.frag
+2017-11-16 22:01:29.995 (   1.569s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
+2017-11-16 22:01:29.996 (   1.570s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
+2017-11-16 22:01:29.996 (   1.570s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
+2017-11-16 22:01:30.005 (   1.579s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
+2017-11-16 22:01:30.006 (   1.580s) [main thread     ]             Shader.cpp:101      0| Link shader program
+2017-11-16 22:01:30.008 (   1.581s) [main thread     ]             Shader.cpp:90       0| Start compiling shader: vertex=resources/shaders/simple.vert, fragment=resources/shaders/textured.frag
+2017-11-16 22:01:30.008 (   1.581s) [main thread     ]             Shader.cpp:91       0| Load Vertex shader
+2017-11-16 22:01:30.008 (   1.582s) [main thread     ]             Shader.cpp:93       0| Load Fragment shader
+2017-11-16 22:01:30.008 (   1.582s) [main thread     ]             Shader.cpp:96       0| Compile Vertex shader
+2017-11-16 22:01:30.010 (   1.584s) [main thread     ]             Shader.cpp:98       0| Compile Fragment shader
+2017-11-16 22:01:30.011 (   1.585s) [main thread     ]             Shader.cpp:101      0| Link shader program
+2017-11-16 22:01:30.013 (   1.586s) [main thread     ]              Scene.cpp:74       0| Load background texture
+2017-11-16 22:01:30.014 (   1.588s) [main thread     ]              Scene.cpp:78       0| Load unit textures
+2017-11-16 22:01:30.081 (   1.655s) [main thread     ]              Scene.cpp:98       0| Create rectangle for future rendering
+2017-11-16 22:01:30.093 (   1.667s) [main thread     ]              Scene.cpp:122      0| Create Uniform buffer
+2017-11-16 22:01:30.095 (   1.669s) [main thread     ]              Scene.cpp:130      0| Bind Uniform buffer to shaders
+2017-11-16 22:01:30.097 (   1.671s) [main thread     ]               main.cpp:126      0| Create GUI controller
+2017-11-16 22:01:30.126 (   1.700s) [main thread     ]               main.cpp:130      0| Start networking thread
+2017-11-16 22:01:30.129 (   1.703s) [                ]        NetListener.cpp:31       0| NetClient:: Start listening
+2017-11-16 22:01:30.129 (   1.703s) [main thread     ]               main.cpp:146      0| Start render loop
+2017-11-16 22:01:30.316 (   1.890s) [                ]        NetListener.cpp:40       0| NetListener:: Got connection from 224.146.127.0:2
+2017-11-16 22:02:14.268 (  45.842s) [                ]        NetListener.cpp:31       0| NetClient:: Start listening
+2017-11-16 22:02:14.275 (  45.848s) [                ]        NetListener.cpp:40       0| NetListener:: Got connection from 224.147.127.0:2
+2017-11-16 22:02:14.276 (  45.849s) [                ]        NetListener.cpp:31       0| NetClient:: Start listening
