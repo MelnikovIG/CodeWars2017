@@ -8,13 +8,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Custom
 {
     public class Point2D
     {
-        private readonly double _x;
-        private readonly double _y;
+        public readonly double X;
+        public readonly double Y;
 
         public Point2D(double x, double y)
         {
-            _x = x;
-            _y = y;
+            X = x;
+            Y = y;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public int Durability { get; set; }
         public int MaxDurability { get; set; }
         public VehicleType Type { get; set; }
+        public int[] Groups { get; set; } = new int[0];
     }
 
     public enum Side

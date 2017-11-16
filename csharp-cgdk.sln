@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp-cgdk", "csharp-cgdk.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RewindClient", "RewindClient\RewindClient.csproj", "{17CB491E-72B2-4322-9986-A19275BDECA2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{13E62093-D60B-40F9-8BE8-9CEB39002524}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{15CD0562-232D-4EDF-AA1B-7211E2CC2401}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,9 +25,16 @@ Global
 		{17CB491E-72B2-4322-9986-A19275BDECA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17CB491E-72B2-4322-9986-A19275BDECA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17CB491E-72B2-4322-9986-A19275BDECA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15CD0562-232D-4EDF-AA1B-7211E2CC2401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15CD0562-232D-4EDF-AA1B-7211E2CC2401}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15CD0562-232D-4EDF-AA1B-7211E2CC2401}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15CD0562-232D-4EDF-AA1B-7211E2CC2401}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{15CD0562-232D-4EDF-AA1B-7211E2CC2401} = {13E62093-D60B-40F9-8BE8-9CEB39002524}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D2CFDD36-CE25-47BF-979A-AEE79C4E18C3}

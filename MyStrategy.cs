@@ -35,6 +35,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 vehicle.X = vehicleUpdate.X;
                 vehicle.Y = vehicleUpdate.Y;
                 vehicle.Durability = vehicleUpdate.Durability;
+                vehicle.Groups = vehicleUpdate.Groups;
             }
 
             foreach (var unit in UnitHelper.Units.Values)
@@ -51,7 +52,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                     GetRewindClientUitType(unit.Type));
             }
 
-            var size = PotetialFieldsHelper.Size;
+            var size = PotetialFieldsHelper.PpSize;
             PotetialFieldsHelper.Clear();
             PotetialFieldsHelper.FillBaseWorldPower();
             PotetialFieldsHelper.AppendEnemyPower();
@@ -88,6 +89,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             if (world.TickIndex == 0)
             {
+                var fighter = UnitHelper.Units.Select(x => x.Value).Where(x => x.Side == Side.Our)
+                    .Where(x => x.Type == VehicleType.Fighter).ToArray();
+                var fx = fighter.Max(x => x.X);
+                var fy = fighter.Max(x => x.Y);
+
                 ActionHelper.Select(0, 0, world.Width, world.Height, VehicleType.Fighter);
                 return;
             }
@@ -98,11 +104,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 return;
             }
 
-            if (world.TickIndex == 2)
-            {
-                ActionHelper.Move(world.Width / 2.0D, world.Height / 2.0D / 2.0D);
-                return;
-            }
+            var selectedUnits = UnitHelper.Units.Select(x => x.Value).Where(x => x.Groups.Contains(1)).ToArray();
+            var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
+            var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
+
+            var nextPpPoint = PotetialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
+            rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size, (nextPpPoint.Y + 1) * size, Color.Black);
+
+
+            ActionHelper.Move(cx - nextPpPoint.X, cy - nextPpPoint.Y);
+            return;
         }
 
         private RewindClient.UnitType GetRewindClientUitType(VehicleType vehicleType)
