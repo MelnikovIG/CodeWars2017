@@ -92,22 +92,22 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                 if (cellX - 1 > 0)
                 {
-                    PotentialFields[cellX - 1, cellY] += enemyPower;
+                    PotentialFields[cellX - 1, cellY] += enemyPower / 2;
                 }
 
                 if (cellX + 1 < PpSize)
                 {
-                    PotentialFields[cellX + 1, cellY] += enemyPower;
+                    PotentialFields[cellX + 1, cellY] += enemyPower / 2;
                 }
 
                 if (cellY - 1 > 0)
                 {
-                    PotentialFields[cellX, cellY - 1] += enemyPower;
+                    PotentialFields[cellX, cellY - 1] += enemyPower / 2;
                 }
 
                 if (cellY + 1 < PpSize)
                 {
-                    PotentialFields[cellX, cellY + 1] += enemyPower;
+                    PotentialFields[cellX, cellY + 1] += enemyPower / 2;
                 }
             }
         }
@@ -220,22 +220,22 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                 if (cellX - 1 > 0)
                 {
-                    PotentialFields[cellX - 1, cellY] += allyFlierPower;
+                    PotentialFields[cellX - 1, cellY] += allyFlierPower / 2;
                 }
 
                 if (cellX + 1 < PpSize)
                 {
-                    PotentialFields[cellX + 1, cellY] += allyFlierPower;
+                    PotentialFields[cellX + 1, cellY] += allyFlierPower / 2;
                 }
 
                 if (cellY - 1 > 0)
                 {
-                    PotentialFields[cellX, cellY - 1] += allyFlierPower;
+                    PotentialFields[cellX, cellY - 1] += allyFlierPower / 2;
                 }
 
                 if (cellY + 1 < PpSize)
                 {
-                    PotentialFields[cellX, cellY + 1] += allyFlierPower;
+                    PotentialFields[cellX, cellY + 1] += allyFlierPower / 2;
                 }
             }
         }

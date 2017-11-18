@@ -12,6 +12,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
     {
         public void Move(Player me, World world, Game game, Move move)
         {
+            var a = game.CloudWeatherVisionFactor;
+
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
             GlobalHelper.Game = game;
@@ -163,14 +165,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
         
         private HasTargetToNuclearAttackResult HasTargetToNuclearAttack(MyLivingUnit[] selectedUnits,MyLivingUnit[] potentialEnemiesInRange)
         {
-            var nsRage = GlobalHelper.Game.FighterVisionRange;
-
             foreach (var potentialEnemyInRange in potentialEnemiesInRange)
             {
                 foreach (var selectedUnit in selectedUnits)
                 {
                     var distance = selectedUnit.GetDistanceTo(potentialEnemyInRange);
-                    if (distance <= nsRage)
+                    if (distance <= GetVisionRangeByWeather(selectedUnit))
                     {
                         return new HasTargetToNuclearAttackResult()
                         {
@@ -280,6 +280,35 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     GetRewindClientUitType(unit.Type));
             }
 #endif
+        }
+
+        private double GetVisionRangeByWeather(MyLivingUnit livingUnit)
+        {
+            if (livingUnit.Type == VehicleType.Fighter)
+            {
+                var x = (int)livingUnit.X / PotentialFieldsHelper.PpSize;
+                var y = (int)livingUnit.Y / PotentialFieldsHelper.PpSize;
+
+                double scale = 1;
+                var weaterType = GlobalHelper.World.WeatherByCellXY[x][y];
+                if (weaterType == WeatherType.Clear)
+                {
+                    scale = GlobalHelper.Game.ClearWeatherVisionFactor;
+                }
+                else if (weaterType == WeatherType.Cloud)
+                {
+                    scale = GlobalHelper.Game.CloudWeatherVisionFactor;
+                }
+                else if (weaterType == WeatherType.Rain)
+                {
+                    scale = GlobalHelper.Game.RainWeatherVisionFactor;
+                }
+
+                var visionRange = GlobalHelper.Game.FighterVisionRange * scale;
+                return visionRange;
+            }
+
+            throw new NotImplementedException();
         }
     }
 }
