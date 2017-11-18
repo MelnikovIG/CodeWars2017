@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DEBUG
+using System;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -157,3 +158,4 @@ namespace RewindClient
         Cloud = 4
     }
 }
+#endif

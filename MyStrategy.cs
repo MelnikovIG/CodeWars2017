@@ -6,9 +6,12 @@ using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 using RewindClient;
 using Side = Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers.Side;
 
-namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
-    public sealed class MyStrategy : IStrategy {
-        public void Move(Player me, World world, Game game, Move move) {
+namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
+{
+    public sealed class MyStrategy : IStrategy
+    {
+        public void Move(Player me, World world, Game game, Move move)
+        {
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
             GlobalHelper.Game = game;
@@ -34,9 +37,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 var centerX = (minX + maxX) / 2L;
                 var centerY = (minY + maxY) / 2L;
 
-                rewindClient.Rectangle(centerX,centerY, maxX, maxY,Color.FromArgb(100,1,0,0));
+                rewindClient.Rectangle(centerX, centerY, maxX, maxY, Color.FromArgb(100, 1, 0, 0));
 
-                ActionHelper.Select(centerX, centerY, maxX, maxY/*, VehicleType.Fighter*/);
+                ActionHelper.Select(centerX, centerY, maxX, maxY /*, VehicleType.Fighter*/);
                 return;
             }
 
@@ -135,12 +138,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             rewindClient.End();
 
             var nextPpPoint = PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
-            rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size, (nextPpPoint.Y + 1) * size, Color.Black);
+            rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size,
+                (nextPpPoint.Y + 1) * size, Color.Black);
 
             if (world.TickIndex % 6 == 0)
             {
-                var vx = nextPpPoint.X * size + size/2d - cx;
-                var vy = nextPpPoint.Y * size + size/2d - cy;
+                var vx = nextPpPoint.X * size + size / 2d - cx;
+                var vy = nextPpPoint.Y * size + size / 2d - cy;
                 ActionHelper.Move(vx, vy);
 
                 Console.WriteLine($"vx {vx}\tvy {vy}\tRemainingActionCooldownTicks {me.RemainingActionCooldownTicks}");
@@ -250,18 +254,21 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 vehicle.Groups = vehicleUpdate.Groups;
             }
 
+#if DEBUG
             foreach (var unit in UnitHelper.Units.Values)
             {
+
                 rewindClient.LivingUnit(
                     unit.X,
                     unit.Y,
                     game.VehicleRadius,
                     unit.Durability,
                     unit.MaxDurability,
-                    (RewindClient.Side)unit.Side,
+                    (RewindClient.Side) unit.Side,
                     0,
                     GetRewindClientUitType(unit.Type));
             }
+#endif
         }
     }
 }
