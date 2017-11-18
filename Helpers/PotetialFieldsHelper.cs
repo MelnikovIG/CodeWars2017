@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Custom;
+using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 
 namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
@@ -32,32 +33,34 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void AppendEnemyPower()
         {
+            var enemyPower = 100;
+
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
             foreach(var enemy in enemies)
             {
                 var cellX = (int)enemy.X / PpSize;
                 var cellY = (int)enemy.Y / PpSize;
 
-                PotentialFields[cellX, cellY] += 100;
+                PotentialFields[cellX, cellY] += enemyPower;
 
                 if (cellX - 1 > 0)
                 {
-                    PotentialFields[cellX - 1, cellY] += 100;
+                    PotentialFields[cellX - 1, cellY] += enemyPower;
                 }
 
                 if (cellX + 1 < PpSize)
                 {
-                    PotentialFields[cellX + 1, cellY] += 100;
+                    PotentialFields[cellX + 1, cellY] += enemyPower;
                 }
 
                 if (cellY - 1 > 0)
                 {
-                    PotentialFields[cellX, cellY - 1] += 100;
+                    PotentialFields[cellX, cellY - 1] += enemyPower;
                 }
 
                 if (cellY + 1 < PpSize)
                 {
-                    PotentialFields[cellX, cellY + 1] += 100;
+                    PotentialFields[cellX, cellY + 1] += enemyPower;
                 }
             }
         }
@@ -135,6 +138,45 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
 
             return result;
+        }
+
+        public static void AppendAllyFlyingPowerForFlyingUnits(MyLivingUnit[] selectedUnits)
+        {
+            var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
+            var otherAllyFliers = UnitHelper.Units.Values
+                .Where(
+                x => x.Side == Side.Our
+                && (x.Type == VehicleType.Fighter || x.Type == VehicleType.Helicopter)
+                && !selectedUnitIds.Contains(x.Id)).ToArray();
+
+            var allyFlierPower = 50;
+            foreach (var otherAllyFlier in otherAllyFliers)
+            {
+                var cellX = (int)otherAllyFlier.X / PpSize;
+                var cellY = (int)otherAllyFlier.Y / PpSize;
+
+                PotentialFields[cellX, cellY] += allyFlierPower;
+
+                if (cellX - 1 > 0)
+                {
+                    PotentialFields[cellX - 1, cellY] += allyFlierPower;
+                }
+
+                if (cellX + 1 < PpSize)
+                {
+                    PotentialFields[cellX + 1, cellY] += allyFlierPower;
+                }
+
+                if (cellY - 1 > 0)
+                {
+                    PotentialFields[cellX, cellY - 1] += allyFlierPower;
+                }
+
+                if (cellY + 1 < PpSize)
+                {
+                    PotentialFields[cellX, cellY + 1] += allyFlierPower;
+                }
+            }
         }
     }
 }
