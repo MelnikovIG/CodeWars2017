@@ -14,7 +14,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             var rewindClient = RewindClient.RewindClient.Instance;
 
+            var enemy = world.Players.First(x => !x.IsMe);
+
             UpdateVehiclesStates(me, world, game, rewindClient);
+
+            DrawNuclearStrikes(me, enemy, game, rewindClient);
 
             if (world.TickIndex == 0)
             {
@@ -74,6 +78,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             if (world.TickIndex % 6 == 0)
             {
+                if (me.RemainingNuclearStrikeCooldownTicks == 0)
+                {
+                    NuclearStrike(me, world, game, move);
+                    return;
+                }
+
                 var vx = nextPpPoint.X * size + size/2d - cx;
                 var vy = nextPpPoint.Y * size + size/2d - cy;
                 ActionHelper.Move(vx, vy);
@@ -82,6 +92,36 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             }
             return;
         }
+
+        private void DrawNuclearStrikes(Player me, Player enemy, Game game, RewindClient.RewindClient rewindClient)
+        {
+            if (me.NextNuclearStrikeTickIndex > 0)
+            {
+                var nx = me.NextNuclearStrikeX;
+                var ny = me.NextNuclearStrikeY;
+                var nr = game.TacticalNuclearStrikeRadius;
+
+                rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
+            }
+            if (enemy.NextNuclearStrikeTickIndex > 0)
+            {
+                var nx = enemy.NextNuclearStrikeX;
+                var ny = enemy.NextNuclearStrikeY;
+                var nr = game.TacticalNuclearStrikeRadius;
+
+                rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
+            }
+        }
+
+        private void NuclearStrike(Player me, World world, Game game, Move move)
+        {
+            var unit = UnitHelper.Units.Select(x => x.Value)
+                .Where(x => x.Type == VehicleType.Helicopter && x.Side == Side.Our)
+                .FirstOrDefault();
+
+            ActionHelper.NuclearStrike(unit.Id, unit.X, unit.Y);
+        }
+
 
         private RewindClient.UnitType GetRewindClientUitType(VehicleType vehicleType)
         {
