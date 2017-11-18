@@ -27,27 +27,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
         private readonly IDictionary<long, Facility> previousFacilityById = new Dictionary<long, Facility>();
 
         public RemoteProcessClient(string host, int port) {
-
-            bool tcpClientInitialized = false;
-            while (!tcpClientInitialized)
-            {
-                try
-                {
-                    client = new TcpClient(host, port)
-                    {
-                        SendBufferSize = BufferSizeBytes,
-                        ReceiveBufferSize = BufferSizeBytes,
-                        NoDelay = true
-                    };
-
-                    tcpClientInitialized = true;
-                }
-                catch
-                {
-                    Console.WriteLine("Ошибка инициализации TcpClient");
-                    Console.ReadLine();
-                }
-            }  
+            client = new TcpClient(host, port) {
+                SendBufferSize = BufferSizeBytes, ReceiveBufferSize = BufferSizeBytes, NoDelay = true
+            };
 
             reader = new BinaryReader(client.GetStream());
             writer = new BinaryWriter(client.GetStream());
@@ -61,7 +43,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
         public void WriteProtocolVersionMessage() {
             WriteEnum((sbyte?) MessageType.ProtocolVersion);
-            WriteInt(1);
+            WriteInt(3);
             writer.Flush();
         }
 
@@ -178,7 +160,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                     ReadDouble(), ReadDouble(), ReadInt(), ReadDouble(), ReadDouble(), ReadDouble(), ReadDouble(),
                     ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadDouble(),
                     ReadDouble(), ReadDouble(), ReadDouble(), ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt(),
-                    ReadInt(), ReadDouble(), ReadDouble(), ReadDouble(), ReadDouble()
+                    ReadInt(), ReadDouble(), ReadDouble(), ReadDouble(), ReadDouble(), ReadInt(), ReadInt(),
+                    ReadDouble(), ReadDouble(), ReadInt()
             );
         }
 
@@ -279,6 +262,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             WriteDouble(game.FacilityCapturePointsPerVehiclePerTick);
             WriteDouble(game.FacilityWidth);
             WriteDouble(game.FacilityHeight);
+            WriteInt(game.BaseTacticalNuclearStrikeCooldown);
+            WriteInt(game.TacticalNuclearStrikeCooldownDecreasePerControlCenter);
+            WriteDouble(game.MaxTacticalNuclearStrikeDamage);
+            WriteDouble(game.TacticalNuclearStrikeRadius);
+            WriteInt(game.TacticalNuclearStrikeDelay);
         }
 
         private Game[] ReadGames() {
@@ -327,10 +315,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             WriteDouble(move.X);
             WriteDouble(move.Y);
             WriteDouble(move.Angle);
+            WriteDouble(move.Factor);
             WriteDouble(move.MaxSpeed);
             WriteDouble(move.MaxAngularSpeed);
             WriteEnum((sbyte?) move.VehicleType);
             WriteLong(move.FacilityId);
+            WriteLong(move.VehicleId);
         }
 
         private void WriteMoves(Move[] moves) {
@@ -358,7 +348,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 return previousPlayerById[ReadLong()];
             }
 
-            Player player = new Player(ReadLong(), ReadBoolean(), ReadBoolean(), ReadInt(), ReadInt());
+            Player player = new Player(
+                    ReadLong(), ReadBoolean(), ReadBoolean(), ReadInt(), ReadInt(), ReadInt(), ReadLong(), ReadInt(),
+                    ReadDouble(), ReadDouble()
+            );
             previousPlayerById[player.Id] = player;
             return player;
         }
@@ -376,6 +369,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             WriteBoolean(player.IsStrategyCrashed);
             WriteInt(player.Score);
             WriteInt(player.RemainingActionCooldownTicks);
+            WriteInt(player.RemainingNuclearStrikeCooldownTicks);
+            WriteLong(player.NextNuclearStrikeVehicleId);
+            WriteInt(player.NextNuclearStrikeTickIndex);
+            WriteDouble(player.NextNuclearStrikeX);
+            WriteDouble(player.NextNuclearStrikeY);
         }
 
         private Player[] ReadPlayers() {

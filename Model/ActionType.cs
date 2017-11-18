@@ -9,6 +9,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model {
         Disband,
         Move,
         Rotate,
-        SetupVehicleProduction
+        Scale,
+        SetupVehicleProduction,
+        TacticalNuclearStrike
     }
 }
