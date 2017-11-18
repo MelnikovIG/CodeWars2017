@@ -10,7 +10,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public static class ActionHelper
     {
-        public static void Select(double top, double left, double right, double bottom, VehicleType? vehicleType = null)
+        public static void Select(double left, double top, double right, double bottom, VehicleType? vehicleType = null)
         {
             var move = GlobalHelper.Move;
 

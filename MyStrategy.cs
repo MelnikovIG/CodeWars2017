@@ -12,45 +12,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
 
-            var myId = me.Id;
-
             var rewindClient = RewindClient.RewindClient.Instance;
 
-            foreach(var newVehicle in world.NewVehicles){
-                UnitHelper.Units.Add(newVehicle.Id, new MyLivingUnit()
-                {
-                    Id = newVehicle.Id,
-                    X = newVehicle.X,
-                    Y = newVehicle.Y,
-                    Durability = newVehicle.Durability,
-                    MaxDurability = newVehicle.MaxDurability,
-                    Side = newVehicle.PlayerId == myId ? Side.Our : Side.Enemy,
-                    Type = newVehicle.Type
-                });
-            }
-
-            foreach (var vehicleUpdate in world.VehicleUpdates)
-            {
-                var vehicle = UnitHelper.Units[vehicleUpdate.Id];
-                vehicle.X = vehicleUpdate.X;
-                vehicle.Y = vehicleUpdate.Y;
-                vehicle.Durability = vehicleUpdate.Durability;
-                vehicle.Groups = vehicleUpdate.Groups;
-            }
-
-            foreach (var unit in UnitHelper.Units.Values)
-            {
-                //rewindClient.Circle(vehicleUpdate.X, vehicleUpdate.Y, game.VehicleRadius, Color.Red);
-                rewindClient.LivingUnit(
-                    unit.X,
-                    unit.Y,
-                    game.VehicleRadius,
-                    unit.Durability,
-                    unit.MaxDurability,
-                    (RewindClient.Side) unit.Side,
-                    0,
-                    GetRewindClientUitType(unit.Type));
-            }
+            UpdateVehiclesStates(me, world, game, rewindClient);
 
             if (world.TickIndex == 0)
             {
@@ -129,6 +93,47 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 case VehicleType.Ifv: return UnitType.Ifv;
                 case VehicleType.Tank: return UnitType.Tank;
                 default: return UnitType.Unknown;
+            }
+        }
+
+        public void UpdateVehiclesStates(Player me, World world, Game game, RewindClient.RewindClient rewindClient)
+        {
+            var myId = me.Id;
+
+            foreach (var newVehicle in world.NewVehicles)
+            {
+                UnitHelper.Units.Add(newVehicle.Id, new MyLivingUnit()
+                {
+                    Id = newVehicle.Id,
+                    X = newVehicle.X,
+                    Y = newVehicle.Y,
+                    Durability = newVehicle.Durability,
+                    MaxDurability = newVehicle.MaxDurability,
+                    Side = newVehicle.PlayerId == myId ? Side.Our : Side.Enemy,
+                    Type = newVehicle.Type
+                });
+            }
+
+            foreach (var vehicleUpdate in world.VehicleUpdates)
+            {
+                var vehicle = UnitHelper.Units[vehicleUpdate.Id];
+                vehicle.X = vehicleUpdate.X;
+                vehicle.Y = vehicleUpdate.Y;
+                vehicle.Durability = vehicleUpdate.Durability;
+                vehicle.Groups = vehicleUpdate.Groups;
+            }
+
+            foreach (var unit in UnitHelper.Units.Values)
+            {
+                rewindClient.LivingUnit(
+                    unit.X,
+                    unit.Y,
+                    game.VehicleRadius,
+                    unit.Durability,
+                    unit.MaxDurability,
+                    (RewindClient.Side)unit.Side,
+                    0,
+                    GetRewindClientUitType(unit.Type));
             }
         }
     }
