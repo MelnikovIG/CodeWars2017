@@ -112,8 +112,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             var size = PotentialFieldsHelper.PpSize;
             PotentialFieldsHelper.Clear();
-            PotentialFieldsHelper.FillBaseWorldPower();
-            PotentialFieldsHelper.AppendEnemyPower();
+            if (me.RemainingNuclearStrikeCooldownTicks <= 0)
+            {
+                PotentialFieldsHelper.ApplyPowerToNuclearStrike();
+            }
+            else
+            {
+                PotentialFieldsHelper.AppendEnemyPower();
+            }
             PotentialFieldsHelper.AppendAllyFlyingPowerForFlyingUnits(selectedUnits);
             PotentialFieldsHelper.Normalize();
             for (int i = 0; i < size; i++)

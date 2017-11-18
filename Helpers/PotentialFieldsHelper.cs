@@ -16,17 +16,70 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void Clear()
         {
-            PotentialFields = new float[PpSize, PpSize];
+            PotentialFields = BaseWordPower.Clone() as float[,];
         }
 
-        public static void FillBaseWorldPower()
+        public static float[,] BaseWordPower = new float[PpSize, PpSize];
+
+        static PotentialFieldsHelper()
         {
+            CreateBaseWorldPower();
+        }
+
+        static void CreateBaseWorldPower()
+        {
+            double xRange = PpSize / 2;
+            double yRange = PpSize / 2;
+            var maxDist = Math.Sqrt(xRange * xRange + yRange * yRange);
+
             for (int i = 0; i < PpSize; i++)
             {
                 for (int j = 0; j < PpSize; j++)
                 {
-                    var val = (i / (float)PpSize + j / (float)PpSize) / 2;
-                    PotentialFields[i, j] = (1 - val) * 10000;
+                    var dist = GetDistanceTo(PpSize / 2, PpSize / 2, i, j);
+                    var power = dist / maxDist * 1;
+                    BaseWordPower[i, j] = (float)power;
+                }
+            }
+        }
+
+        public static double GetDistanceTo(double x1, double y1, double x2, double y2)
+        {
+            double xRange = x2 - x1;
+            double yRange = y2 - y1;
+            return Math.Sqrt(xRange * xRange + yRange * yRange);
+        }
+
+        public static void ApplyPowerToNuclearStrike()
+        {
+            var enemyPower = -100;
+
+            var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
+            foreach (var enemy in enemies)
+            {
+                var cellX = (int)enemy.X / PpSize;
+                var cellY = (int)enemy.Y / PpSize;
+
+                PotentialFields[cellX, cellY] += enemyPower;
+
+                if (cellX - 1 > 0)
+                {
+                    PotentialFields[cellX - 1, cellY] += enemyPower;
+                }
+
+                if (cellX + 1 < PpSize)
+                {
+                    PotentialFields[cellX + 1, cellY] += enemyPower;
+                }
+
+                if (cellY - 1 > 0)
+                {
+                    PotentialFields[cellX, cellY - 1] += enemyPower;
+                }
+
+                if (cellY + 1 < PpSize)
+                {
+                    PotentialFields[cellX, cellY + 1] += enemyPower;
                 }
             }
         }
@@ -67,7 +120,21 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void Normalize()
         {
+            var minPower = (from float x in PotentialFields select x).Min();
+            if (minPower < 0)
+            {
+                var poweToAdd = -minPower;
+                for (int i = 0; i < PpSize; i++)
+                {
+                    for (int j = 0; j < PpSize; j++)
+                    {
+                        PotentialFields[i, j] += poweToAdd;
+                    }
+                }
+            }
+
             var maxPower = (from float x in PotentialFields select x).Max();
+
             for (int i = 0; i < PpSize; i++)
             {
                 for (int j = 0; j < PpSize; j++)
