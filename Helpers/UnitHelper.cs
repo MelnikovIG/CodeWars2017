@@ -17,11 +17,25 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public long Id { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
+        public double Radius { get; set; }
+        public double VisionRange { get; set; }
         public Side Side { get; set; }
         public int Durability { get; set; }
         public int MaxDurability { get; set; }
         public VehicleType Type { get; set; }
         public int[] Groups { get; set; } = new int[0];
+
+        public double GetDistanceTo(double x, double y)
+        {
+            double xRange = x - this.X;
+            double yRange = y - this.Y;
+            return Math.Sqrt(xRange * xRange + yRange * yRange);
+        }
+
+        public double GetDistanceTo(MyLivingUnit unit)
+        {
+            return GetDistanceTo(unit.X, unit.Y);
+        }
     }
 
     public enum Side

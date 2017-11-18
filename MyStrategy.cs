@@ -11,6 +11,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
         public void Move(Player me, World world, Game game, Move move) {
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
+            GlobalHelper.Game = game;
 
             var rewindClient = RewindClient.RewindClient.Instance;
 
@@ -47,13 +48,67 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             var selectedUnits = UnitHelper.Units.Select(x => x.Value).Where(x => x.Groups.Contains(1)).ToArray();
 
-            if (selectedUnits.Length == 10)
-            {
-                
-            }
+            //DrawUnitsVisionRange(selectedUnits, rewindClient);
 
             var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
             var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
+
+            if (world.TickIndex % 6 == 0)
+            {
+                if (me.NextNuclearStrikeTickIndex > 0)
+                {
+                    var isNucleatorInGroup = selectedUnits.Select(x => x.Id).Contains(me.NextNuclearStrikeVehicleId);
+                    if (isNucleatorInGroup)
+                    {
+                        var nucleator = selectedUnits.FirstOrDefault(x => x.Id == me.NextNuclearStrikeVehicleId);
+                        if (nucleator != null)
+                        {
+                            ActionHelper.Move(0, 0);
+                            return;
+                        }
+                    }
+                }
+            }
+
+
+            if (world.TickIndex % 6 == 0)
+            {
+                if (me.RemainingNuclearStrikeCooldownTicks <= 0)
+                {
+                    var nr = game.FighterVisionRange;
+
+                    var minX = selectedUnits.Min(x => x.X);
+                    var minY = selectedUnits.Min(x => x.Y);
+                    var maxX = selectedUnits.Max(x => x.X);
+                    var maxY = selectedUnits.Max(x => x.Y);
+
+                    var minXRange = minX - nr;
+                    var minYRange = minY - nr;
+                    var maxXRange = maxX + nr;
+                    var maxYRange = maxY + nr;
+
+                    rewindClient.Rectangle(minXRange, minYRange, maxXRange, maxYRange, Color.Brown);
+                    rewindClient.Rectangle(minX, minY, maxX, maxY, Color.BlueViolet);
+
+                    var potentialEnemiesInRange = UnitHelper.Units.Select(x => x.Value)
+                        .Where(x => x.Side == Side.Enemy)
+                        .Where(x => x.X > minXRange && x.X < maxXRange)
+                        .Where(x => x.Y > minYRange && x.Y < maxYRange)
+                        .ToArray();
+
+                    if (potentialEnemiesInRange.Length > 0)
+                    {
+                        var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits, potentialEnemiesInRange,
+                            out MyLivingUnit selectedUnit, out MyLivingUnit enemyUnit);
+
+                        if (hasTargetToNuclearAttack)
+                        {
+                            ActionHelper.NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y);
+                            return;
+                        }
+                    }
+                }
+            }
 
             var size = PotentialFieldsHelper.PpSize;
             PotentialFieldsHelper.Clear();
@@ -78,12 +133,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             if (world.TickIndex % 6 == 0)
             {
-                if (me.RemainingNuclearStrikeCooldownTicks == 0)
-                {
-                    NuclearStrike(me, world, game, move);
-                    return;
-                }
-
                 var vx = nextPpPoint.X * size + size/2d - cx;
                 var vy = nextPpPoint.Y * size + size/2d - cy;
                 ActionHelper.Move(vx, vy);
@@ -91,6 +140,41 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 Console.WriteLine($"vx {vx}\tvy {vy}\tRemainingActionCooldownTicks {me.RemainingActionCooldownTicks}");
             }
             return;
+        }
+
+        private bool HasTargetToNuclearAttack(
+            MyLivingUnit[] selectedUnits,
+            MyLivingUnit[] potentialEnemiesInRange,
+            out MyLivingUnit selectedUnitRes,
+            out MyLivingUnit enemyRes)
+        {
+            var nsRage = GlobalHelper.Game.FighterVisionRange;
+
+            foreach (var potentialEnemyInRange in potentialEnemiesInRange)
+            {
+                foreach (var selectedUnit in selectedUnits)
+                {
+                    var distance = selectedUnit.GetDistanceTo(potentialEnemyInRange);
+                    if (distance <= nsRage)
+                    {
+                        selectedUnitRes = selectedUnit;
+                        enemyRes = potentialEnemyInRange;
+                        return true;
+                    }
+                }
+            }
+
+            selectedUnitRes = null;
+            enemyRes = null;
+            return false;
+        }
+
+        private void DrawUnitsVisionRange(MyLivingUnit[] units, RewindClient.RewindClient rewindClient)
+        {
+            foreach (var unit in units)
+            {
+                rewindClient.Circle(unit.X, unit.Y, unit.VisionRange, Color.FromArgb(100, 0, 255, 255));
+            }
         }
 
         private void DrawNuclearStrikes(Player me, Player enemy, Game game, RewindClient.RewindClient rewindClient)
@@ -101,7 +185,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 var ny = me.NextNuclearStrikeY;
                 var nr = game.TacticalNuclearStrikeRadius;
 
+                var nunit = UnitHelper.Units[me.NextNuclearStrikeVehicleId];
+
                 rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
+                rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
             }
             if (enemy.NextNuclearStrikeTickIndex > 0)
             {
@@ -109,19 +196,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                 var ny = enemy.NextNuclearStrikeY;
                 var nr = game.TacticalNuclearStrikeRadius;
 
+                var nunit = UnitHelper.Units[enemy.NextNuclearStrikeVehicleId];
                 rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
+                rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
             }
         }
-
-        private void NuclearStrike(Player me, World world, Game game, Move move)
-        {
-            var unit = UnitHelper.Units.Select(x => x.Value)
-                .Where(x => x.Type == VehicleType.Helicopter && x.Side == Side.Our)
-                .FirstOrDefault();
-
-            ActionHelper.NuclearStrike(unit.Id, unit.X, unit.Y);
-        }
-
 
         private RewindClient.UnitType GetRewindClientUitType(VehicleType vehicleType)
         {
@@ -147,6 +226,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
                     Id = newVehicle.Id,
                     X = newVehicle.X,
                     Y = newVehicle.Y,
+                    Radius = newVehicle.Radius,
+                    VisionRange = newVehicle.VisionRange,
                     Durability = newVehicle.Durability,
                     MaxDurability = newVehicle.MaxDurability,
                     Side = newVehicle.PlayerId == myId ? Side.Our : Side.Enemy,

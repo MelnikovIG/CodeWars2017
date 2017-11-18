@@ -11,5 +11,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     {
         public static World World { get; set; }
         public static Move Move { get; set; }
+        public static Game Game { get; set; }
     }
 }
