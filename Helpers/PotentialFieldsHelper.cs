@@ -50,36 +50,30 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return Math.Sqrt(xRange * xRange + yRange * yRange);
         }
 
+        //NOTE: кривой алгоритм расчета ПП
         public static void ApplyPowerToNuclearStrike()
         {
-            var enemyPower = -100;
+            var enemyPower = -10;
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
-            foreach (var enemy in enemies)
+            for (int i = 0; i < PpSize; i++)
             {
-                var cellX = (int)enemy.X / PpSize;
-                var cellY = (int)enemy.Y / PpSize;
-
-                PotentialFields[cellX, cellY] += enemyPower;
-
-                if (cellX - 1 > 0)
+                for (int j = 0; j < PpSize; j++)
                 {
-                    PotentialFields[cellX - 1, cellY] += enemyPower;
-                }
+                    foreach (var enemy in enemies.Take(1))
+                    {
+                        var dx = Math.Abs(enemy.X / PpSize - i);
+                        var dy = Math.Abs(enemy.Y / PpSize - j);
 
-                if (cellX + 1 < PpSize)
-                {
-                    PotentialFields[cellX + 1, cellY] += enemyPower;
-                }
+                        var sumDelta = dx + dy;
+                        if (sumDelta < 32)
+                        {
+                            var maxSum = PpSize * 2;
 
-                if (cellY - 1 > 0)
-                {
-                    PotentialFields[cellX, cellY - 1] += enemyPower;
-                }
-
-                if (cellY + 1 < PpSize)
-                {
-                    PotentialFields[cellX, cellY + 1] += enemyPower;
+                            var power = (1 - sumDelta / maxSum) * enemyPower;
+                            PotentialFields[i, j] += (float)power;
+                        }
+                    }
                 }
             }
         }

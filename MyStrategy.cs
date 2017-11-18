@@ -149,7 +149,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 var vy = nextPpPoint.Y * size + size / 2d - cy;
                 ActionHelper.Move(vx, vy);
 
-                Console.WriteLine($"vx {vx}\tvy {vy}\tRemainingActionCooldownTicks {me.RemainingActionCooldownTicks}");
+                //Console.WriteLine($"vx {vx}\tvy {vy}\tRemainingActionCooldownTicks {me.RemainingActionCooldownTicks}");
             }
             return;
         }
