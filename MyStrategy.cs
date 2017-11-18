@@ -55,17 +55,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
             var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
 
-            var size = PotetialFieldsHelper.PpSize;
-            PotetialFieldsHelper.Clear();
-            PotetialFieldsHelper.FillBaseWorldPower();
-            PotetialFieldsHelper.AppendEnemyPower();
-            PotetialFieldsHelper.AppendAllyFlyingPowerForFlyingUnits(selectedUnits);
-            PotetialFieldsHelper.Normalize();
+            var size = PotentialFieldsHelper.PpSize;
+            PotentialFieldsHelper.Clear();
+            PotentialFieldsHelper.FillBaseWorldPower();
+            PotentialFieldsHelper.AppendEnemyPower();
+            PotentialFieldsHelper.AppendAllyFlyingPowerForFlyingUnits(selectedUnits);
+            PotentialFieldsHelper.Normalize();
             for (int i = 0; i < size; i++)
             {
                 for (int j = 0; j < size; j++)
                 {
-                    var color = PotetialFieldsHelper.GetColorFromValue(PotetialFieldsHelper.PotentialFields[i, j]);
+                    var color = PotentialFieldsHelper.GetColorFromValue(PotentialFieldsHelper.PotentialFields[i, j]);
 
                     rewindClient.Rectangle(i * size, j * size, (i + 1) * size, (j + 1) * size, color);
                 }
@@ -73,7 +73,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
 
             rewindClient.End();
 
-            var nextPpPoint = PotetialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
+            var nextPpPoint = PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
             rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size, (nextPpPoint.Y + 1) * size, Color.Black);
 
             if (world.TickIndex % 6 == 0)

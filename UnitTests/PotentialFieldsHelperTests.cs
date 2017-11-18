@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace UnitTests
 {
     [TestFixture]
-    public class PotetialFieldsHelperTests
+    public class PotentialFieldsHelperTests
     {
         [TestCase(992.98346867860641, 983.02623494780937)]
         public void GetNextSafest_PP_PointByWorldXY_ShouldNotThrowExceptions(double cx, double cy)
         {
             Assert.DoesNotThrow(() => {
-                PotetialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
+                PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
             });
         }
     }

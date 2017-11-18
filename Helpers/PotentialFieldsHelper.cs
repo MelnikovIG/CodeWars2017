@@ -9,7 +9,7 @@ using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 
 namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
-    public static class PotetialFieldsHelper
+    public static class PotentialFieldsHelper
     {
         public static int PpSize = 32;
         public static float[,] PotentialFields = new float[PpSize, PpSize];
@@ -107,27 +107,27 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 result.Add(new Point2D(x, y - 1));
             }
 
-            if (x < PpSize && y > 0)
+            if (x < PpSize - 1 && y > 0)
             {
                 result.Add(new Point2D(x + 1, y - 1));
             }
 
-            if (x < PpSize)
+            if (x < PpSize - 1)
             {
                 result.Add(new Point2D(x + 1, y));
             }
 
-            if (x < PpSize && y < PpSize)
+            if (x < PpSize - 1 && y < PpSize - 1)
             {
                 result.Add(new Point2D(x + 1, y + 1));
             }
 
-            if (y < PpSize)
+            if (y < PpSize - 1)
             {
                 result.Add(new Point2D(x, y + 1));
             }
 
-            if (x > 0 && y < PpSize)
+            if (x > 0 && y < PpSize - 1)
             {
                 result.Add(new Point2D(x - 1, y + 1));
             }
