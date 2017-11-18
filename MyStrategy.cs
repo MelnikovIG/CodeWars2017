@@ -101,11 +101,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                     if (potentialEnemiesInRange.Length > 0)
                     {
-                        var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits, potentialEnemiesInRange,
-                            out MyLivingUnit selectedUnit, out MyLivingUnit enemyUnit);
+                        var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits, potentialEnemiesInRange);
 
-                        if (hasTargetToNuclearAttack)
+                        if (hasTargetToNuclearAttack.Success)
                         {
+                            var selectedUnit = hasTargetToNuclearAttack.SelectedUnitRes;
+                            var enemyUnit = hasTargetToNuclearAttack.EnemyRes;
+
                             ActionHelper.NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y);
                             return;
                         }
@@ -152,11 +154,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             return;
         }
 
-        private bool HasTargetToNuclearAttack(
-            MyLivingUnit[] selectedUnits,
-            MyLivingUnit[] potentialEnemiesInRange,
-            out MyLivingUnit selectedUnitRes,
-            out MyLivingUnit enemyRes)
+        private class HasTargetToNuclearAttackResult
+        {
+            public bool Success { get; set; }
+            public MyLivingUnit SelectedUnitRes { get; set; }
+            public MyLivingUnit EnemyRes { get; set; }
+        }
+        
+        private HasTargetToNuclearAttackResult HasTargetToNuclearAttack(MyLivingUnit[] selectedUnits,MyLivingUnit[] potentialEnemiesInRange)
         {
             var nsRage = GlobalHelper.Game.FighterVisionRange;
 
@@ -167,16 +172,22 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var distance = selectedUnit.GetDistanceTo(potentialEnemyInRange);
                     if (distance <= nsRage)
                     {
-                        selectedUnitRes = selectedUnit;
-                        enemyRes = potentialEnemyInRange;
-                        return true;
+                        return new HasTargetToNuclearAttackResult()
+                        {
+                            Success = true,
+                            EnemyRes = potentialEnemyInRange,
+                            SelectedUnitRes = selectedUnit
+                        };
                     }
                 }
             }
 
-            selectedUnitRes = null;
-            enemyRes = null;
-            return false;
+            return new HasTargetToNuclearAttackResult()
+            {
+                Success = false,
+                EnemyRes = null,
+                SelectedUnitRes = null
+            };
         }
 
         private void DrawUnitsVisionRange(MyLivingUnit[] units, RewindClient.RewindClient rewindClient)
