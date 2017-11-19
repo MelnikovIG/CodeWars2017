@@ -223,6 +223,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
         }
 
+#if DEBUG
         private void DrawNuclearStrikes(Player me, Player enemy, Game game, RewindClient.RewindClient rewindClient)
         {
             if (me.NextNuclearStrikeTickIndex > 0)
@@ -251,6 +252,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
             }
         }
+#endif
 
         private RewindClient.UnitType GetRewindClientUitType(VehicleType vehicleType)
         {
