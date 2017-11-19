@@ -24,6 +24,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public int MaxDurability { get; set; }
         public VehicleType Type { get; set; }
         public int[] Groups { get; set; } = new int[0];
+        public bool IsSelected { get; set; }
 
         public double GetDistanceTo(double x, double y)
         {

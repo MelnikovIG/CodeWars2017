@@ -10,6 +10,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     public static class CommandsHelper
     {
         public static List<BaseCommand> Commands { get; set; } = new List<BaseCommand>(500);
+
+        public static int CurrentSelectedGroup { get; set; }
+    }
+
+    public enum Groups
+    {
+        F1 = 1,
+        H1 = 2
     }
 
     public class BaseCommand
@@ -48,6 +56,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
     public enum CommandType
     {
+        SelectGroup,
+        SetGroup,
         Move,
         StopMove,
         NuclearStrike,

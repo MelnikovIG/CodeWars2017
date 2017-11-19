@@ -56,6 +56,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             var enemyPower = -100;
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
+
+            if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1 ||
+                CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
+            {
+                enemies = enemies.Where(x => x.Type != VehicleType.Arrv && x.Type != VehicleType.Tank)
+                    .ToArray();
+            }
+
             for (int i = 0; i < PpSize; i++)
             {
                 for (int j = 0; j < PpSize; j++)
@@ -83,7 +91,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             var enemyPower = 100;
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
-            foreach(var enemy in enemies)
+
+            if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1 ||
+                CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
+            {
+                enemies = enemies.Where(x => x.Type != VehicleType.Arrv && x.Type != VehicleType.Tank)
+                    .ToArray();
+            }
+
+            foreach (var enemy in enemies)
             {
                 var cellX = (int)enemy.X / PpSize;
                 var cellY = (int)enemy.Y / PpSize;
