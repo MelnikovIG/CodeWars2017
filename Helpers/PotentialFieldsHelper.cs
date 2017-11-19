@@ -53,7 +53,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         //NOTE: кривой алгоритм расчета ПП
         public static void ApplyPowerToNuclearStrike()
         {
-            var enemyPower = -10;
+            var enemyPower = -100;
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
             for (int i = 0; i < PpSize; i++)
