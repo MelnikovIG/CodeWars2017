@@ -50,6 +50,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     {
         Move,
         StopMove,
-        NuclearStrike
+        NuclearStrike,
+        Scale,
     }
 }

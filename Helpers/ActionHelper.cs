@@ -46,6 +46,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             GlobalHelper.Move.Group = groupId;
         }
 
+        public static void Scale(double x, double y, double factor)
+        {
+            GlobalHelper.Move.Action = ActionType.Scale;
+            GlobalHelper.Move.X = x;
+            GlobalHelper.Move.Y = y;
+            GlobalHelper.Move.Factor = factor;
+
+            CommandsHelper.Commands.Add(new BaseCommand(CommandType.Scale));
+        }
+
         public static void NuclearStrike(long vehicleId, double x, double y)
         {
             GlobalHelper.Move.Action = ActionType.TacticalNuclearStrike;

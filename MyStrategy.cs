@@ -12,11 +12,18 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
     {
         public void Move(Player me, World world, Game game, Move move)
         {
+            var rewindClient = RewindClient.RewindClient.Instance;
+
+            MoveEx(me, world, game, move, rewindClient);
+
+            rewindClient.End();
+        }
+
+        public void MoveEx(Player me, World world, Game game, Move move, RewindClient.RewindClient rewindClient)
+        {
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
             GlobalHelper.Game = game;
-
-            var rewindClient = RewindClient.RewindClient.Instance;
 
             var enemy = world.Players.First(x => !x.IsMe);
 
@@ -48,6 +55,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             if (world.TickIndex == 1)
             {
                 ActionHelper.SetSelectedGroup(1);
+                return;
+            }
+
+            if (world.TickIndex == 2 || world.TickIndex == 3)
+            {
+                var selectedUnitsForScale = UnitHelper.Units.Select(x => x.Value).Where(x => x.Groups.Contains(1)).ToArray();
+                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
+                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+
+                ActionHelper.Scale(xScale, yScale, 0.1);
                 return;
             }
 
@@ -148,8 +165,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     rewindClient.Rectangle(i * size, j * size, (i + 1) * size, (j + 1) * size, color);
                 }
             }
-
-            rewindClient.End();
 
             var nextPpPoint = PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
             rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size,
