@@ -12,8 +12,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
     {
         public void Move(Player me, World world, Game game, Move move)
         {
-            var a = game.CloudWeatherVisionFactor;
-
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
             GlobalHelper.Game = game;
@@ -24,7 +22,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             UpdateVehiclesStates(me, world, game, rewindClient);
 
+#if DEBUG
             DrawNuclearStrikes(me, enemy, game, rewindClient);
+#endif
 
             if (world.TickIndex == 0)
             {
@@ -107,11 +107,21 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                         if (hasTargetToNuclearAttack.Success)
                         {
-                            var selectedUnit = hasTargetToNuclearAttack.SelectedUnitRes;
-                            var enemyUnit = hasTargetToNuclearAttack.EnemyRes;
+                            //≈сли остановились дл€ выстрела, высрелим
+                            if (CommandsHelper.Commands.Last().CommandType == CommandType.StopMove)
+                            {
+                                var selectedUnit = hasTargetToNuclearAttack.SelectedUnitRes;
+                                var enemyUnit = hasTargetToNuclearAttack.EnemyRes;
 
-                            ActionHelper.NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y);
-                            return;
+                                ActionHelper.NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y);
+                                return;
+                            }
+                            //»наче остановимс€ дл€ выстрела на след ходу
+                            else
+                            {
+                                ActionHelper.StopMove();
+                                return;
+                            }
                         }
                     }
                 }
@@ -210,6 +220,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                 rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
                 rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
+                rewindClient.Line(nunit.X, nunit.Y, nx, ny, Color.Black);
+
+                var nsRange = PotentialFieldsHelper.GetDistanceTo(nunit.X, nunit.Y, nx, ny);
+                rewindClient.Message($"NuclearStrikeDistanse: {nsRange}");
             }
             if (enemy.NextNuclearStrikeTickIndex > 0)
             {

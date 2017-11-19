@@ -22,11 +22,22 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             move.VehicleType = vehicleType;
         }
 
+        public static void StopMove()
+        {
+            GlobalHelper.Move.Action = ActionType.Move;
+            GlobalHelper.Move.X = 0;
+            GlobalHelper.Move.Y = 0;
+
+            CommandsHelper.Commands.Add(new StopMoveGroupCommand());
+        }
+
         public static void Move(double x, double y)
         {
             GlobalHelper.Move.Action = ActionType.Move;
             GlobalHelper.Move.X = x;
             GlobalHelper.Move.Y = y;
+
+            CommandsHelper.Commands.Add(new MoveCommand());
         }
 
         public static void SetSelectedGroup(int groupId)
@@ -41,6 +52,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             GlobalHelper.Move.X = x;
             GlobalHelper.Move.Y = y;
             GlobalHelper.Move.VehicleId = vehicleId;
+
+            CommandsHelper.Commands.Add(new NuclearStrikeCommand(vehicleId));
         }
     }
 }
