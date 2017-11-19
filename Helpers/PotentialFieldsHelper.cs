@@ -37,7 +37,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 for (int j = 0; j < PpSize; j++)
                 {
                     var dist = GetDistanceTo(PpSize / 2, PpSize / 2, i, j);
-                    var power = dist / maxDist * 1;
+                    var power = dist / maxDist * 10;
                     BaseWordPower[i, j] = (float)power;
                 }
             }
