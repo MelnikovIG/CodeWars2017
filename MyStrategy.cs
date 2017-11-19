@@ -39,7 +39,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            var selectedUnits = UnitHelper.Units.Select(x => x.Value).Where(x => x.Groups.Contains(CommandsHelper.CurrentSelectedGroup)).ToArray();
+            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(CommandsHelper.CurrentSelectedGroup)).ToArray();
 
             if (selectedUnits.Length == 0)
             {
@@ -181,7 +181,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
         {
             if (CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
             {
-                var newGroupUnitsCount = UnitHelper.Units.Select(x => x.Value)
+                var newGroupUnitsCount = UnitHelper.UnitsAlly
                     .Where(x => x.Groups.Contains((int)Groups.H1)).ToArray();
 
                 if (newGroupUnitsCount.Length > 0)
@@ -192,7 +192,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
             else if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1)
             {
-                var newGroupUnitsCount = UnitHelper.Units.Select(x => x.Value)
+                var newGroupUnitsCount = UnitHelper.UnitsAlly
                     .Where(x => x.Groups.Contains((int)Groups.F1)).ToArray();
 
                 if (newGroupUnitsCount.Length > 0)
@@ -400,7 +400,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (world.TickIndex == 2)
             {
-                var selectedUnitsForScale = UnitHelper.Units.Select(x => x.Value).Where(x => x.Groups.Contains((int)Groups.F1)).ToArray();
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.F1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
                 var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
 
@@ -422,7 +422,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (world.TickIndex == 5)
             {
-                var selectedUnitsForScale = UnitHelper.Units.Select(x => x.Value).Where(x => x.Groups.Contains((int)Groups.H1)).ToArray();
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.H1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
                 var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
 

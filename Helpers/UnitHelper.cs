@@ -10,6 +10,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     public static class UnitHelper
     {
         public static Dictionary<long, MyLivingUnit> Units { get; set; } = new Dictionary<long, MyLivingUnit>(1000);
+        public static IEnumerable<MyLivingUnit> UnitsAlly => Units.Select(x => x.Value).Where(x => x.Side == Side.Our);
+        public static IEnumerable<MyLivingUnit> UnitsEnemy => Units.Select(x => x.Value).Where(x => x.Side == Side.Enemy);
     }
 
     public class MyLivingUnit
