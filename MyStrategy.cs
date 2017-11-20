@@ -328,6 +328,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             foreach (var vehicleUpdate in world.VehicleUpdates)
             {
+                if (vehicleUpdate.Durability == 0)
+                {
+                    UnitHelper.Units.Remove(vehicleUpdate.Id);
+                    return;
+                }
                 var vehicle = UnitHelper.Units[vehicleUpdate.Id];
                 vehicle.X = vehicleUpdate.X;
                 vehicle.Y = vehicleUpdate.Y;
