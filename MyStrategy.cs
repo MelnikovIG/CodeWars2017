@@ -212,6 +212,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     ActionHelper.SelectGroup((int) newGroupType);
                     return true;
                 }
+                currentGroupIndex = nextGroupIdx;
+
             } while (newGroupType != currentGroup);
 
             return false;

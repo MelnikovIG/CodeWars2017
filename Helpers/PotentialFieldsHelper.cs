@@ -119,29 +119,76 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             foreach (var enemy in enemies)
             {
+                var power = enemyPower;
+
+                if (currentSelectedGroup == (int) Groups.F1)
+                {
+                    if (enemy.Type == VehicleType.Helicopter)
+                    {
+                        power = -enemyPower;
+                    }
+                }
+                else if (currentSelectedGroup == (int)Groups.H1)
+                {
+                    if (enemy.Type == VehicleType.Tank)
+                    {
+                        power = -enemyPower;
+                    }
+                    if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = -enemyPower/2;
+                    }
+                }
+                else if (currentSelectedGroup == (int)Groups.Tank1)
+                {
+                    if (enemy.Type == VehicleType.Ifv)
+                    {
+                        power = -enemyPower;
+                    }
+                    if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = -enemyPower / 2;
+                    }
+                }
+                else if (currentSelectedGroup == (int)Groups.Bmp1)
+                {
+                    if (enemy.Type == VehicleType.Helicopter)
+                    {
+                        power = -enemyPower;
+                    }
+                    else if (enemy.Type == VehicleType.Fighter)
+                    {
+                        power = -enemyPower;
+                    }
+                    if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = -enemyPower / 2;
+                    }
+                }
+
                 var cellX = (int)enemy.X / PpSize;
                 var cellY = (int)enemy.Y / PpSize;
 
-                PotentialFields[cellX, cellY] += enemyPower;
+                PotentialFields[cellX, cellY] += power;
 
                 if (cellX - 1 > 0)
                 {
-                    PotentialFields[cellX - 1, cellY] += enemyPower / 2;
+                    PotentialFields[cellX - 1, cellY] += power / 2;
                 }
 
                 if (cellX + 1 < PpSize)
                 {
-                    PotentialFields[cellX + 1, cellY] += enemyPower / 2;
+                    PotentialFields[cellX + 1, cellY] += power / 2;
                 }
 
                 if (cellY - 1 > 0)
                 {
-                    PotentialFields[cellX, cellY - 1] += enemyPower / 2;
+                    PotentialFields[cellX, cellY - 1] += power / 2;
                 }
 
                 if (cellY + 1 < PpSize)
                 {
-                    PotentialFields[cellX, cellY + 1] += enemyPower / 2;
+                    PotentialFields[cellX, cellY + 1] += power / 2;
                 }
             }
         }
