@@ -57,12 +57,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
 
-            if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1 ||
-                CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
-            {
-                enemies = enemies.Where(x => x.Type != VehicleType.Arrv && x.Type != VehicleType.Tank)
-                    .ToArray();
-            }
+            //TODO: плжумать почему раньше было др условие
+            enemies = enemies.Where(x => x.Type != VehicleType.Arrv).ToArray();
+
+            //if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1 ||
+            //    CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
+            //{
+            //    enemies = enemies.Where(x => x.Type != VehicleType.Arrv && x.Type != VehicleType.Tank)
+            //        .ToArray();
+            //}
 
             for (int i = 0; i < PpSize; i++)
             {
@@ -86,16 +89,31 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
         }
 
-        public static void AppendEnemyPower()
+        public static void AppendEnemyPowerToDodge()
         {
+            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
+
             var enemyPower = 100;
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
 
-            if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1 ||
-                CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
+            //для пути по воздуху не учитываем  хилки (они не угроза)
+            if (currentSelectedGroup == (int) Groups.H1)
+            {
+                enemies = enemies.Where(x => x.Type != VehicleType.Arrv)
+                    .ToArray();
+            }
+            else if (currentSelectedGroup == (int)Groups.F1)
             {
                 enemies = enemies.Where(x => x.Type != VehicleType.Arrv && x.Type != VehicleType.Tank)
+                    .ToArray();
+            }
+            //для пути по землд не учитываем самолеты (хилки вражин и вертолеты обьезжаем чтоб не мешали)
+            else if (currentSelectedGroup == (int) Groups.Tank1
+                     || currentSelectedGroup == (int) Groups.Bmp1
+                     || currentSelectedGroup == (int) Groups.Healer1)
+            {
+                enemies = enemies.Where(x => x.Type != VehicleType.Fighter)
                     .ToArray();
             }
 
@@ -217,41 +235,57 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return result;
         }
 
-        public static void AppendAllyFlyingPowerForFlyingUnits(MyLivingUnit[] selectedUnits)
+        public static void AppendAllyUnitsToDodge(MyLivingUnit[] selectedUnits)
         {
-            var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
-            var otherAllyFliers = UnitHelper.Units.Values
-                .Where(
-                x => x.Side == Side.Our
-                && (x.Type == VehicleType.Fighter || x.Type == VehicleType.Helicopter)
-                && !selectedUnitIds.Contains(x.Id)).ToArray();
+            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
 
-            var allyFlierPower = 50;
-            foreach (var otherAllyFlier in otherAllyFliers)
+            MyLivingUnit[] allyUnitsToDodge = new MyLivingUnit[0];
+
+            if (currentSelectedGroup == (int) Groups.F1 || currentSelectedGroup == (int) Groups.H1)
             {
-                var cellX = (int)otherAllyFlier.X / PpSize;
-                var cellY = (int)otherAllyFlier.Y / PpSize;
+                var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
+                allyUnitsToDodge = UnitHelper.Units.Values
+                    .Where(
+                        x => x.Side == Side.Our
+                             && (x.Type == VehicleType.Fighter || x.Type == VehicleType.Helicopter)
+                             && !selectedUnitIds.Contains(x.Id)).ToArray();
+            }
+            else if (currentSelectedGroup == (int) Groups.Tank1 || currentSelectedGroup == (int) Groups.Bmp1 || currentSelectedGroup == (int)Groups.Healer1)
+            {
+                var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
+                allyUnitsToDodge = UnitHelper.Units.Values
+                    .Where(
+                        x => x.Side == Side.Our
+                             && (x.Type == VehicleType.Tank || x.Type == VehicleType.Ifv || x.Type == VehicleType.Arrv)
+                             && !selectedUnitIds.Contains(x.Id)).ToArray();
+            }
 
-                PotentialFields[cellX, cellY] += allyFlierPower;
+            var allyDodgePower = 50;
+            foreach (var allyDodgeUnit in allyUnitsToDodge)
+            {
+                var cellX = (int)allyDodgeUnit.X / PpSize;
+                var cellY = (int)allyDodgeUnit.Y / PpSize;
+
+                PotentialFields[cellX, cellY] += allyDodgePower;
 
                 if (cellX - 1 > 0)
                 {
-                    PotentialFields[cellX - 1, cellY] += allyFlierPower / 2;
+                    PotentialFields[cellX - 1, cellY] += allyDodgePower / 2;
                 }
 
                 if (cellX + 1 < PpSize)
                 {
-                    PotentialFields[cellX + 1, cellY] += allyFlierPower / 2;
+                    PotentialFields[cellX + 1, cellY] += allyDodgePower / 2;
                 }
 
                 if (cellY - 1 > 0)
                 {
-                    PotentialFields[cellX, cellY - 1] += allyFlierPower / 2;
+                    PotentialFields[cellX, cellY - 1] += allyDodgePower / 2;
                 }
 
                 if (cellY + 1 < PpSize)
                 {
-                    PotentialFields[cellX, cellY + 1] += allyFlierPower / 2;
+                    PotentialFields[cellX, cellY + 1] += allyDodgePower / 2;
                 }
             }
         }

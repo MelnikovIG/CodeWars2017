@@ -17,7 +17,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     public enum Groups
     {
         F1 = 1,
-        H1 = 2
+        H1 = 2,
+        Tank1,
+        //IFV
+        Bmp1,
+        //ARRV
+        Healer1
     }
 
     public class BaseCommand

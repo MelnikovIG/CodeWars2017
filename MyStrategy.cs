@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
@@ -33,7 +34,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
 
-            if (world.TickIndex < 6)
+            if (world.TickIndex < 12)
             {
                 PrepareUnits();
                 return;
@@ -137,9 +138,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
             else
             {
-                PotentialFieldsHelper.AppendEnemyPower();
+                PotentialFieldsHelper.AppendEnemyPowerToDodge();
             }
-            PotentialFieldsHelper.AppendAllyFlyingPowerForFlyingUnits(selectedUnits);
+            PotentialFieldsHelper.AppendAllyUnitsToDodge(selectedUnits);
             PotentialFieldsHelper.Normalize();
             for (int i = 0; i < size; i++)
             {
@@ -177,30 +178,41 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             return;
         }
 
+        private List<Groups> GroupsList = new List<Groups>()
+        {
+            Groups.F1,
+            Groups.H1,
+            Groups.Tank1,
+            Groups.Bmp1,
+            //Groups.Healer1,
+        };
+
         private bool SelectNextGroup()
         {
-            if (CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
+            var currentGroup = (Groups) CommandsHelper.CurrentSelectedGroup;
+            var currentGroupIndex = GroupsList.IndexOf(currentGroup);
+
+            if (currentGroupIndex < 0)
             {
+                throw new NotImplementedException("currentGroupIndex < 0");
+            }
+
+            Groups newGroupType;
+
+            do
+            {
+                var nextGroupIdx = currentGroupIndex == GroupsList.Count - 1 ? 0 : currentGroupIndex + 1;
+                newGroupType = GroupsList[nextGroupIdx];
+
                 var newGroupUnitsCount = UnitHelper.UnitsAlly
-                    .Where(x => x.Groups.Contains((int)Groups.H1)).ToArray();
+                    .Where(x => x.Groups.Contains((int) newGroupType)).ToArray();
 
                 if (newGroupUnitsCount.Length > 0)
                 {
-                    ActionHelper.SelectGroup((int)Groups.H1);
+                    ActionHelper.SelectGroup((int) newGroupType);
                     return true;
                 }
-            }
-            else if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1)
-            {
-                var newGroupUnitsCount = UnitHelper.UnitsAlly
-                    .Where(x => x.Groups.Contains((int)Groups.F1)).ToArray();
-
-                if (newGroupUnitsCount.Length > 0)
-                {
-                    ActionHelper.SelectGroup((int)Groups.F1);
-                    return true;
-                }
-            }
+            } while (newGroupType != currentGroup);
 
             return false;
         }
@@ -352,30 +364,60 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             var x = (int)livingUnit.X / PotentialFieldsHelper.PpSize;
             var y = (int)livingUnit.Y / PotentialFieldsHelper.PpSize;
 
-            double scale = 1;
+            double airScale = 1;
+            double groundScale = 1;
 
             var weaterType = GlobalHelper.World.WeatherByCellXY[x][y];
             if (weaterType == WeatherType.Clear)
             {
-                scale = GlobalHelper.Game.ClearWeatherVisionFactor;
+                airScale = GlobalHelper.Game.ClearWeatherVisionFactor;
             }
             else if (weaterType == WeatherType.Cloud)
             {
-                scale = GlobalHelper.Game.CloudWeatherVisionFactor;
+                airScale = GlobalHelper.Game.CloudWeatherVisionFactor;
             }
             else if (weaterType == WeatherType.Rain)
             {
-                scale = GlobalHelper.Game.RainWeatherVisionFactor;
+                airScale = GlobalHelper.Game.RainWeatherVisionFactor;
+            }
+
+            var terrainType = GlobalHelper.World.TerrainByCellXY[x][y];
+            if (terrainType == TerrainType.Plain)
+            {
+                groundScale = GlobalHelper.Game.PlainTerrainVisionFactor;
+            }
+            else if (terrainType == TerrainType.Forest)
+            {
+                groundScale = GlobalHelper.Game.ForestTerrainVisionFactor;
+            }
+            else if (terrainType == TerrainType.Swamp)
+            {
+                groundScale = GlobalHelper.Game.SwampTerrainVisionFactor;
             }
 
             if (livingUnit.Type == VehicleType.Fighter)
             {
-                var visionRange = GlobalHelper.Game.FighterVisionRange * scale;
+                var visionRange = GlobalHelper.Game.FighterVisionRange * airScale;
                 return visionRange;
             }
             else if (livingUnit.Type == VehicleType.Helicopter)
             {
-                var visionRange = GlobalHelper.Game.HelicopterVisionRange * scale;
+                var visionRange = GlobalHelper.Game.HelicopterVisionRange * airScale;
+                return visionRange;
+            }
+            else if (livingUnit.Type == VehicleType.Tank)
+            {
+                var visionRange = GlobalHelper.Game.TankVisionRange * groundScale;
+                return visionRange;
+            }
+            else if (livingUnit.Type == VehicleType.Ifv)
+            {
+                var visionRange = GlobalHelper.Game.IfvVisionRange * groundScale;
+                return visionRange;
+            }
+            else if (livingUnit.Type == VehicleType.Arrv)
+            {
+                var visionRange = GlobalHelper.Game.ArrvVisionRange * groundScale;
                 return visionRange;
             }
 
@@ -429,6 +471,72 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 ActionHelper.Scale(xScale, yScale, 0.1);
                 return;
             }
+
+            if (world.TickIndex == 6)
+            {
+                SelectUnitsOfType(VehicleType.Tank);
+                return;
+            }
+
+            if (world.TickIndex == 7)
+            {
+                ActionHelper.SetSelectedGroup((int)Groups.Tank1);
+                return;
+            }
+
+            if (world.TickIndex == 8)
+            {
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Tank1)).ToArray();
+                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
+                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+
+                ActionHelper.Scale(xScale, yScale, 0.1);
+                return;
+            }
+
+            if (world.TickIndex == 9)
+            {
+                SelectUnitsOfType(VehicleType.Ifv);
+                return;
+            }
+
+            if (world.TickIndex == 10)
+            {
+                ActionHelper.SetSelectedGroup((int)Groups.Bmp1);
+                return;
+            }
+
+            if (world.TickIndex == 11)
+            {
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Bmp1)).ToArray();
+                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
+                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+
+                ActionHelper.Scale(xScale, yScale, 0.1);
+                return;
+            }
+
+            //if (world.TickIndex == 12)
+            //{
+            //    SelectUnitsOfType(VehicleType.Arrv);
+            //    return;
+            //}
+
+            //if (world.TickIndex == 13)
+            //{
+            //    ActionHelper.SetSelectedGroup((int)Groups.Healer1);
+            //    return;
+            //}
+
+            //if (world.TickIndex == 14)
+            //{
+            //    var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Healer1)).ToArray();
+            //    var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
+            //    var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+
+            //    ActionHelper.Scale(xScale, yScale, 0.1);
+            //    return;
+            //}
         }
 
         private static void SelectUnitsOfType(VehicleType vehicleType)
