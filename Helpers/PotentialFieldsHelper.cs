@@ -14,9 +14,67 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static int PpSize = 32;
         public static float[,] PotentialFields = new float[PpSize, PpSize];
 
+        public static float[,] FiveRangePowerMask = CreateSquareLinearPf(5);
+
         public static void Clear()
         {
             PotentialFields = BaseWordPower.Clone() as float[,];
+        }
+
+        public static float[,] CreateSquareLinearPf(int range)
+        {
+            if (range % 2 == 0)
+            {
+                throw new Exception("Требуется нечетное число");
+            }
+
+            var result = new float[range, range];
+
+            var centerIndex = range / 2;
+
+            for(int i = 0; i < range; i++)
+            {
+                for (int j = 0; j < range; j++)
+                {
+                    var root = GetDistanceTo(i, j, centerIndex, centerIndex);
+                    result[i, j] = (float)root;
+                }
+            }
+
+            var maxPower = (from float x in result select x).Max();
+            for (int i = 0; i < range; i++)
+            {
+                for (int j = 0; j < range; j++)
+                {
+                    result[i, j] = (maxPower - result[i, j])/maxPower;
+                }
+            }
+
+            return result;
+        }
+
+        public static void ApplyPower(float[,] source, int sourceCenterX, int sourceCenterY, float[,] powerMask, float power)
+        {
+            var maskLength = (int)Math.Sqrt(powerMask.Length);
+            var sourceLength = (int)Math.Sqrt(source.Length);
+
+            var centerIndex = maskLength / 2;
+
+            for (int i = 0; i < maskLength; i++)
+            {
+                for (int j = 0; j < maskLength; j++)
+                {
+                    var ri = (sourceCenterX - centerIndex) + i;
+                    var rj = (sourceCenterY - centerIndex) + j;
+
+                    if (ri < 0 || ri >= sourceLength || rj < 0 || rj >= sourceLength)
+                    {
+                        continue;
+                    }
+
+                    source[ri, rj] += power * powerMask[i, j];
+                }
+            }
         }
 
         public static float[,] BaseWordPower = new float[PpSize, PpSize];
@@ -97,26 +155,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
 
-            //для пути по воздуху не учитываем  хилки (они не угроза)
-            if (currentSelectedGroup == (int) Groups.H1)
-            {
-                enemies = enemies.Where(x => x.Type != VehicleType.Arrv)
-                    .ToArray();
-            }
-            else if (currentSelectedGroup == (int)Groups.F1)
-            {
-                enemies = enemies.Where(x => x.Type != VehicleType.Arrv && x.Type != VehicleType.Tank)
-                    .ToArray();
-            }
-            //для пути по землд не учитываем самолеты (хилки вражин и вертолеты обьезжаем чтоб не мешали)
-            else if (currentSelectedGroup == (int) Groups.Tank1
-                     || currentSelectedGroup == (int) Groups.Bmp1
-                     || currentSelectedGroup == (int) Groups.Healer1)
-            {
-                enemies = enemies.Where(x => x.Type != VehicleType.Fighter)
-                    .ToArray();
-            }
-
             foreach (var enemy in enemies)
             {
                 var power = enemyPower;
@@ -126,6 +164,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     if (enemy.Type == VehicleType.Helicopter)
                     {
                         power = -enemyPower;
+                    }
+                    else if (enemy.Type == VehicleType.Tank)
+                    {
+                        power = 0;
+                    }
+                    else if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = 0;
                     }
                 }
                 else if (currentSelectedGroup == (int)Groups.H1)
@@ -149,6 +195,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     {
                         power = -enemyPower / 2;
                     }
+                    if (enemy.Type == VehicleType.Fighter)
+                    {
+                        power = 0;
+                    }
                 }
                 else if (currentSelectedGroup == (int)Groups.Bmp1)
                 {
@@ -156,7 +206,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     {
                         power = -enemyPower;
                     }
-                    else if (enemy.Type == VehicleType.Fighter)
+                    if (enemy.Type == VehicleType.Fighter)
                     {
                         power = -enemyPower;
                     }
@@ -169,27 +219,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 var cellX = (int)enemy.X / PpSize;
                 var cellY = (int)enemy.Y / PpSize;
 
-                PotentialFields[cellX, cellY] += power;
-
-                if (cellX - 1 > 0)
-                {
-                    PotentialFields[cellX - 1, cellY] += power / 2;
-                }
-
-                if (cellX + 1 < PpSize)
-                {
-                    PotentialFields[cellX + 1, cellY] += power / 2;
-                }
-
-                if (cellY - 1 > 0)
-                {
-                    PotentialFields[cellX, cellY - 1] += power / 2;
-                }
-
-                if (cellY + 1 < PpSize)
-                {
-                    PotentialFields[cellX, cellY + 1] += power / 2;
-                }
+                ApplyPower(PotentialFields, cellX, cellY, FiveRangePowerMask, power);
             }
         }
 
@@ -313,27 +343,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 var cellX = (int)allyDodgeUnit.X / PpSize;
                 var cellY = (int)allyDodgeUnit.Y / PpSize;
 
-                PotentialFields[cellX, cellY] += allyDodgePower;
-
-                if (cellX - 1 > 0)
-                {
-                    PotentialFields[cellX - 1, cellY] += allyDodgePower / 2;
-                }
-
-                if (cellX + 1 < PpSize)
-                {
-                    PotentialFields[cellX + 1, cellY] += allyDodgePower / 2;
-                }
-
-                if (cellY - 1 > 0)
-                {
-                    PotentialFields[cellX, cellY - 1] += allyDodgePower / 2;
-                }
-
-                if (cellY + 1 < PpSize)
-                {
-                    PotentialFields[cellX, cellY + 1] += allyDodgePower / 2;
-                }
+                ApplyPower(PotentialFields, cellX, cellY, FiveRangePowerMask, allyDodgePower);
             }
         }
     }

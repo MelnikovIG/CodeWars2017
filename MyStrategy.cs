@@ -34,7 +34,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
 
-            if (world.TickIndex < 12)
+            if (world.TickIndex < 100)
             {
                 PrepareUnits();
                 return;
@@ -184,7 +184,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             Groups.H1,
             Groups.Tank1,
             Groups.Bmp1,
-            //Groups.Healer1,
+            Groups.Healer1,
         };
 
         private bool SelectNextGroup()
@@ -527,27 +527,35 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            //if (world.TickIndex == 12)
-            //{
-            //    SelectUnitsOfType(VehicleType.Arrv);
-            //    return;
-            //}
 
-            //if (world.TickIndex == 13)
-            //{
-            //    ActionHelper.SetSelectedGroup((int)Groups.Healer1);
-            //    return;
-            //}
 
-            //if (world.TickIndex == 14)
-            //{
-            //    var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Healer1)).ToArray();
-            //    var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
-            //    var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+            if (world.TickIndex == 96)
+            {
+                SelectUnitsOfType(VehicleType.Arrv);
+                return;
+            }
 
-            //    ActionHelper.Scale(xScale, yScale, 0.1);
-            //    return;
-            //}
+            if (world.TickIndex == 97)
+            {
+                ActionHelper.SetSelectedGroup((int)Groups.Healer1);
+                return;
+            }
+
+            if (world.TickIndex == 98)
+            {
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Healer1)).ToArray();
+                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
+                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+
+                ActionHelper.Scale(xScale, yScale, 0.1);
+                return;
+            }
+
+            if (world.TickIndex == 99)
+            {
+                SelectUnitsOfType(VehicleType.Helicopter);
+                return;
+            }
         }
 
         private static void SelectUnitsOfType(VehicleType vehicleType)
