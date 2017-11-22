@@ -11,6 +11,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 {
     public sealed class MyStrategy : IStrategy
     {
+        private static bool Prepared = false;
+
         public void Move(Player me, World world, Game game, Move move)
         {
             var rewindClient = RewindClient.RewindClient.Instance;
@@ -34,10 +36,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
 
-            if (world.TickIndex < 100)
+            if (!Prepared)
             {
                 PrepareUnits();
-                return;
+                if (!Prepared)
+                {
+                    return;
+                }
             }
 
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(CommandsHelper.CurrentSelectedGroup)).ToArray();
@@ -527,21 +532,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-
-
-            if (world.TickIndex == 96)
+            if (world.TickIndex == 90)
             {
                 SelectUnitsOfType(VehicleType.Arrv);
                 return;
             }
 
-            if (world.TickIndex == 97)
+            if (world.TickIndex == 91)
             {
                 ActionHelper.SetSelectedGroup((int)Groups.Healer1);
                 return;
             }
 
-            if (world.TickIndex == 98)
+            if (world.TickIndex == 92)
             {
                 var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Healer1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
@@ -551,10 +554,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (world.TickIndex == 99)
+            if (world.TickIndex == 93)
             {
                 SelectUnitsOfType(VehicleType.Helicopter);
                 return;
+            }
+
+            if (world.TickIndex == 94)
+            {
+                Prepared = true;
             }
         }
 
@@ -568,11 +576,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             var maxX = fighters.Max(x => x.X);
             var maxY = fighters.Max(x => x.Y);
 
-            var centerX = (minX + maxX) / 2L;
-            var centerY = (minY + maxY) / 2L;
-
-            ActionHelper.Select(minX, minY, maxX, maxY /*, vehicleType/);
-            //ActionHelper.Select(centerX, centerY, maxX, maxY /*, vehicleType*/);
+            ActionHelper.Select(minX, minY, maxX, maxY);
         }
     }
 }

@@ -11,10 +11,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public static class PotentialFieldsHelper
     {
+        public const int BaseWorldCenterPower = 1;
+        public const int PowerToNuclearStrike = -100;
+        public const int EnemyPowerToDodge = 100;
+        public const int AllyDodgePower = 50;
+
         public static int PpSize = 32;
         public static float[,] PotentialFields = new float[PpSize, PpSize];
 
-        public static float[,] FiveRangePowerMask = CreateSquareLinearPf(5);
+        public static float[,] RangePowerMask5 = CreateSquareLinearPf(5);
+        public static float[,] RangePowerMask17 = CreateSquareLinearPf(17);
 
         public static void Clear()
         {
@@ -95,7 +101,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 for (int j = 0; j < PpSize; j++)
                 {
                     var dist = GetDistanceTo(PpSize / 2, PpSize / 2, i, j);
-                    var power = dist / maxDist * 10;
+                    var power = dist / maxDist * BaseWorldCenterPower;
                     BaseWordPower[i, j] = (float)power;
                 }
             }
@@ -111,19 +117,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         //NOTE: кривой алгоритм расчета ПП
         public static void ApplyPowerToNuclearStrike()
         {
-            var enemyPower = -100;
-
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
 
-            //TODO: плжумать почему раньше было др условие
             enemies = enemies.Where(x => x.Type != VehicleType.Arrv).ToArray();
-
-            //if (CommandsHelper.CurrentSelectedGroup == (int)Groups.H1 ||
-            //    CommandsHelper.CurrentSelectedGroup == (int)Groups.F1)
-            //{
-            //    enemies = enemies.Where(x => x.Type != VehicleType.Arrv && x.Type != VehicleType.Tank)
-            //        .ToArray();
-            //}
 
             for (int i = 0; i < PpSize; i++)
             {
@@ -139,7 +135,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         {
                             var maxSum = PpSize * 2;
 
-                            var power = (1 - sumDelta / maxSum) * enemyPower;
+                            var power = (1 - sumDelta / maxSum) * PowerToNuclearStrike;
                             PotentialFields[i, j] += (float)power;
                         }
                     }
@@ -151,7 +147,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         {
             var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
 
-            var enemyPower = 100;
+            var enemyPower = EnemyPowerToDodge;
 
             var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
 
@@ -219,7 +215,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 var cellX = (int)enemy.X / PpSize;
                 var cellY = (int)enemy.Y / PpSize;
 
-                ApplyPower(PotentialFields, cellX, cellY, FiveRangePowerMask, power);
+                if (power > 0)
+                {
+                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask5, power);
+                }
+                else
+                {
+                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask17, power);
+                }
             }
         }
 
@@ -337,13 +340,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                              && !selectedUnitIds.Contains(x.Id)).ToArray();
             }
 
-            var allyDodgePower = 50;
             foreach (var allyDodgeUnit in allyUnitsToDodge)
             {
                 var cellX = (int)allyDodgeUnit.X / PpSize;
                 var cellY = (int)allyDodgeUnit.Y / PpSize;
 
-                ApplyPower(PotentialFields, cellX, cellY, FiveRangePowerMask, allyDodgePower);
+                ApplyPower(PotentialFields, cellX, cellY, RangePowerMask5, AllyDodgePower);
             }
         }
     }
