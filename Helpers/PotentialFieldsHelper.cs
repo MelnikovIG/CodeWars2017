@@ -20,7 +20,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static float[,] PotentialFields = new float[PpSize, PpSize];
 
         public static float[,] RangePowerMask5 = CreateSquareLinearPf(5);
-        public static float[,] RangePowerMask17 = CreateSquareLinearPf(17);
+        public static float[,] RangePowerMask49 = CreateSquareLinearPf(49); //Притягиваем на 2/3 карты
 
         public static void Clear()
         {
@@ -221,7 +221,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
                 else
                 {
-                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask17, power);
+                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, power);
                 }
             }
         }
