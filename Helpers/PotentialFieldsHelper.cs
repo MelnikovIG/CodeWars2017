@@ -226,7 +226,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
 
             //Сделаем притиягивание к вертолетам или самолетам
-            if (currentSelectedGroup == (int) Groups.Bmp1)
+            if (currentSelectedGroup == (int) Groups.Healer1)
             {
                 var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
                 if (helicopters.Count > 0)
