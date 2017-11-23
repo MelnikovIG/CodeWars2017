@@ -15,6 +15,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk {
             var localRunnerPath = appSettings["LocalRunnerPath"];
 
             Process.Start(localRunnerPath);
+            Thread.Sleep(500);
             Process.Start("C:\\Git\\CodeWars2017\\rewindviewer_win_binaries\\start.bat");
 
             new Runner(args.Length == 3 ? args : new[] {"127.0.0.1", "31001", "0000000000000000"}).Run();

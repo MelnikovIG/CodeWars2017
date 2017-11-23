@@ -224,6 +224,34 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, power);
                 }
             }
+
+            //Сделаем притиягивание к вертолетам или самолетам
+            if (currentSelectedGroup == (int) Groups.Bmp1)
+            {
+                var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
+                if (helicopters.Count > 0)
+                {
+                    var cx = helicopters.Sum(x => x.X) / helicopters.Count;
+                    var cy = helicopters.Sum(x => x.Y) / helicopters.Count;
+
+                    var cellX = (int) cx / PpSize;
+                    var cellY = (int) cy / PpSize;
+
+                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -enemyPower * 0.5f);
+                }
+
+                var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
+                if (fighters.Count > 0)
+                {
+                    var cx = fighters.Sum(x => x.X) / fighters.Count;
+                    var cy = fighters.Sum(x => x.Y) / fighters.Count;
+
+                    var cellX = (int)cx / PpSize;
+                    var cellY = (int)cy / PpSize;
+
+                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -enemyPower * 0.5f);
+                }
+            }
         }
 
         public static void Normalize()
