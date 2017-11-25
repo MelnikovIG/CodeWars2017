@@ -20,7 +20,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public double X { get; set; }
         public double Y { get; set; }
         public double Radius { get; set; }
-        public double VisionRange { get; set; }
         public Side Side { get; set; }
         public int Durability { get; set; }
         public int MaxDurability { get; set; }

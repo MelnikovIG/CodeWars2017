@@ -237,16 +237,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
         private HasTargetToNuclearAttackResult HasTargetToNuclearAttack(MyLivingUnit[] selectedUnits)
         {
-            var visionRange = GetVisionRangeOfCurrentSelectedUnutType();
-
             var allEnemiesCanBeAttacked = new Dictionary<long, List<MyLivingUnit>>();
 
             foreach (var selectedUnit in selectedUnits)
             {
-                //TODO: calc is In circle and returnRange^2
                 var enemyUnitsInRange = UnitHelper.UnitsEnemy
-                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange,
-                        x.X, x.Y)).ToArray();
+                    .Where(x =>
+                    {
+                        var visionRange = GetVisionRangeByWeather(selectedUnit);
+                        return PotentialFieldsHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange, x.X, x.Y);
+                    }).ToArray();
 
                 foreach (var enemyUnitInRange in enemyUnitsInRange)
                 {
@@ -355,6 +355,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
 #if DEBUG
             RewindClient.RewindClient.Instance.Circle(ally.X, ally.Y, ally.Radius * 3, Color.Purple);
+
+            var vr = GetVisionRangeByWeather(ally);
+            RewindClient.RewindClient.Instance.Circle(ally.X, ally.Y, vr, Color.FromArgb(100, 255,0,200));
 #endif
 
             //TODO: вернуть результат
@@ -422,7 +425,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     X = newVehicle.X,
                     Y = newVehicle.Y,
                     Radius = newVehicle.Radius,
-                    VisionRange = newVehicle.VisionRange,
                     Durability = newVehicle.Durability,
                     MaxDurability = newVehicle.MaxDurability,
                     Side = newVehicle.PlayerId == myId ? Side.Our : Side.Enemy,
