@@ -15,6 +15,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public const int PowerToNuclearStrike = -100;
         public const int EnemyPowerToDodge = 100;
         public const int AllyDodgePower = 50;
+        public const int HealPower = 50;
+        public const float FliersToHealDurabilityFactor = 0.9F;
 
         public static int PpSize = 32;
         public static float[,] PotentialFields = new float[PpSize, PpSize];
@@ -231,6 +233,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, power);
                 }
             }
+        }
+
+        public static void ApplyHealPower()
+        {
+            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
+            var healPower = HealPower;
 
             //Сделаем притиягивание к вертолетам или самолетам
             if (currentSelectedGroup == Groups.Healer1)
@@ -241,10 +249,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     var cx = helicopters.Sum(x => x.X) / helicopters.Count;
                     var cy = helicopters.Sum(x => x.Y) / helicopters.Count;
 
-                    var cellX = (int) cx / PpSize;
-                    var cellY = (int) cy / PpSize;
+                    var cellX = (int)cx / PpSize;
+                    var cellY = (int)cy / PpSize;
 
-                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -enemyPower * 0.5f);
+                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
                 }
 
                 var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
@@ -256,7 +264,57 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     var cellX = (int)cx / PpSize;
                     var cellY = (int)cy / PpSize;
 
-                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -enemyPower * 0.5f);
+                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
+                }
+            }
+            //Сделаем притиягивание самолетов к хилкам, если они ранены
+            else if (currentSelectedGroup == Groups.F1)
+            {
+                var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
+                if (fighters.Count > 0)
+                {
+                    var currentDurability = fighters.Sum(x => x.Durability);
+                    var maxDurability = GlobalHelper.Game.FighterDurability * fighters.Count;
+                    var needHeal = ((float) currentDurability / maxDurability) < FliersToHealDurabilityFactor;
+
+                    if (needHeal)
+                    {
+                        var healers = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Arrv).ToList();
+                        if (healers.Count > 0)
+                        {
+                            var cx = healers.Sum(x => x.X) / healers.Count;
+                            var cy = healers.Sum(x => x.Y) / healers.Count;
+
+                            var cellX = (int)cx / PpSize;
+                            var cellY = (int)cy / PpSize;
+                            ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
+                        }
+                    }
+                }
+            }
+            //Сделаем притиягивание вертолетов к хилкам, если они ранены
+            else if (currentSelectedGroup == Groups.H1)
+            {
+                var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
+                if (helicopters.Count > 0)
+                {
+                    var currentDurability = helicopters.Sum(x => x.Durability);
+                    var maxDurability = GlobalHelper.Game.HelicopterDurability * helicopters.Count;
+                    var needHeal = ((float)currentDurability / maxDurability) < FliersToHealDurabilityFactor;
+
+                    if (needHeal)
+                    {
+                        var healers = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Arrv).ToList();
+                        if (healers.Count > 0)
+                        {
+                            var cx = healers.Sum(x => x.X) / healers.Count;
+                            var cy = healers.Sum(x => x.Y) / healers.Count;
+
+                            var cellX = (int)cx / PpSize;
+                            var cellY = (int)cy / PpSize;
+                            ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
+                        }
+                    }
                 }
             }
         }

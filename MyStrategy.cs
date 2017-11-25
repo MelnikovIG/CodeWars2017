@@ -144,6 +144,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             else
             {
                 PotentialFieldsHelper.AppendEnemyPowerToDodge();
+                PotentialFieldsHelper.ApplyHealPower();
             }
             PotentialFieldsHelper.AppendAllyUnitsToDodge(selectedUnits);
             PotentialFieldsHelper.Normalize();
