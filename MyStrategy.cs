@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -89,55 +89,24 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             {
                 if (me.RemainingNuclearStrikeCooldownTicks <= 0)
                 {
-                    var nr = game.FighterVisionRange;
+                    var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits);
 
-                    var minX = selectedUnits.Min(x => x.X);
-                    var minY = selectedUnits.Min(x => x.Y);
-                    var maxX = selectedUnits.Max(x => x.X);
-                    var maxY = selectedUnits.Max(x => x.Y);
-
-                    var minXRange = minX - nr;
-                    var minYRange = minY - nr;
-                    var maxXRange = maxX + nr;
-                    var maxYRange = maxY + nr;
-
-                    rewindClient.Rectangle(minXRange, minYRange, maxXRange, maxYRange, Color.Brown);
-                    rewindClient.Rectangle(minX, minY, maxX, maxY, Color.BlueViolet);
-
-                    var potentialEnemiesInRange = UnitHelper.Units.Select(x => x.Value)
-                        .Where(x => x.Side == Side.Enemy)
-                        .Where(x => x.X > minXRange && x.X < maxXRange)
-                        .Where(x => x.Y > minYRange && x.Y < maxYRange)
-                        .ToArray();
-
-                    if (CommandsHelper.CurrentSelectedGroup == Groups.H1 ||
-                        CommandsHelper.CurrentSelectedGroup == Groups.F1)
+                    if (hasTargetToNuclearAttack.Success)
                     {
-                        potentialEnemiesInRange = potentialEnemiesInRange.Where(x => x.Type != VehicleType.Arrv)
-                            .ToArray();
-                    }
-
-                    if (potentialEnemiesInRange.Length > 0)
-                    {
-                        var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits, potentialEnemiesInRange);
-
-                        if (hasTargetToNuclearAttack.Success)
+                        //Р•СЃР»Рё РѕСЃС‚Р°РЅРѕРІРёР»РёСЃСЊ РґР»СЏ РІС‹СЃС‚СЂРµР»Р°, РІС‹СЃСЂРµР»РёРј
+                        if (CommandsHelper.Commands.Last().CommandType == CommandType.StopMove)
                         {
-                            //Если остановились для выстрела, высрелим
-                            if (CommandsHelper.Commands.Last().CommandType == CommandType.StopMove)
-                            {
-                                var selectedUnit = hasTargetToNuclearAttack.SelectedUnitRes;
-                                var enemyUnit = hasTargetToNuclearAttack.EnemyRes;
+                            var selectedUnit = hasTargetToNuclearAttack.SelectedUnitRes;
+                            var enemyUnit = hasTargetToNuclearAttack.EnemyRes;
 
-                                ActionHelper.NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y);
-                                return;
-                            }
-                            //Иначе остановимся для выстрела на след ходу
-                            else
-                            {
-                                ActionHelper.StopMove();
-                                return;
-                            }
+                            ActionHelper.NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y);
+                            return;
+                        }
+                        //РРЅР°С‡Рµ РѕСЃС‚Р°РЅРѕРІРёРјСЃСЏ РґР»СЏ РІС‹СЃС‚СЂРµР»Р° РЅР° СЃР»РµРґ С…РѕРґСѓ
+                        else
+                        {
+                            ActionHelper.StopMove();
+                            return;
                         }
                     }
                 }
@@ -168,7 +137,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (GlobalHelper.MoveAllowed)
             {
-                //Если на предыдущем ходу текущая группа уже двигалась, передадим управление след группе
+                //Р•СЃР»Рё РЅР° РїСЂРµРґС‹РґСѓС‰РµРј С…РѕРґСѓ С‚РµРєСѓС‰Р°СЏ РіСЂСѓРїРїР° СѓР¶Рµ РґРІРёРіР°Р»Р°СЃСЊ, РїРµСЂРµРґР°РґРёРј СѓРїСЂР°РІР»РµРЅРёРµ СЃР»РµРґ РіСЂСѓРїРїРµ
                 if (CommandsHelper.Commands.Last().CommandType == CommandType.Move)
                 {
                     var isSelectSuccess = SelectNextGroup();
@@ -239,31 +208,161 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             public MyLivingUnit SelectedUnitRes { get; set; }
             public MyLivingUnit EnemyRes { get; set; }
         }
-        
-        private HasTargetToNuclearAttackResult HasTargetToNuclearAttack(MyLivingUnit[] selectedUnits,MyLivingUnit[] potentialEnemiesInRange)
+
+        private double GetVisionRangeOfCurrentSelectedUnutType()
         {
-            foreach (var potentialEnemyInRange in potentialEnemiesInRange)
+            if (CommandsHelper.CurrentSelectedGroup == Groups.F1)
             {
-                foreach (var selectedUnit in selectedUnits)
+                return GlobalHelper.Game.FighterVisionRange;
+            }
+            else if (CommandsHelper.CurrentSelectedGroup == Groups.H1)
+            {
+                return GlobalHelper.Game.HelicopterVisionRange;
+            }
+            else if (CommandsHelper.CurrentSelectedGroup == Groups.Tank1)
+            {
+                return GlobalHelper.Game.TankVisionRange;
+            }
+            else if (CommandsHelper.CurrentSelectedGroup == Groups.Bmp1)
+            {
+                return GlobalHelper.Game.IfvVisionRange;
+            }
+            else if (CommandsHelper.CurrentSelectedGroup == Groups.Healer1)
+            {
+                return GlobalHelper.Game.ArrvVisionRange;
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private HasTargetToNuclearAttackResult HasTargetToNuclearAttack(MyLivingUnit[] selectedUnits)
+        {
+            var visionRange = GetVisionRangeOfCurrentSelectedUnutType();
+
+            var allEnemiesCanBeAttacked = new Dictionary<long, List<MyLivingUnit>>();
+
+            foreach (var selectedUnit in selectedUnits)
+            {
+                //TODO: calc is In circle and returnRange^2
+                var enemyUnitsInRange = UnitHelper.UnitsEnemy
+                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange,
+                        x.X, x.Y)).ToArray();
+
+                foreach (var enemyUnitInRange in enemyUnitsInRange)
                 {
-                    var distance = selectedUnit.GetDistanceTo(potentialEnemyInRange);
-                    if (distance <= GetVisionRangeByWeather(selectedUnit))
+                    var enemyId = enemyUnitInRange.Id;
+
+                    if (!allEnemiesCanBeAttacked.ContainsKey(enemyId))
                     {
-                        return new HasTargetToNuclearAttackResult()
-                        {
-                            Success = true,
-                            EnemyRes = potentialEnemyInRange,
-                            SelectedUnitRes = selectedUnit
-                        };
+                        allEnemiesCanBeAttacked[enemyId] = new List<MyLivingUnit>();
                     }
+
+                    allEnemiesCanBeAttacked[enemyId].Add(selectedUnit);
                 }
             }
 
+            if (allEnemiesCanBeAttacked.Count == 0)
+            {
+                return new HasTargetToNuclearAttackResult()
+                {
+                    Success = false
+                };
+            }
+
+            var enemiesCanBeAttacked = allEnemiesCanBeAttacked.Select(x => UnitHelper.Units[x.Key]).ToList();
+            var nsRange = GlobalHelper.Game.TacticalNuclearStrikeRadius;
+            var nsDamage = GlobalHelper.Game.MaxTacticalNuclearStrikeDamage;
+
+            var enemiesWithDamage = new List<Tuple<MyLivingUnit, double>>(allEnemiesCanBeAttacked.Count);
+
+            foreach (var enemyCanBeAttacked in enemiesCanBeAttacked)
+            {
+                double totalDamage = 0;
+                var allEnemiesFromEnemyRange = UnitHelper.UnitsEnemy
+                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                        nsRange, x.X, x.Y)).ToArray();
+
+                foreach (var enemyFromEnemyRange in allEnemiesFromEnemyRange)
+                {
+                    var distance = PotentialFieldsHelper.GetDistanceTo(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                        enemyFromEnemyRange.X, enemyFromEnemyRange.Y);
+
+                    //РЈСЂРѕРЅ - СЌС‚Рѕ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РѕС‚ СЌРїРёС†РµРЅСЂР° * СѓСЂРѕРЅ
+                    var damage = ((nsRange - distance) / nsRange) * nsDamage;
+
+                    if (damage > enemyFromEnemyRange.Durability)
+                    {
+                        totalDamage += 100;
+                    }
+                    else
+                    {
+                        totalDamage += damage;
+                    }
+                }
+
+                var allAlliesFromEnemyRange = UnitHelper.UnitsAlly
+                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                        nsRange, x.X, x.Y)).ToArray();
+
+                foreach (var allyFromEnemyRange in allAlliesFromEnemyRange)
+                {
+                    var distance = PotentialFieldsHelper.GetDistanceTo(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                        allyFromEnemyRange.X, allyFromEnemyRange.Y);
+
+                    //РЈСЂРѕРЅ - СЌС‚Рѕ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РѕС‚ СЌРїРёС†РµРЅСЂР° * СѓСЂРѕРЅ
+                    var damage = ((nsRange - distance) / nsRange) * nsDamage;
+
+                    if (damage > allyFromEnemyRange.Durability)
+                    {
+                        totalDamage -= 100;
+                    }
+                    else
+                    {
+                        totalDamage -= damage;
+                    }
+                }
+
+                enemiesWithDamage.Add(new Tuple<MyLivingUnit, double>(enemyCanBeAttacked, totalDamage));
+            }
+
+            var maxTotalDamage = enemiesWithDamage.Select(x => x.Item2).Max();
+
+            //Р’С‹РіРѕРґР° РїРѕ СѓСЂРѕРЅСѓ РЅРµ РІ РїРѕР»СЊР·Сѓ РЅР°СЃ, РЅРµ РїР»Р°РЅРёСЂСѓРµРј СѓРґР°СЂ
+            if (maxTotalDamage < 0)
+            {
+                return new HasTargetToNuclearAttackResult()
+                {
+                    Success = false
+                };
+            }
+
+            var enemyUnitWithMaxDamage = enemiesWithDamage.First(x => Math.Abs(x.Item2 - maxTotalDamage) < 0.00000001).Item1;
+
+#if DEBUG
+            RewindClient.RewindClient.Instance.Circle(enemyUnitWithMaxDamage.X, enemyUnitWithMaxDamage.Y, enemyUnitWithMaxDamage.Radius * 3, Color.Red);
+#endif
+
+            var alliesCanAttackEnemyWithMaxDamage = allEnemiesCanBeAttacked[enemyUnitWithMaxDamage.Id];
+            var alliesWithRange = alliesCanAttackEnemyWithMaxDamage.Select(x => new
+            {
+                Ally = x,
+                Range = PotentialFieldsHelper.GetDistancePower2To(x.X, x.Y, enemyUnitWithMaxDamage.X,
+                    enemyUnitWithMaxDamage.Y)
+            }).ToList();
+
+            var maxRange = alliesWithRange.Select(x => x.Range).Max();
+            var ally = alliesWithRange.First(x => Math.Abs(x.Range - maxRange) < 0.00000001).Ally;
+
+#if DEBUG
+            RewindClient.RewindClient.Instance.Circle(ally.X, ally.Y, ally.Radius * 3, Color.Purple);
+#endif
+
+            //TODO: РІРµСЂРЅСѓС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚
             return new HasTargetToNuclearAttackResult()
             {
-                Success = false,
-                EnemyRes = null,
-                SelectedUnitRes = null
+                Success = true,
+                SelectedUnitRes = ally,
+                EnemyRes = enemyUnitWithMaxDamage
             };
         }
 

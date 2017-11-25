@@ -10,8 +10,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     public static class UnitHelper
     {
         public static Dictionary<long, MyLivingUnit> Units { get; set; } = new Dictionary<long, MyLivingUnit>(1000);
-        public static IEnumerable<MyLivingUnit> UnitsAlly => Units.Select(x => x.Value).Where(x => x.Side == Side.Our);
-        public static IEnumerable<MyLivingUnit> UnitsEnemy => Units.Select(x => x.Value).Where(x => x.Side == Side.Enemy);
+        public static MyLivingUnit[] UnitsAlly => Units.Select(x => x.Value).Where(x => x.Side == Side.Our).ToArray();
+        public static MyLivingUnit[] UnitsEnemy => Units.Select(x => x.Value).Where(x => x.Side == Side.Enemy).ToArray();
     }
 
     public class MyLivingUnit
@@ -27,18 +27,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public VehicleType Type { get; set; }
         public int[] Groups { get; set; } = new int[0];
         public bool IsSelected { get; set; }
-
-        public double GetDistanceTo(double x, double y)
-        {
-            double xRange = x - this.X;
-            double yRange = y - this.Y;
-            return Math.Sqrt(xRange * xRange + yRange * yRange);
-        }
-
-        public double GetDistanceTo(MyLivingUnit unit)
-        {
-            return GetDistanceTo(unit.X, unit.Y);
-        }
     }
 
     public enum Side
