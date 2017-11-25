@@ -11,6 +11,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 {
     public sealed class MyStrategy : IStrategy
     {
+        private static int PrepareStep = 0;
         private static bool Prepared = false;
 
         public void Move(Player me, World world, Game game, Move move)
@@ -27,8 +28,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             GlobalHelper.World = world;
             GlobalHelper.Move = move;
             GlobalHelper.Game = game;
+            GlobalHelper.Me = me;
+            GlobalHelper.Enemy = world.GetOpponentPlayer();
 
-            var enemy = world.Players.First(x => !x.IsMe);
+            var enemy = GlobalHelper.Enemy;
 
             UpdateVehiclesStates(me, world, game, rewindClient);
 
@@ -38,9 +41,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (!Prepared)
             {
+                if (!GlobalHelper.MoveAllowed)
+                {
+                    return;
+                }
+
                 PrepareUnits();
+
                 if (!Prepared)
                 {
+                    PrepareStep++;
                     return;
                 }
             }
@@ -49,7 +59,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (selectedUnits.Length == 0)
             {
-                if (world.TickIndex % 6 == 0)
+                if (GlobalHelper.MoveAllowed)
                 {
                     SelectNextGroup();
                     return;
@@ -58,9 +68,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            //DrawUnitsVisionRange(selectedUnits, rewindClient);
-
-            if (world.TickIndex % 6 == 0)
+            if (GlobalHelper.MoveAllowed)
             {
                 if (me.NextNuclearStrikeTickIndex > 0)
                 {
@@ -77,7 +85,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
             }
 
-            if (world.TickIndex % 6 == 0)
+            if (GlobalHelper.MoveAllowed)
             {
                 if (me.RemainingNuclearStrikeCooldownTicks <= 0)
                 {
@@ -158,7 +166,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
             }
 
-            if (world.TickIndex % 6 == 0)
+            if (GlobalHelper.MoveAllowed)
             {
                 //Если на предыдущем ходу текущая группа уже двигалась, передадим управление след группе
                 if (CommandsHelper.Commands.Last().CommandType == CommandType.Move)
@@ -257,14 +265,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 EnemyRes = null,
                 SelectedUnitRes = null
             };
-        }
-
-        private void DrawUnitsVisionRange(MyLivingUnit[] units, RewindClient.RewindClient rewindClient)
-        {
-            foreach (var unit in units)
-            {
-                rewindClient.Circle(unit.X, unit.Y, unit.VisionRange, Color.FromArgb(100, 0, 255, 255));
-            }
         }
 
 #if DEBUG
@@ -443,21 +443,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
         private static void PrepareUnits()
         {
-            var world = GlobalHelper.World;
-
-            if (world.TickIndex == 0)
+            if (PrepareStep == 0)
             {
                 SelectUnitsOfType(VehicleType.Fighter);
                 return;
             }
 
-            if (world.TickIndex == 1)
+            if (PrepareStep == 1)
             {
                 ActionHelper.SetSelectedGroup((int)Groups.F1);
                 return;
             }
 
-            if (world.TickIndex == 2)
+            if (PrepareStep == 2)
             {
                 var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.F1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
@@ -467,19 +465,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (world.TickIndex == 3)
+            if (PrepareStep == 3)
             {
                 SelectUnitsOfType(VehicleType.Helicopter);
                 return;
             }
 
-            if (world.TickIndex == 4)
+            if (PrepareStep == 4)
             {
                 ActionHelper.SetSelectedGroup((int)Groups.H1);
                 return;
             }
 
-            if (world.TickIndex == 5)
+            if (PrepareStep == 5)
             {
                 var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.H1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
@@ -489,19 +487,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (world.TickIndex == 6)
+            if (PrepareStep == 6)
             {
                 SelectUnitsOfType(VehicleType.Tank);
                 return;
             }
 
-            if (world.TickIndex == 7)
+            if (PrepareStep == 7)
             {
                 ActionHelper.SetSelectedGroup((int)Groups.Tank1);
                 return;
             }
 
-            if (world.TickIndex == 8)
+            if (PrepareStep == 8)
             {
                 var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Tank1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
@@ -511,19 +509,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (world.TickIndex == 9)
+            if (PrepareStep == 9)
             {
                 SelectUnitsOfType(VehicleType.Ifv);
                 return;
             }
 
-            if (world.TickIndex == 10)
+            if (PrepareStep == 10)
             {
                 ActionHelper.SetSelectedGroup((int)Groups.Bmp1);
                 return;
             }
 
-            if (world.TickIndex == 11)
+            if (PrepareStep == 11)
             {
                 var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Bmp1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
@@ -533,19 +531,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (world.TickIndex == 90)
+            if (PrepareStep == 12)
             {
                 SelectUnitsOfType(VehicleType.Arrv);
                 return;
             }
 
-            if (world.TickIndex == 91)
+            if (PrepareStep == 13)
             {
                 ActionHelper.SetSelectedGroup((int)Groups.Healer1);
                 return;
             }
 
-            if (world.TickIndex == 92)
+            if (PrepareStep == 14)
             {
                 var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Healer1)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
@@ -555,13 +553,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (world.TickIndex == 93)
+            if (PrepareStep == 15)
             {
                 SelectUnitsOfType(VehicleType.Helicopter);
                 return;
             }
 
-            if (world.TickIndex == 94)
+            if (PrepareStep == 16)
             {
                 Prepared = true;
             }

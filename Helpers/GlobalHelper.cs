@@ -12,5 +12,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static World World { get; set; }
         public static Move Move { get; set; }
         public static Game Game { get; set; }
+        public static Player Me { get; set; }
+        public static Player Enemy { get; set; }
+
+        public static bool MoveAllowed => Me.RemainingActionCooldownTicks == 0;
     }
 }
