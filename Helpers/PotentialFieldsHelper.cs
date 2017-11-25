@@ -114,6 +114,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return Math.Sqrt(xRange * xRange + yRange * yRange);
         }
 
+        public static double GetDistancePower2To(double x1, double y1, double x2, double y2)
+        {
+            double xRange = x2 - x1;
+            double yRange = y2 - y1;
+            return xRange * xRange + yRange * yRange;
+        }
+
         //NOTE: кривой алгоритм расчета ПП
         public static void ApplyPowerToNuclearStrike()
         {
@@ -155,7 +162,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             {
                 var power = enemyPower;
 
-                if (currentSelectedGroup == (int) Groups.F1)
+                if (currentSelectedGroup == Groups.F1)
                 {
                     if (enemy.Type == VehicleType.Helicopter)
                     {
@@ -170,7 +177,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         power = 0;
                     }
                 }
-                else if (currentSelectedGroup == (int)Groups.H1)
+                else if (currentSelectedGroup == Groups.H1)
                 {
                     if (enemy.Type == VehicleType.Tank)
                     {
@@ -181,7 +188,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         power = -enemyPower/2;
                     }
                 }
-                else if (currentSelectedGroup == (int)Groups.Tank1)
+                else if (currentSelectedGroup == Groups.Tank1)
                 {
                     if (enemy.Type == VehicleType.Ifv)
                     {
@@ -196,7 +203,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         power = 0;
                     }
                 }
-                else if (currentSelectedGroup == (int)Groups.Bmp1)
+                else if (currentSelectedGroup == Groups.Bmp1)
                 {
                     if (enemy.Type == VehicleType.Helicopter)
                     {
@@ -226,7 +233,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
 
             //Сделаем притиягивание к вертолетам или самолетам
-            if (currentSelectedGroup == (int) Groups.Healer1)
+            if (currentSelectedGroup == Groups.Healer1)
             {
                 var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
                 if (helicopters.Count > 0)
@@ -252,6 +259,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -enemyPower * 0.5f);
                 }
             }
+        }
+
+        public static bool PointIsWithinCircle(double circleCenterPointX, double circleCenterPointY, double circleRadius, double pointToCheckX, double pointToCheckY)
+        {
+            return (Math.Pow(pointToCheckX - circleCenterPointX, 2) + Math.Pow(pointToCheckY - circleCenterPointY, 2)) < (Math.Pow(circleRadius, 2));
         }
 
         public static void Normalize()
@@ -349,7 +361,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             MyLivingUnit[] allyUnitsToDodge = new MyLivingUnit[0];
 
-            if (currentSelectedGroup == (int) Groups.F1 || currentSelectedGroup == (int) Groups.H1)
+            if (currentSelectedGroup == Groups.F1 || currentSelectedGroup == Groups.H1)
             {
                 var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
                 allyUnitsToDodge = UnitHelper.Units.Values
@@ -358,7 +370,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                              && (x.Type == VehicleType.Fighter || x.Type == VehicleType.Helicopter)
                              && !selectedUnitIds.Contains(x.Id)).ToArray();
             }
-            else if (currentSelectedGroup == (int) Groups.Tank1 || currentSelectedGroup == (int) Groups.Bmp1 || currentSelectedGroup == (int)Groups.Healer1)
+            else if (currentSelectedGroup == Groups.Tank1 || currentSelectedGroup == Groups.Bmp1 || currentSelectedGroup == Groups.Healer1)
             {
                 var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
                 allyUnitsToDodge = UnitHelper.Units.Values

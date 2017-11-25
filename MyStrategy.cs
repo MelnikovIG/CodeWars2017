@@ -45,7 +45,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
             }
 
-            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(CommandsHelper.CurrentSelectedGroup)).ToArray();
+            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)CommandsHelper.CurrentSelectedGroup)).ToArray();
 
             if (selectedUnits.Length == 0)
             {
@@ -102,8 +102,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                         .Where(x => x.Y > minYRange && x.Y < maxYRange)
                         .ToArray();
 
-                    if (CommandsHelper.CurrentSelectedGroup == (int) Groups.H1 ||
-                        CommandsHelper.CurrentSelectedGroup == (int) Groups.F1)
+                    if (CommandsHelper.CurrentSelectedGroup == Groups.H1 ||
+                        CommandsHelper.CurrentSelectedGroup == Groups.F1)
                     {
                         potentialEnemiesInRange = potentialEnemiesInRange.Where(x => x.Type != VehicleType.Arrv)
                             .ToArray();

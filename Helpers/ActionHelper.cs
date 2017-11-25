@@ -19,7 +19,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             move.Action = ActionType.ClearAndSelect;
             move.Group = groupId;
 
-            CommandsHelper.CurrentSelectedGroup = groupId;
+            CommandsHelper.CurrentSelectedGroup = (Groups)groupId;
             CommandsHelper.Commands.Add(new BaseCommand(CommandType.SelectGroup));
         }
 
@@ -67,7 +67,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             GlobalHelper.Move.Action = ActionType.Assign;
             GlobalHelper.Move.Group = groupId;
 
-            CommandsHelper.CurrentSelectedGroup = groupId;
+            CommandsHelper.CurrentSelectedGroup = (Groups)groupId;
             CommandsHelper.Commands.Add(new BaseCommand(CommandType.SetGroup));
         }
 

@@ -11,7 +11,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     {
         public static List<BaseCommand> Commands { get; set; } = new List<BaseCommand>(500);
 
-        public static int CurrentSelectedGroup { get; set; }
+        public static Groups CurrentSelectedGroup { get; set; }
     }
 
     public enum Groups
