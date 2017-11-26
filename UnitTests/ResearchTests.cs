@@ -16,7 +16,7 @@ namespace UnitTests
         {
             var source = new float[5, 5];
 
-           var m = PotentialFieldsHelper.CreateSquareLinearPf(5);
+           var m = PotentialFieldsHelper.CreatePfEx(5);
 
             PotentialFieldsHelper.ApplyPower(source, 3, 3, m, 100);
         }

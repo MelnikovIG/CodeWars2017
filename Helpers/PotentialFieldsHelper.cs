@@ -15,14 +15,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public const int PowerToNuclearStrike = -100;
         public const int EnemyPowerToDodge = 100;
         public const int AllyDodgePower = 50;
-        public const int HealPower = 50;
+        public const int HealPower = 10;
         public const float FliersToHealDurabilityFactor = 0.9F;
+        public const float FactoryPower = -250;
 
         public static int PpSize = 32;
         public static float[,] PotentialFields = new float[PpSize, PpSize];
 
-        public static float[,] RangePowerMask5 = CreateSquareLinearPf(5);
-        public static float[,] RangePowerMask49 = CreateSquareLinearPf(49); //Притягиваем на 2/3 карты
+        public static float[,] RangePowerMask5 = CreatePfEx(5);
+        public static float[,] RangePowerMask7 = CreatePfEx(7);
+        public static float[,] RangePowerMask49 = CreatePfEx(49); //Притягиваем на 2/3 карты
 
         public static void Clear()
         {
@@ -55,6 +57,34 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 for (int j = 0; j < range; j++)
                 {
                     result[i, j] = (maxPower - result[i, j])/maxPower;
+                }
+            }
+
+            return result;
+        }
+
+        private static double PfFormula1(double x)
+        {
+            return 1 / (x + 1);
+        }
+
+        public static float[,] CreatePfEx(int range)
+        {
+            if (range % 2 == 0)
+            {
+                throw new Exception("Требуется нечетное число");
+            }
+
+            var result = new float[range, range];
+
+            var centerIndex = range / 2;
+
+            for (int i = 0; i < range; i++)
+            {
+                for (int j = 0; j < range; j++)
+                {
+                    var root = GetDistanceTo(i, j, centerIndex, centerIndex);
+                    result[i, j] = (float)PfFormula1(root);
                 }
             }
 
@@ -444,6 +474,31 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 var cellY = (int)allyDodgeUnit.Y / PpSize;
 
                 ApplyPower(PotentialFields, cellX, cellY, RangePowerMask5, AllyDodgePower);
+            }
+        }
+
+        public static void ApplyFacilitiesPower()
+        {
+            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
+            if (currentSelectedGroup == Groups.F1 || currentSelectedGroup == Groups.H1)
+            {
+                return;
+            }
+
+            var notMyFacilities = FacilityHelper.Facilities.Values.Where(x => x.Side != Side.Our).ToArray();
+
+            foreach (var notMyFacility in notMyFacilities)
+            {
+                var topPpX = (int)(notMyFacility.Left / PpSize);
+                var topPpY = (int)(notMyFacility.Top / PpSize);
+
+                for (int i = topPpX; i <= topPpX + 1; i++)
+                {
+                    for (int j = topPpY; j <= topPpY + 1; j++)
+                    {
+                        ApplyPower(PotentialFields, i, j, RangePowerMask49, FactoryPower);
+                    }
+                }
             }
         }
     }
