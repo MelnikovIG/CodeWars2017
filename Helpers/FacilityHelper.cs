@@ -190,5 +190,25 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
 #endif
         }
+
+        public static MyLivingUnit[] GetCreatedUnassignedUnits(this FacilityEx facilityEx)
+        {
+            if(facilityEx.Type == FacilityType.ControlCenter)
+                return new MyLivingUnit[0];
+
+            var facilityWidth = GlobalHelper.Game.FacilityWidth;
+            var facilityHeight = GlobalHelper.Game.FacilityHeight;
+
+            var createdUnassignedUnits = UnitHelper.UnitsAlly
+                .Where(x => x.Groups.Length == 0)
+                .Where(x =>
+                    x.X >= facilityEx.Left &&
+                    x.X <= facilityEx.Left + facilityWidth &&
+                    x.Y >= facilityEx.Top &&
+                    x.Y <= facilityEx.Top + facilityHeight
+                ).ToArray();
+
+            return createdUnassignedUnits;
+        }
     }
 }
