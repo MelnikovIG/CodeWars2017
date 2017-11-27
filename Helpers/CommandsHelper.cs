@@ -67,5 +67,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         StopMove,
         NuclearStrike,
         Scale,
+        StartFactoryProduction,
     }
 }

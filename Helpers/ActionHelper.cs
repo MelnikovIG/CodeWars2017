@@ -95,6 +95,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             CommandsHelper.Commands.Add(new NuclearStrikeCommand(vehicleId));
         }
 
+        public static void StartFactoryProduction(long facilityId, VehicleType vehicleType)
+        {
+            CheckActionExistanse();
+
+            GlobalHelper.Move.Action = ActionType.SetupVehicleProduction;
+            GlobalHelper.Move.FacilityId = facilityId;
+            GlobalHelper.Move.VehicleType = vehicleType;
+
+            CommandsHelper.Commands.Add(new BaseCommand(CommandType.StartFactoryProduction));
+        }
+
         private static void CheckActionExistanse()
         {
             if (GlobalHelper.Move.Action != null)

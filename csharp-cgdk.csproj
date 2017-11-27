@@ -77,7 +77,9 @@
     <Compile Include="Custom\Point2D.cs" />
     <Compile Include="Helpers\ActionHelper.cs" />
     <Compile Include="Helpers\CommandsHelper.cs" />
+    <Compile Include="Helpers\ConfigurationHelper.cs" />
     <Compile Include="Helpers\FacilityHelper.cs" />
+    <Compile Include="Helpers\FacilityProductionHelper.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\PotentialFieldsHelper.cs" />
     <Compile Include="Helpers\UnitHelper.cs" />

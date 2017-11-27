@@ -34,10 +34,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             var enemy = GlobalHelper.Enemy;
 
             UpdateVehiclesStates(me, world, game, rewindClient);
-            UpdateFacilitiesStates();
+            FacilityHelper.UpdateFacilitiesStates();
 
 #if DEBUG
-            DrawFacilities();
+            FacilityHelper.DrawFacilities();
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
 
@@ -57,6 +57,20 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
             }
 
+            if (GlobalHelper.MoveAllowed)
+            {
+                var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
+                if (facilitiesToAddProdution.Count > 0)
+                {
+                    var facilityId = facilitiesToAddProdution[0];
+                    facilitiesToAddProdution.Remove(facilityId);
+
+                    ActionHelper.StartFactoryProduction(facilityId, VehicleType.Fighter);
+                    return;
+
+                }
+            }
+
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)CommandsHelper.CurrentSelectedGroup)).ToArray();
 
             if (selectedUnits.Length == 0)
@@ -70,7 +84,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (GlobalHelper.MoveAllowed)
+            if (GlobalHelper.MoveAllowed && ConfigurationHelper.EnableNuclearStrike)
             {
                 if (me.NextNuclearStrikeTickIndex > 0)
                 {
@@ -85,10 +99,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                         }
                     }
                 }
-            }
 
-            if (GlobalHelper.MoveAllowed)
-            {
                 if (me.RemainingNuclearStrikeCooldownTicks <= 0)
                 {
                     var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits);
@@ -116,7 +127,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             var size = PotentialFieldsHelper.PpSize;
             PotentialFieldsHelper.Clear();
-            if (me.RemainingNuclearStrikeCooldownTicks <= 0)
+            if (me.RemainingNuclearStrikeCooldownTicks <= 0 && ConfigurationHelper.EnableNuclearStrike)
             {
                 PotentialFieldsHelper.ApplyPowerToNuclearStrike();
             }
@@ -475,123 +486,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                         unit.Y,
                         game.VehicleRadius * 3,
                         Color.FromArgb(200, 255, 255, 0));
-                }
-            }
-#endif
-        }
-
-        public void UpdateFacilitiesStates()
-        {
-            var worldFacilities = GlobalHelper.World.Facilities;
-
-            foreach (var worldFacility in worldFacilities)
-            {
-                if (!FacilityHelper.Facilities.ContainsKey(worldFacility.Id))
-                {
-                    FacilityHelper.Facilities.Add(worldFacility.Id, new FacilityEx());
-                }
-
-                var side = Side.Neutral;
-                if (worldFacility.OwnerPlayerId == GlobalHelper.Me.Id)
-                {
-                    side = Side.Our;
-                }
-                else if (worldFacility.OwnerPlayerId == GlobalHelper.Enemy.Id)
-                {
-                    side = Side.Enemy;
-                }
-
-                var facility = FacilityHelper.Facilities[worldFacility.Id];
-                //facility.Id = worldFacility.Id;
-                //facility.OwnerPlayerId = worldFacility.OwnerPlayerId;
-                //facility.ProductionProgress = worldFacility.ProductionProgress;
-                facility.Type = worldFacility.Type;
-                facility.CapturePoints = worldFacility.CapturePoints;
-                facility.Left = worldFacility.Left;
-                facility.Top = worldFacility.Top;
-                facility.Side = side;
-            }
-        }
-
-        private void DrawFacilities()
-        {
-#if DEBUG
-            var rewindClient = RewindClient.RewindClient.Instance;
-
-            var facilityWidth = GlobalHelper.Game.FacilityWidth;
-            var facilityHeight = GlobalHelper.Game.FacilityHeight;
-
-            var myColor = Color.FromArgb(100, 0, 0, 255);
-            var enemyColor = Color.FromArgb(100, 255, 0, 0);
-            var neutralColor = Color.FromArgb(100, 105, 105, 105);
-
-            foreach (var facility in FacilityHelper.Facilities.Values)
-            {
-                var color = neutralColor;
-                if (facility.Side == Side.Our)
-                {
-                    color = myColor;
-                }
-                else if(facility.Side == Side.Enemy)
-                {
-                    color = enemyColor;
-                }
-
-                rewindClient.Rectangle(
-                    facility.Left,
-                    facility.Top,
-                    facility.Left + facilityWidth,
-                    facility.Top + facilityHeight,
-                    color);
-
-                if (facility.Type == FacilityType.ControlCenter)
-                {
-                    rewindClient.Circle(facility.Left + facilityWidth / 2, facility.Top + facilityHeight / 2, facilityWidth / 3, color);
-                }
-                else if (facility.Type == FacilityType.VehicleFactory)
-                {
-                    rewindClient.Rectangle(
-                        facility.Left + facilityWidth * 0.25,
-                        facility.Top + facilityHeight * 0.25,
-                        facility.Left + facilityWidth * 0.75,
-                        facility.Top + facilityHeight * 0.75,
-                        color);
-                }
-
-                var maxFacilityCapturePoints = GlobalHelper.Game.MaxFacilityCapturePoints;
-
-                if (facility.CapturePoints > 0)
-                {
-                    var captureFactor = facility.CapturePoints / maxFacilityCapturePoints;
-                    var captureRange = facilityWidth * captureFactor;
-
-                    rewindClient.Rectangle(
-                        facility.Left,
-                        facility.Top + facilityHeight,
-                        facility.Left + captureRange,
-                        facility.Top + facilityHeight + 10,
-                        Color.Green);
-                }
-                else if (facility.CapturePoints < 0)
-                {
-                    var captureFactor = facility.CapturePoints / maxFacilityCapturePoints;
-                    var captureRange = -(facilityWidth * captureFactor);
-
-                    rewindClient.Rectangle(
-                        facility.Left,
-                        facility.Top + facilityHeight,
-                        facility.Left + captureRange,
-                        facility.Top + facilityHeight + 10,
-                        Color.Red);
-                }
-                else
-                {
-                    rewindClient.Rectangle(
-                        facility.Left,
-                        facility.Top + facilityHeight,
-                        facility.Left + facilityWidth,
-                        facility.Top + facilityHeight + 10,
-                        Color.DarkGray);
                 }
             }
 #endif
