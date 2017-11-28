@@ -8,9 +8,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public class ConfigurationHelper
     {
-        public static bool EnableNuclearStrike = false;
+        public static bool EnableNuclearStrike = true;
 
         public static bool FacilityCreateGroupEnabled = true;
-        public static int FacilityCreatedUnitsToCreateGroupCount = 25;
+        public static int FacilityCreatedUnitsToCreateGroupCount = 33;
     }
 }

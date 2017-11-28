@@ -504,6 +504,25 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     }
                 }
             }
+
+            var myFacilitiesControlCenter = FacilityHelper.Facilities.Values
+                .Where(x => x.Side != Side.Our)
+                .Where(x => x.Type == FacilityType.ControlCenter)
+                .ToArray();
+
+            foreach (var myFacilityControlCenter in myFacilitiesControlCenter)
+            {
+                var topPpX = (int)(myFacilityControlCenter.Left / PpSize);
+                var topPpY = (int)(myFacilityControlCenter.Top / PpSize);
+
+                for (int i = topPpX; i <= topPpX + 1; i++)
+                {
+                    for (int j = topPpY; j <= topPpY + 1; j++)
+                    {
+                        ApplyPower(PotentialFields, i, j, RangePowerMask49, BaseWorldCenterPower);
+                    }
+                }
+            }
         }
     }
 }
