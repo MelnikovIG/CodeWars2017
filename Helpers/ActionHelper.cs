@@ -10,16 +10,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public static class ActionHelper
     {
-        public static void SelectGroup(int groupId)
+        public static void SelectGroup(Group group)
         {
             CheckActionExistanse();
 
             var move = GlobalHelper.Move;
 
             move.Action = ActionType.ClearAndSelect;
-            move.Group = groupId;
+            move.Group = group.Id;
 
-            CommandsHelper.CurrentSelectedGroup = (Groups)groupId;
+            GroupHelper.CurrentGroup = group;
             CommandsHelper.Commands.Add(new BaseCommand(CommandType.SelectGroup));
         }
 
@@ -60,14 +60,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             CommandsHelper.Commands.Add(new MoveCommand());
         }
 
-        public static void SetSelectedGroup(int groupId)
+        public static void SetSelectedGroup(Group group)
         {
             CheckActionExistanse();
 
             GlobalHelper.Move.Action = ActionType.Assign;
-            GlobalHelper.Move.Group = groupId;
+            GlobalHelper.Move.Group = group.Id;
 
-            CommandsHelper.CurrentSelectedGroup = (Groups)groupId;
+            GroupHelper.CurrentGroup = group;
             CommandsHelper.Commands.Add(new BaseCommand(CommandType.SetGroup));
         }
 

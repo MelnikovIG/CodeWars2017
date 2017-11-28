@@ -184,7 +184,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void AppendEnemyPowerToDodge()
         {
-            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
+            var currentSelectedGroup = GroupHelper.CurrentGroup;
 
             var enemyPower = EnemyPowerToDodge;
 
@@ -194,7 +194,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             {
                 var power = enemyPower;
 
-                if (currentSelectedGroup == Groups.F1)
+                if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
                 {
                     if (enemy.Type == VehicleType.Helicopter)
                     {
@@ -209,7 +209,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         power = 0;
                     }
                 }
-                else if (currentSelectedGroup == Groups.H1)
+                else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
                 {
                     if (enemy.Type == VehicleType.Tank)
                     {
@@ -220,7 +220,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         power = -enemyPower/2;
                     }
                 }
-                else if (currentSelectedGroup == Groups.Tank1)
+                else if (currentSelectedGroup.VehicleType == VehicleType.Tank)
                 {
                     if (enemy.Type == VehicleType.Ifv)
                     {
@@ -235,7 +235,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         power = 0;
                     }
                 }
-                else if (currentSelectedGroup == Groups.Bmp1)
+                else if (currentSelectedGroup.VehicleType == VehicleType.Ifv)
                 {
                     if (enemy.Type == VehicleType.Helicopter)
                     {
@@ -267,11 +267,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void ApplyHealPower()
         {
-            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
+            var currentSelectedGroup = GroupHelper.CurrentGroup;
             var healPower = HealPower;
 
             //Сделаем притиягивание к вертолетам или самолетам
-            if (currentSelectedGroup == Groups.Healer1)
+            if (currentSelectedGroup.VehicleType == VehicleType.Arrv)
             {
                 var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
                 if (helicopters.Count > 0)
@@ -298,7 +298,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
             }
             //Сделаем притиягивание самолетов к хилкам, если они ранены
-            else if (currentSelectedGroup == Groups.F1)
+            else if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
             {
                 var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
                 if (fighters.Count > 0)
@@ -323,7 +323,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
             }
             //Сделаем притиягивание вертолетов к хилкам, если они ранены
-            else if (currentSelectedGroup == Groups.H1)
+            else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
             {
                 var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
                 if (helicopters.Count > 0)
@@ -445,11 +445,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void AppendAllyUnitsToDodge(MyLivingUnit[] selectedUnits)
         {
-            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
+            var currentSelectedGroup = GroupHelper.CurrentGroup;
 
             MyLivingUnit[] allyUnitsToDodge = new MyLivingUnit[0];
 
-            if (currentSelectedGroup == Groups.F1 || currentSelectedGroup == Groups.H1)
+            if (currentSelectedGroup.VehicleType == VehicleType.Fighter ||
+                currentSelectedGroup.VehicleType == VehicleType.Helicopter)
             {
                 var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
                 allyUnitsToDodge = UnitHelper.Units.Values
@@ -458,7 +459,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                              && (x.Type == VehicleType.Fighter || x.Type == VehicleType.Helicopter)
                              && !selectedUnitIds.Contains(x.Id)).ToArray();
             }
-            else if (currentSelectedGroup == Groups.Tank1 || currentSelectedGroup == Groups.Bmp1 || currentSelectedGroup == Groups.Healer1)
+            else if (currentSelectedGroup.VehicleType == VehicleType.Tank ||
+                     currentSelectedGroup.VehicleType == VehicleType.Ifv ||
+                     currentSelectedGroup.VehicleType == VehicleType.Arrv)
             {
                 var selectedUnitIds = selectedUnits.Select(x => x.Id).ToArray();
                 allyUnitsToDodge = UnitHelper.Units.Values
@@ -479,8 +482,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void ApplyFacilitiesPower()
         {
-            var currentSelectedGroup = CommandsHelper.CurrentSelectedGroup;
-            if (currentSelectedGroup == Groups.F1 || currentSelectedGroup == Groups.H1)
+            var currentSelectedGroup = GroupHelper.CurrentGroup;
+            if (currentSelectedGroup.VehicleType == VehicleType.Fighter ||
+                currentSelectedGroup.VehicleType == VehicleType.Helicopter)
             {
                 return;
             }

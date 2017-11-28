@@ -71,13 +71,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
             }
 
-            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)CommandsHelper.CurrentSelectedGroup)).ToArray();
+            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
 
             if (selectedUnits.Length == 0)
             {
                 if (GlobalHelper.MoveAllowed)
                 {
-                    SelectNextGroup();
+                    GroupHelper.SelectNextGroup();
                     return;
                 }
 
@@ -154,7 +154,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 //Если на предыдущем ходу текущая группа уже двигалась, передадим управление след группе
                 if (CommandsHelper.Commands.Last().CommandType == CommandType.Move)
                 {
-                    var isSelectSuccess = SelectNextGroup();
+                    var isSelectSuccess = GroupHelper.SelectNextGroup();
                     if (isSelectSuccess)
                     {
                         return;
@@ -175,78 +175,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             return;
         }
 
-        private List<Groups> GroupsList = new List<Groups>()
-        {
-            Groups.F1,
-            Groups.H1,
-            Groups.Tank1,
-            Groups.Bmp1,
-            Groups.Healer1,
-        };
-
-        private bool SelectNextGroup()
-        {
-            var currentGroup = (Groups) CommandsHelper.CurrentSelectedGroup;
-            var currentGroupIndex = GroupsList.IndexOf(currentGroup);
-
-            if (currentGroupIndex < 0)
-            {
-                throw new NotImplementedException("currentGroupIndex < 0");
-            }
-
-            Groups newGroupType;
-
-            do
-            {
-                var nextGroupIdx = currentGroupIndex == GroupsList.Count - 1 ? 0 : currentGroupIndex + 1;
-                newGroupType = GroupsList[nextGroupIdx];
-
-                var newGroupUnitsCount = UnitHelper.UnitsAlly
-                    .Where(x => x.Groups.Contains((int) newGroupType)).ToArray();
-
-                if (newGroupUnitsCount.Length > 0)
-                {
-                    ActionHelper.SelectGroup((int) newGroupType);
-                    return true;
-                }
-                currentGroupIndex = nextGroupIdx;
-
-            } while (newGroupType != currentGroup);
-
-            return false;
-        }
-
         private class HasTargetToNuclearAttackResult
         {
             public bool Success { get; set; }
             public MyLivingUnit SelectedUnitRes { get; set; }
             public MyLivingUnit EnemyRes { get; set; }
-        }
-
-        private double GetVisionRangeOfCurrentSelectedUnutType()
-        {
-            if (CommandsHelper.CurrentSelectedGroup == Groups.F1)
-            {
-                return GlobalHelper.Game.FighterVisionRange;
-            }
-            else if (CommandsHelper.CurrentSelectedGroup == Groups.H1)
-            {
-                return GlobalHelper.Game.HelicopterVisionRange;
-            }
-            else if (CommandsHelper.CurrentSelectedGroup == Groups.Tank1)
-            {
-                return GlobalHelper.Game.TankVisionRange;
-            }
-            else if (CommandsHelper.CurrentSelectedGroup == Groups.Bmp1)
-            {
-                return GlobalHelper.Game.IfvVisionRange;
-            }
-            else if (CommandsHelper.CurrentSelectedGroup == Groups.Healer1)
-            {
-                return GlobalHelper.Game.ArrvVisionRange;
-            }
-
-            throw new NotImplementedException();
         }
 
         private HasTargetToNuclearAttackResult HasTargetToNuclearAttack(MyLivingUnit[] selectedUnits)
@@ -566,13 +499,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 1)
             {
-                ActionHelper.SetSelectedGroup((int)Groups.F1);
+                GroupHelper.CreateFroupForSelected(VehicleType.Fighter);
                 return;
             }
 
             if (PrepareStep == 2)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.F1)).ToArray();
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
                 var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
 
@@ -588,13 +521,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 4)
             {
-                ActionHelper.SetSelectedGroup((int)Groups.H1);
+                GroupHelper.CreateFroupForSelected(VehicleType.Helicopter);
                 return;
             }
 
             if (PrepareStep == 5)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.H1)).ToArray();
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
                 var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
 
@@ -610,13 +543,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 7)
             {
-                ActionHelper.SetSelectedGroup((int)Groups.Tank1);
+                GroupHelper.CreateFroupForSelected(VehicleType.Tank);
                 return;
             }
 
             if (PrepareStep == 8)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Tank1)).ToArray();
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
                 var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
 
@@ -632,13 +565,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 10)
             {
-                ActionHelper.SetSelectedGroup((int)Groups.Bmp1);
+                GroupHelper.CreateFroupForSelected(VehicleType.Ifv);
                 return;
             }
 
             if (PrepareStep == 11)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Bmp1)).ToArray();
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
                 var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
 
@@ -654,13 +587,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 13)
             {
-                ActionHelper.SetSelectedGroup((int)Groups.Healer1);
+                GroupHelper.CreateFroupForSelected(VehicleType.Arrv);
                 return;
             }
 
             if (PrepareStep == 14)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains((int)Groups.Healer1)).ToArray();
+                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
                 var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
                 var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
 
@@ -669,12 +602,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
 
             if (PrepareStep == 15)
-            {
-                SelectUnitsOfType(VehicleType.Helicopter);
-                return;
-            }
-
-            if (PrepareStep == 16)
             {
                 Prepared = true;
             }
