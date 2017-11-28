@@ -57,6 +57,24 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
             }
 
+            if (QueueHelper.Queue.Count > 0)
+            {
+                if (!GlobalHelper.MoveAllowed)
+                {
+                    return;
+                }
+
+                var task = QueueHelper.Queue.Dequeue();
+
+                if (task is AddSelecteUnitsToNewGroupTask)
+                {
+                    GroupHelper.CreateFroupForSelected((task as AddSelecteUnitsToNewGroupTask).VehicleType);
+                    return;
+                }
+
+                return;
+            }
+
             if (GlobalHelper.MoveAllowed)
             {
                 var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
@@ -68,6 +86,34 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     ActionHelper.StartFactoryProduction(facilityId, VehicleType.Fighter);
                     return;
 
+                }
+
+                var facilitiesToCreateGroup = FacilityProductionHelper.FacilitiesToCreateGroup;
+                if (facilitiesToCreateGroup.Count > 0 && ConfigurationHelper.FacilityCreateGroupEnabled)
+                {
+                    var facility = facilitiesToCreateGroup[0];
+                    facilitiesToCreateGroup.Remove(facility);
+
+                    var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
+                    if (createdUnassignedUnits.Length > 0)
+                    {
+
+                        var facilityWidth = GlobalHelper.Game.FacilityWidth;
+                        var facilityHeight = GlobalHelper.Game.FacilityHeight;
+
+                        var vehicleType = VehicleType.Fighter;
+
+                        ActionHelper.Select(
+                            facility.Left,
+                            facility.Top,
+                            facility.Left + facilityWidth,
+                            facility.Top + facilityHeight,
+                            vehicleType);
+
+                        QueueHelper.Queue.Enqueue(new AddSelecteUnitsToNewGroupTask(vehicleType));
+
+                        return;
+                    }
                 }
             }
 
@@ -602,6 +648,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
 
             if (PrepareStep == 15)
+            {
+                GroupHelper.SelectNextGroup();
+            }
+
+            if (PrepareStep == 16)
             {
                 Prepared = true;
             }

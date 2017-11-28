@@ -70,6 +70,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 facility.LostMineThisTick = lostMineThisTick;
 
                 var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
+                var facilitiesToCreateGroup = FacilityProductionHelper.FacilitiesToCreateGroup;
                 if (facility.Type == FacilityType.VehicleFactory)
                 {
                     if (gotMineThisTick)
@@ -85,6 +86,22 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         if (facilitiesToAddProdution.Contains(facility.Id))
                         {
                             facilitiesToAddProdution.Remove(facility.Id);
+                        }
+
+                        //Если потеряли завод, создаем в группу все что есть
+                        if (!facilitiesToCreateGroup.Contains(facility))
+                        {
+                            facilitiesToCreateGroup.Add(facility);
+                        }
+                    }
+
+                    var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
+                    if (createdUnassignedUnits.Length >= ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount)
+                    {
+                        //Если набрали достаточно юнитов, создаем группу
+                        if (!facilitiesToCreateGroup.Contains(facility))
+                        {
+                            facilitiesToCreateGroup.Add(facility);
                         }
                     }
                 }

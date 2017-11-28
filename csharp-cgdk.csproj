@@ -83,6 +83,7 @@
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\GroupHelper.cs" />
     <Compile Include="Helpers\PotentialFieldsHelper.cs" />
+    <Compile Include="Helpers\QueueHelper.cs" />
     <Compile Include="Helpers\UnitHelper.cs" />
     <Compile Include="Model\ActionType.cs" />
     <Compile Include="Model\CircularUnit.cs" />
