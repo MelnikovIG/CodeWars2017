@@ -194,16 +194,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             var fieldEnemiesUnbeatable = new float[PpSize, PpSize];
 
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-            //var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
-            //var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
-            //var cellXCur = (int)cx / PpSize;
-            //var cellYCur = (int)cy / PpSize;
-            //var centerPower = fieldMyGroup[cellXCur, cellYCur];
-            foreach (var selectedUnit in selectedUnits)
+
+            if (currentSelectedGroup.VehicleType != VehicleType.Arrv)
             {
-                var cXSel = (int)selectedUnit.X / PpSize;
-                var cYSel = (int)selectedUnit.Y / PpSize;
-                ApplyPower(fieldMyGroup, cXSel, cYSel, powerMask, 100);
+                foreach (var selectedUnit in selectedUnits)
+                {
+                    var cXSel = (int)selectedUnit.X / PpSize;
+                    var cYSel = (int)selectedUnit.Y / PpSize;
+                    ApplyPower(fieldMyGroup, cXSel, cYSel, powerMask, 100);
+                }
             }
 
             var basePower = EnemyPowerToDodge;
@@ -378,11 +377,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     }
                     else if (enemy.Type == VehicleType.Arrv)
                     {
-                        power = basePower * 0.01F; //Чтобы не сталкиваться
+                        power = basePower * 0; //Чтобы не сталкиваться
                     }
                     
                     //Всех бомся
-                    ApplyPower(fieldEnemiesUnbeatable, cellX, cellY, powerMask, power);
+                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
                 }
             }
 
