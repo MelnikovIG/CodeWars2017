@@ -18,6 +18,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public const int HealPower = 10;
         public const float FliersToHealDurabilityFactor = 0.9F;
         public const float FactoryPower = -250;
+        public const float Epsilon = 0.000000001F;
 
         public static int PpSize = 32;
         public static float[,] PotentialFields = new float[PpSize, PpSize];
@@ -184,83 +185,230 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void AppendEnemyPowerToDodge()
         {
+            var powerMask = RangePowerMask7;
+
             var currentSelectedGroup = GroupHelper.CurrentGroup;
 
-            var enemyPower = EnemyPowerToDodge;
+            var fieldMyGroup = new float[PpSize, PpSize];
+            var fieldEnemies = new float[PpSize, PpSize];
+            var fieldEnemiesUnbeatable = new float[PpSize, PpSize];
 
-            var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
-
-            foreach (var enemy in enemies)
+            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
+            //var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
+            //var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
+            //var cellXCur = (int)cx / PpSize;
+            //var cellYCur = (int)cy / PpSize;
+            //var centerPower = fieldMyGroup[cellXCur, cellYCur];
+            foreach (var selectedUnit in selectedUnits)
             {
-                var power = enemyPower;
+                var cXSel = (int)selectedUnit.X / PpSize;
+                var cYSel = (int)selectedUnit.Y / PpSize;
+                ApplyPower(fieldMyGroup, cXSel, cYSel, powerMask, 100);
+            }
 
-                if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
+            var basePower = EnemyPowerToDodge;
+
+            var enemies = UnitHelper.Units.Values
+                .Where(x => x.Side == Side.Enemy)
+                .ToArray();
+
+            if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
+            {
+                foreach (var enemy in enemies)
                 {
-                    if (enemy.Type == VehicleType.Helicopter)
+                    var cellX = (int)enemy.X / PpSize;
+                    var cellY = (int)enemy.Y / PpSize;
+
+                    var power = (float)basePower;
+
+                    if (enemy.Type == VehicleType.Fighter)
                     {
-                        power = -enemyPower;
+                        power = basePower * 1;
+                    }
+                    else if (enemy.Type == VehicleType.Helicopter)
+                    {
+                        power = basePower * 0.6F;
+                    }
+                    else if (enemy.Type == VehicleType.Ifv)
+                    {
+                        power = basePower * 0.4F;
                     }
                     else if (enemy.Type == VehicleType.Tank)
                     {
-                        power = 0;
+                        power = basePower * 0;
                     }
                     else if (enemy.Type == VehicleType.Arrv)
                     {
-                        power = 0;
+                        power = basePower * 0;
                     }
-                }
-                else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
-                {
-                    if (enemy.Type == VehicleType.Tank)
-                    {
-                        power = -enemyPower;
-                    }
-                    if (enemy.Type == VehicleType.Arrv)
-                    {
-                        power = -enemyPower/2;
-                    }
-                }
-                else if (currentSelectedGroup.VehicleType == VehicleType.Tank)
-                {
+
                     if (enemy.Type == VehicleType.Ifv)
                     {
-                        power = -enemyPower;
+                        ApplyPower(fieldEnemiesUnbeatable, cellX, cellY, powerMask, power);
                     }
-                    if (enemy.Type == VehicleType.Arrv)
+                    else
                     {
-                        power = -enemyPower / 2;
+                        ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
                     }
+                }
+            }
+            else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
+            {
+                foreach (var enemy in enemies)
+                {
+                    var cellX = (int)enemy.X / PpSize;
+                    var cellY = (int)enemy.Y / PpSize;
+
+                    var power = (float)basePower;
+
                     if (enemy.Type == VehicleType.Fighter)
                     {
-                        power = 0;
+                        power = basePower * 1.4F;
                     }
-                }
-                else if (currentSelectedGroup.VehicleType == VehicleType.Ifv)
-                {
-                    if (enemy.Type == VehicleType.Helicopter)
+                    else if (enemy.Type == VehicleType.Helicopter)
                     {
-                        power = -enemyPower;
+                        power = basePower * 1;
                     }
+                    else if (enemy.Type == VehicleType.Ifv)
+                    {
+                        power = basePower * 0.6F;
+                    }
+                    else if (enemy.Type == VehicleType.Tank)
+                    {
+                        power = basePower * 0.6F;
+                    }
+                    else if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = basePower * 0.01F;
+                    }
+
+                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
+                }
+            }
+            else if (currentSelectedGroup.VehicleType == VehicleType.Tank)
+            {
+                foreach (var enemy in enemies)
+                {
+                    var cellX = (int)enemy.X / PpSize;
+                    var cellY = (int)enemy.Y / PpSize;
+
+                    var power = (float)basePower;
+
                     if (enemy.Type == VehicleType.Fighter)
                     {
-                        power = -enemyPower;
+                        power = basePower * 0;
                     }
-                    if (enemy.Type == VehicleType.Arrv)
+                    else if (enemy.Type == VehicleType.Helicopter)
                     {
-                        power = -enemyPower / 2;
+                        power = basePower * 1.4F;
                     }
-                }
+                    else if (enemy.Type == VehicleType.Ifv)
+                    {
+                        power = basePower * 0.6F;
+                    }
+                    else if (enemy.Type == VehicleType.Tank)
+                    {
+                        power = basePower * 1;
+                    }
+                    else if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = basePower * 0.01F;
+                    }
 
-                var cellX = (int)enemy.X / PpSize;
-                var cellY = (int)enemy.Y / PpSize;
-
-                if (power > 0)
-                {
-                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask5, power);
+                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
                 }
-                else
+            }
+            else if (currentSelectedGroup.VehicleType == VehicleType.Ifv)
+            {
+                foreach (var enemy in enemies)
                 {
-                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, power);
+                    var cellX = (int)enemy.X / PpSize;
+                    var cellY = (int)enemy.Y / PpSize;
+
+                    var power = (float)basePower;
+
+                    if (enemy.Type == VehicleType.Fighter)
+                    {
+                        power = basePower * 0.01F;
+                    }
+                    else if (enemy.Type == VehicleType.Helicopter)
+                    {
+                        power = basePower * 1;
+                    }
+                    else if (enemy.Type == VehicleType.Ifv)
+                    {
+                        power = basePower * 1;
+                    }
+                    else if (enemy.Type == VehicleType.Tank)
+                    {
+                        power = basePower * 1.5F;
+                    }
+                    else if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = basePower * 0.01F;
+                    }
+
+                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
+                }
+            }
+            else if (currentSelectedGroup.VehicleType == VehicleType.Arrv)
+            {
+                foreach (var enemy in enemies)
+                {
+                    var cellX = (int)enemy.X / PpSize;
+                    var cellY = (int)enemy.Y / PpSize;
+
+                    var power = (float)basePower;
+
+                    if (enemy.Type == VehicleType.Fighter)
+                    {
+                        power = basePower * 0;
+                    }
+                    else if (enemy.Type == VehicleType.Helicopter)
+                    {
+                        power = basePower * 1;
+                    }
+                    else if (enemy.Type == VehicleType.Ifv)
+                    {
+                        power = basePower * 1;
+                    }
+                    else if (enemy.Type == VehicleType.Tank)
+                    {
+                        power = basePower * 1;
+                    }
+                    else if (enemy.Type == VehicleType.Arrv)
+                    {
+                        power = basePower * 0.01F; //Чтобы не сталкиваться
+                    }
+                    
+                    //Всех бомся
+                    ApplyPower(fieldEnemiesUnbeatable, cellX, cellY, powerMask, power);
+                }
+            }
+
+            for (int i = 0; i < PpSize; i++)
+            {
+                for (int j = 0; j < PpSize; j++)
+                {
+                    var myPower = fieldMyGroup[i, j] ;
+                    var enemyPower = fieldEnemies[i, j];
+
+                    if (Math.Abs(enemyPower) < Epsilon)
+                    {
+                        continue;
+                    }
+
+                    var diff = (enemyPower - myPower) + fieldEnemiesUnbeatable[i, j];
+
+                    if (diff > 0)
+                    {
+                        PotentialFields[i, j] += diff;
+                    }
+                    else
+                    {
+                        diff *= enemyPower;
+                        PotentialFields[i, j] += diff;
+                    }
                 }
             }
         }
