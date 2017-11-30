@@ -167,13 +167,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         facility.Top + facilityHeight + 10,
                         Color.Green);
 
-                    var progressRange = facilityWidth * facility.ProductionProgress / 60;
-                    rewindClient.Rectangle(
-                        facility.Left,
-                        facility.Top + facilityHeight + 10,
-                        facility.Left + progressRange,
-                        facility.Top + facilityHeight + 20,
-                        Color.Green);
+                    if (facility.VehicleType != null)
+                    {
+                        var progressRange = facilityWidth * facility.ProductionProgress /
+                                            GetProdutionTicksForType(facility.VehicleType.Value);
+                        rewindClient.Rectangle(
+                            facility.Left,
+                            facility.Top + facilityHeight + 10,
+                            facility.Left + progressRange,
+                            facility.Top + facilityHeight + 20,
+                            Color.Green);
+                    }
                 }
                 else if (facility.CapturePoints < 0)
                 {
@@ -187,13 +191,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         facility.Top + facilityHeight + 10,
                         Color.Red);
 
-                    var progressRange = facilityWidth * facility.ProductionProgress / 60;
-                    rewindClient.Rectangle(
-                        facility.Left,
-                        facility.Top + facilityHeight + 10,
-                        facility.Left + progressRange,
-                        facility.Top + facilityHeight + 20,
-                        Color.Red);
+                    if (facility.VehicleType != null)
+                    {
+                        var progressRange = facilityWidth * facility.ProductionProgress /
+                                            GetProdutionTicksForType(facility.VehicleType.Value);
+                        rewindClient.Rectangle(
+                            facility.Left,
+                            facility.Top + facilityHeight + 10,
+                            facility.Left + progressRange,
+                            facility.Top + facilityHeight + 20,
+                            Color.Red);
+                    }
                 }
                 else
                 {
@@ -206,6 +214,32 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
             }
 #endif
+        }
+
+        private static int GetProdutionTicksForType(VehicleType vehicleType)
+        {
+            if (vehicleType == VehicleType.Fighter)
+            {
+                return GlobalHelper.Game.FighterProductionCost;
+            }
+            if (vehicleType == VehicleType.Helicopter)
+            {
+                return GlobalHelper.Game.HelicopterProductionCost;
+            }
+            if (vehicleType == VehicleType.Tank)
+            {
+                return GlobalHelper.Game.TankProductionCost;
+            }
+            if (vehicleType == VehicleType.Ifv)
+            {
+                return GlobalHelper.Game.IfvProductionCost;
+            }
+            if (vehicleType == VehicleType.Arrv)
+            {
+                return GlobalHelper.Game.ArrvProductionCost;
+            }
+
+            throw new NotImplementedException();
         }
 
         public static MyLivingUnit[] GetCreatedUnassignedUnits(this FacilityEx facilityEx)
