@@ -106,6 +106,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             CommandsHelper.Commands.Add(new BaseCommand(CommandType.StartFactoryProduction));
         }
 
+        public static void StopFactoryProduction(long facilityId)
+        {
+            CheckActionExistanse();
+
+            GlobalHelper.Move.Action = ActionType.SetupVehicleProduction;
+            GlobalHelper.Move.FacilityId = facilityId;
+            GlobalHelper.Move.VehicleType = null;
+
+            CommandsHelper.Commands.Add(new BaseCommand(CommandType.StartFactoryProduction));
+        }
+
         private static void CheckActionExistanse()
         {
             if (GlobalHelper.Move.Action != null)

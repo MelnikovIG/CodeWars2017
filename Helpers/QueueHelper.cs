@@ -25,4 +25,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             VehicleType = vehicleType;
         }
     }
+
+    public class StartProduction : QueueTask
+    {
+        public readonly FacilityEx Facility;
+
+        public StartProduction(FacilityEx facility)
+        {
+            Facility = facility;
+        }
+    }
 }

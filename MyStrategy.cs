@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 using RewindClient;
@@ -71,6 +72,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     GroupHelper.CreateFroupForSelected((task as AddSelecteUnitsToNewGroupTask).VehicleType);
                     return;
                 }
+                else if (task is StartProduction)
+                {
+                    var sp = task as StartProduction;
+                    ActionHelper.StartFactoryProduction(sp.Facility.Id, GetVehicleTypeToStartProduction());
+                    return;
+                }
 
                 return;
             }
@@ -83,9 +90,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var facilityId = facilitiesToAddProdution[0];
                     facilitiesToAddProdution.Remove(facilityId);
 
-                    ActionHelper.StartFactoryProduction(facilityId, VehicleType.Fighter);
+                    ActionHelper.StartFactoryProduction(facilityId, GetVehicleTypeToStartProduction());
                     return;
-
                 }
 
                 var facilitiesToCreateGroup = FacilityProductionHelper.FacilitiesToCreateGroup;
@@ -94,25 +100,31 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var facility = facilitiesToCreateGroup[0];
                     facilitiesToCreateGroup.Remove(facility);
 
-                    var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
-                    if (createdUnassignedUnits.Length > 0)
+                    if (facility.Side == Side.Our)
                     {
+                        var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
+                        if (createdUnassignedUnits.Length > 0)
+                        {
+                            var facilityWidth = GlobalHelper.Game.FacilityWidth;
+                            var facilityHeight = GlobalHelper.Game.FacilityHeight;
 
-                        var facilityWidth = GlobalHelper.Game.FacilityWidth;
-                        var facilityHeight = GlobalHelper.Game.FacilityHeight;
+                            ActionHelper.Select(
+                                facility.Left,
+                                facility.Top,
+                                facility.Left + facilityWidth,
+                                facility.Top + facilityHeight,
+                                facility.VehicleType);
 
-                        var vehicleType = VehicleType.Fighter;
+                            QueueHelper.Queue.Enqueue(new AddSelecteUnitsToNewGroupTask(facility.VehicleType.Value));
 
-                        ActionHelper.Select(
-                            facility.Left,
-                            facility.Top,
-                            facility.Left + facilityWidth,
-                            facility.Top + facilityHeight,
-                            vehicleType);
+                            QueueHelper.Queue.Enqueue(new StartProduction(facility));
 
-                        QueueHelper.Queue.Enqueue(new AddSelecteUnitsToNewGroupTask(vehicleType));
-
-                        return;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        //Хз что делать, потеряли завод?
                     }
                 }
             }
@@ -219,6 +231,28 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 ActionHelper.Move(vx, vy);
             }
             return;
+        }
+
+        private VehicleType GetVehicleTypeToStartProduction()
+        {
+            var vehicleType = VehicleType.Tank;
+
+            var alliesCanProduct = UnitHelper.UnitsAlly.Where(x => x.Type != VehicleType.Arrv).ToArray();
+
+            if (alliesCanProduct.Length > 0)
+            {
+                var aliesByType = alliesCanProduct.GroupBy(x => x.Type).Select(x => new
+                {
+                    X = x.Key,
+                    Count = x.Count()
+                }).ToList();
+
+                var minAllyCount = aliesByType.Min(x => x.Count);
+                var minAlly = aliesByType.First(x => x.Count == minAllyCount);
+                vehicleType = minAlly.X;
+            }
+
+            return vehicleType;
         }
 
         private class HasTargetToNuclearAttackResult

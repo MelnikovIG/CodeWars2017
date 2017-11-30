@@ -11,6 +11,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static bool EnableNuclearStrike = true;
 
         public static bool FacilityCreateGroupEnabled = true;
-        public static int FacilityCreatedUnitsToCreateGroupCount = 11 * 5;
+        public static int FacilityCreatedUnitsToCreateGroupCount = 11 * 3;
     }
 }
