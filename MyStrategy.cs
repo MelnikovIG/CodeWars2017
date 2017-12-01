@@ -78,6 +78,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     FacilityProductionHelper.StartFactoryProduction(sp.Facility);
                     return;
                 }
+                else if (task is NuclearStrike)
+                {
+                    var ns = task as NuclearStrike;
+                    ActionHelper.NuclearStrike(ns.VehicleId, ns.X, ns.Y);
+                    return;
+                }
 
                 return;
             }
@@ -156,21 +162,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                     if (hasTargetToNuclearAttack.Success)
                     {
-                        //Если остановились для выстрела, высрелим
-                        if (CommandsHelper.Commands.Last().CommandType == CommandType.StopMove)
-                        {
-                            var selectedUnit = hasTargetToNuclearAttack.SelectedUnitRes;
-                            var enemyUnit = hasTargetToNuclearAttack.EnemyRes;
+                        //Остановимся для выстрела
+                        ActionHelper.StopMove();
 
-                            ActionHelper.NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y);
-                            return;
-                        }
-                        //Иначе остановимся для выстрела на след ходу
-                        else
-                        {
-                            ActionHelper.StopMove();
-                            return;
-                        }
+
+                        var selectedUnit = hasTargetToNuclearAttack.SelectedUnitRes;
+                        var enemyUnit = hasTargetToNuclearAttack.EnemyRes;
+                        QueueHelper.Queue.Enqueue(new NuclearStrike(selectedUnit.Id, enemyUnit.X, enemyUnit.Y));
+
+                        return;
                     }
                 }
             }
@@ -201,12 +201,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (GlobalHelper.MoveAllowed)
             {
+                var currentSelectedGroup = GroupHelper.CurrentGroup;
                 //Если на предыдущем ходу текущая группа уже двигалась, передадим управление след группе
-                if (CommandsHelper.Commands.Last().CommandType == CommandType.Move)
+                if (currentSelectedGroup.Moved)
                 {
                     var isSelectSuccess = GroupHelper.SelectNextGroup();
                     if (isSelectSuccess)
                     {
+                        currentSelectedGroup.Moved = false;
                         return;
                     }
                 }
@@ -221,6 +223,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 var vx = nextPpPoint.X * size + size / 2d - cx;
                 var vy = nextPpPoint.Y * size + size / 2d - cy;
                 ActionHelper.Move(vx, vy);
+                currentSelectedGroup.Moved = true;
             }
             return;
         }

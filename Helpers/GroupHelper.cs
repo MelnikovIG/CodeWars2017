@@ -62,6 +62,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     {
         public int Id { get; set; }
         public VehicleType VehicleType { get; set; }
+        /// <summary>
+        /// Ходила ли группа после выбора
+        /// </summary>
+        public bool Moved { get; set; }
 
         public Group(int id, VehicleType vehicleType)
         {

@@ -35,4 +35,18 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             Facility = facility;
         }
     }
+
+    public class NuclearStrike : QueueTask
+    {
+        public long VehicleId { get; }
+        public double X { get; }
+        public double Y { get; }
+
+        public NuclearStrike(long vehicleId, double x, double y)
+        {
+            VehicleId = vehicleId;
+            X = x;
+            Y = y;
+        }
+    }
 }
