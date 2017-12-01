@@ -23,6 +23,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public bool LostMineThisTick { get; set; }
         public int ProductionProgress { get; set; }
         public VehicleType? VehicleType { get; set; }
+
+        //Поможет в случае потери завода
+        public VehicleType? LastAssignedVehicleType { get; set; }
     }
 
     public static class FacilityHelper
@@ -75,17 +78,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 {
                     if (gotMineThisTick)
                     {
-                        if (!facilitiesToAddProdution.Contains(facility.Id))
+                        if (!facilitiesToAddProdution.Contains(facility))
                         {
-                            facilitiesToAddProdution.Add(facility.Id);
+                            facilitiesToAddProdution.Add(facility);
                         }
                     }
 
                     if (lostMineThisTick)
                     {
-                        if (facilitiesToAddProdution.Contains(facility.Id))
+                        if (facilitiesToAddProdution.Contains(facility))
                         {
-                            facilitiesToAddProdution.Remove(facility.Id);
+                            facilitiesToAddProdution.Remove(facility);
                         }
 
                         //Если потеряли завод, создаем в группу все что есть
@@ -96,7 +99,25 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     }
 
                     var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
-                    if (createdUnassignedUnits.Length >= ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount)
+
+                    var facilityCreatedUnitsToCreateGroupCount = ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount1;
+
+                    if (UnitHelper.UnitsEnemy.Length > 0)
+                    {
+                        var alliestToEnemyCoef = (float)UnitHelper.UnitsAlly.Length / UnitHelper.UnitsEnemy.Length;
+                        if (alliestToEnemyCoef > 1.5)
+                        {
+                            facilityCreatedUnitsToCreateGroupCount =
+                                ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount3;
+                        }
+                        else if (alliestToEnemyCoef > 1.1)
+                        {
+                            facilityCreatedUnitsToCreateGroupCount =
+                                ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount2;
+                        }
+                    }
+
+                    if (createdUnassignedUnits.Length >= facilityCreatedUnitsToCreateGroupCount)
                     {
                         //Если набрали достаточно юнитов, создаем группу
                         if (!facilitiesToCreateGroup.Contains(facility))
