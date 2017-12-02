@@ -67,6 +67,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         /// </summary>
         public bool Moved { get; set; }
 
+        /// <summary>s
+        /// Количество ходов группы
+        /// </summary>
+        public int MovesCount { get; set; }
+
         public Group(int id, VehicleType vehicleType)
         {
             Id = id;

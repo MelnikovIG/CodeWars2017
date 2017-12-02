@@ -213,17 +213,28 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     }
                 }
 
-                var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
-                var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
+                if (currentSelectedGroup.MovesCount > 0 && currentSelectedGroup.MovesCount % ConfigurationHelper.MovesCoutToScale == 0)
+                {
+                    ScaleCurrentGroupToCenter();
+                }
+                else
+                {
+                    var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
+                    var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
 
-                var nextPpPoint = PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
-                rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size,
-                    (nextPpPoint.Y + 1) * size, Color.Black);
+                    var nextPpPoint = PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
+                    rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size,
+                        (nextPpPoint.Y + 1) * size, Color.Black);
 
-                var vx = nextPpPoint.X * size + size / 2d - cx;
-                var vy = nextPpPoint.Y * size + size / 2d - cy;
-                ActionHelper.Move(vx, vy);
+                    var vx = nextPpPoint.X * size + size / 2d - cx;
+                    var vy = nextPpPoint.Y * size + size / 2d - cy;
+                    ActionHelper.Move(vx, vy);
+                }
+
                 currentSelectedGroup.Moved = true;
+                currentSelectedGroup.MovesCount++;
+
+                return;
             }
             return;
         }
@@ -558,11 +569,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 2)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
-                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
-
-                ActionHelper.Scale(xScale, yScale, 0.1);
+                ScaleCurrentGroupToCenter();
                 return;
             }
 
@@ -580,11 +587,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 5)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
-                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
-
-                ActionHelper.Scale(xScale, yScale, 0.1);
+                ScaleCurrentGroupToCenter();
                 return;
             }
 
@@ -602,11 +605,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 8)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
-                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
-
-                ActionHelper.Scale(xScale, yScale, 0.1);
+                ScaleCurrentGroupToCenter();
                 return;
             }
 
@@ -624,11 +623,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 11)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
-                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
-
-                ActionHelper.Scale(xScale, yScale, 0.1);
+                ScaleCurrentGroupToCenter();
                 return;
             }
 
@@ -646,11 +641,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             if (PrepareStep == 14)
             {
-                var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-                var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
-                var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
-
-                ActionHelper.Scale(xScale, yScale, 0.1);
+                ScaleCurrentGroupToCenter();
                 return;
             }
 
@@ -663,6 +654,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             {
                 Prepared = true;
             }
+        }
+
+        private static void ScaleCurrentGroupToCenter()
+        {
+            var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
+            var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
+            var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+
+            ActionHelper.Scale(xScale, yScale, 0.1);
+
+            RewindClient.RewindClient.Instance.Circle(xScale, yScale, 10, Color.Black);
         }
 
         private static void SelectUnitsOfType(VehicleType vehicleType)
