@@ -21,10 +21,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public const float Epsilon = 0.000000001F;
 
         public static int PpSize = 32;
+        public static double PpCellLength = GlobalHelper.Game.WorldHeight / PpSize; //32
         public static float[,] PotentialFields = new float[PpSize, PpSize];
 
+        public static float[,] RangePowerMask3 = CreatePfEx(3);
         public static float[,] RangePowerMask5 = CreatePfEx(5);
         public static float[,] RangePowerMask7 = CreatePfEx(7);
+        public static float[,] RangePowerMask9 = CreatePfEx(9);
         public static float[,] RangePowerMask49 = CreatePfEx(49); //Притягиваем на 2/3 карты
 
         public static void Clear()
@@ -185,231 +188,271 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void AppendEnemyPowerToDodge()
         {
-            var powerMask = RangePowerMask7;
+            //GetNearestEnemyCanAttackMe();
+            GetNearestEnemyICanAttack();
+        }
 
-            var currentSelectedGroup = GroupHelper.CurrentGroup;
-
-            var fieldMyGroup = new float[PpSize, PpSize];
-            var fieldEnemies = new float[PpSize, PpSize];
-            var fieldEnemiesUnbeatable = new float[PpSize, PpSize];
+        private static void GetNearestEnemyCanAttackMe()
+        {
+            var currentSelectedUnitType = GroupHelper.CurrentGroup.VehicleType;
 
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
+            var avgX = selectedUnits.Average(x => x.X);
+            var avgY = selectedUnits.Average(x => x.Y);
 
-            if (currentSelectedGroup.VehicleType != VehicleType.Arrv)
-            {
-                foreach (var selectedUnit in selectedUnits)
-                {
-                    var cXSel = (int)selectedUnit.X / PpSize;
-                    var cYSel = (int)selectedUnit.Y / PpSize;
-                    ApplyPower(fieldMyGroup, cXSel, cYSel, powerMask, 100);
-                }
-            }
-
-            var basePower = EnemyPowerToDodge;
-
-            var enemies = UnitHelper.Units.Values
-                .Where(x => x.Side == Side.Enemy)
+            var enemyUnits = 
+                UnitHelper.UnitsEnemy
+                .Where(x => GetUnitTypesCanAttackThisType(currentSelectedUnitType).Contains(x.Type))
                 .ToArray();
 
-            if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
+            if (enemyUnits.Length == 0)
             {
-                foreach (var enemy in enemies)
-                {
-                    var cellX = (int)enemy.X / PpSize;
-                    var cellY = (int)enemy.Y / PpSize;
-
-                    var power = (float)basePower;
-
-                    if (enemy.Type == VehicleType.Fighter)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Helicopter)
-                    {
-                        power = basePower * 0.6F;
-                    }
-                    else if (enemy.Type == VehicleType.Ifv)
-                    {
-                        power = basePower * 0.4F;
-                    }
-                    else if (enemy.Type == VehicleType.Tank)
-                    {
-                        power = basePower * 0;
-                    }
-                    else if (enemy.Type == VehicleType.Arrv)
-                    {
-                        power = basePower * 0;
-                    }
-
-                    if (enemy.Type == VehicleType.Ifv)
-                    {
-                        ApplyPower(fieldEnemiesUnbeatable, cellX, cellY, powerMask, power);
-                    }
-                    else
-                    {
-                        ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
-                    }
-                }
-            }
-            else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
-            {
-                foreach (var enemy in enemies)
-                {
-                    var cellX = (int)enemy.X / PpSize;
-                    var cellY = (int)enemy.Y / PpSize;
-
-                    var power = (float)basePower;
-
-                    if (enemy.Type == VehicleType.Fighter)
-                    {
-                        power = basePower * 1.4F;
-                    }
-                    else if (enemy.Type == VehicleType.Helicopter)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Ifv)
-                    {
-                        power = basePower * 0.6F;
-                    }
-                    else if (enemy.Type == VehicleType.Tank)
-                    {
-                        power = basePower * 0.6F;
-                    }
-                    else if (enemy.Type == VehicleType.Arrv)
-                    {
-                        power = basePower * 0.01F;
-                    }
-
-                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
-                }
-            }
-            else if (currentSelectedGroup.VehicleType == VehicleType.Tank)
-            {
-                foreach (var enemy in enemies)
-                {
-                    var cellX = (int)enemy.X / PpSize;
-                    var cellY = (int)enemy.Y / PpSize;
-
-                    var power = (float)basePower;
-
-                    if (enemy.Type == VehicleType.Fighter)
-                    {
-                        power = basePower * 0;
-                    }
-                    else if (enemy.Type == VehicleType.Helicopter)
-                    {
-                        power = basePower * 1.4F;
-                    }
-                    else if (enemy.Type == VehicleType.Ifv)
-                    {
-                        power = basePower * 0.6F;
-                    }
-                    else if (enemy.Type == VehicleType.Tank)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Arrv)
-                    {
-                        power = basePower * 0.01F;
-                    }
-
-                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
-                }
-            }
-            else if (currentSelectedGroup.VehicleType == VehicleType.Ifv)
-            {
-                foreach (var enemy in enemies)
-                {
-                    var cellX = (int)enemy.X / PpSize;
-                    var cellY = (int)enemy.Y / PpSize;
-
-                    var power = (float)basePower;
-
-                    if (enemy.Type == VehicleType.Fighter)
-                    {
-                        power = basePower * 0.01F;
-                    }
-                    else if (enemy.Type == VehicleType.Helicopter)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Ifv)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Tank)
-                    {
-                        power = basePower * 1.5F;
-                    }
-                    else if (enemy.Type == VehicleType.Arrv)
-                    {
-                        power = basePower * 0.01F;
-                    }
-
-                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
-                }
-            }
-            else if (currentSelectedGroup.VehicleType == VehicleType.Arrv)
-            {
-                foreach (var enemy in enemies)
-                {
-                    var cellX = (int)enemy.X / PpSize;
-                    var cellY = (int)enemy.Y / PpSize;
-
-                    var power = (float)basePower;
-
-                    if (enemy.Type == VehicleType.Fighter)
-                    {
-                        power = basePower * 0;
-                    }
-                    else if (enemy.Type == VehicleType.Helicopter)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Ifv)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Tank)
-                    {
-                        power = basePower * 1;
-                    }
-                    else if (enemy.Type == VehicleType.Arrv)
-                    {
-                        power = basePower * 0; //Чтобы не сталкиваться
-                    }
-                    
-                    //Всех бомся
-                    ApplyPower(fieldEnemies, cellX, cellY, powerMask, power);
-                }
+                return;
             }
 
-            for (int i = 0; i < PpSize; i++)
+            var enemiewWithRange = enemyUnits.Select(x => new
             {
-                for (int j = 0; j < PpSize; j++)
-                {
-                    var myPower = fieldMyGroup[i, j] ;
-                    var enemyPower = fieldEnemies[i, j];
+                Range = GetDistancePower2To(avgX, avgY, x.X, x.Y),
+                Unit = x
+            }).ToList();
 
-                    if (Math.Abs(enemyPower) < Epsilon)
-                    {
-                        continue;
-                    }
+            var minRange = enemiewWithRange.Select(x => x.Range).Min();
+            var nearestEnemy = enemiewWithRange.Where(x => Math.Abs(x.Range - minRange) < Epsilon).Select(x => x.Unit).First();
+            RewindClient.RewindClient.Instance.Circle(nearestEnemy.X, nearestEnemy.Y, nearestEnemy.Radius * 3, Color.Blue);
 
-                    var diff = (enemyPower - myPower) + fieldEnemiesUnbeatable[i, j];
+            var range = 20;
+            var enemiesInerestEnemyCircle = enemyUnits
+                .Where(x => PointIsWithinCircle(nearestEnemy.X, nearestEnemy.Y, range, x.X, x.Y))
+                .ToArray();
 
-                    if (diff > 0)
-                    {
-                        PotentialFields[i, j] += diff;
-                    }
-                    else
-                    {
-                        diff *= enemyPower;
-                        PotentialFields[i, j] += diff;
-                    }
-                }
+            var power = 
+                enemiesInerestEnemyCircle.Select(x => GetAttachPowerCoefAgainstTypes(x.Type, currentSelectedUnitType)).Sum() 
+                * EnemyPowerToDodge;
+
+            var enX = (int)(nearestEnemy.X / PpSize);
+            var eny = (int)(nearestEnemy.Y / PpSize);
+
+            PotentialFieldsHelper.ApplyPower(PotentialFields, enX, eny, RangePowerMask7, power);
+        }
+
+
+        private static void GetNearestEnemyICanAttack()
+        {
+            var currentSelectedUnitType = GroupHelper.CurrentGroup.VehicleType;
+
+            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
+            var avgX = selectedUnits.Average(x => x.X);
+            var avgY = selectedUnits.Average(x => x.Y);
+
+            var enemyUnits =
+                UnitHelper.UnitsEnemy
+                    .Where(x => GetUnitTypesThisTypeCanAttack(currentSelectedUnitType).Contains(x.Type))
+                    .ToArray();
+
+            if (enemyUnits.Length == 0)
+            {
+                return;
             }
+
+            var enemiewWithRange = enemyUnits.Select(x => new
+            {
+                Range = GetDistancePower2To(avgX, avgY, x.X, x.Y),
+                Unit = x
+            }).ToList();
+
+            var minRange = enemiewWithRange.Select(x => x.Range).Min();
+            var nearestEnemy = enemiewWithRange.Where(x => Math.Abs(x.Range - minRange) < Epsilon).Select(x => x.Unit).First();
+            RewindClient.RewindClient.Instance.Circle(nearestEnemy.X, nearestEnemy.Y, nearestEnemy.Radius * 3, Color.DarkGreen);
+
+            var range = 15;
+            var enemiesInerestEnemyCircle = enemyUnits
+                .Where(x => PointIsWithinCircle(nearestEnemy.X, nearestEnemy.Y, range, x.X, x.Y))
+                .ToArray();
+
+            var enemyPower =
+                enemiesInerestEnemyCircle.Select(x => GetAttachPowerCoefAgainstTypes(currentSelectedUnitType, x.Type )).Sum()
+                * EnemyPowerToDodge;
+
+            var enX = (int)(nearestEnemy.X / PpSize);
+            var enY = (int)(nearestEnemy.Y / PpSize);
+
+            //--посчиьаем союзные силы
+            var selectedWithRange = selectedUnits.Select(x => new
+            {
+                Range = GetDistancePower2To(x.X, x.Y, nearestEnemy.X, nearestEnemy.Y),
+                Unit = x
+            }).ToList();
+
+            var minRangeSelected = selectedWithRange.Select(x => x.Range).Min();
+            var nearestSelected = selectedWithRange.Where(x => Math.Abs(x.Range - minRangeSelected) < Epsilon).Select(x => x.Unit).First();
+            RewindClient.RewindClient.Instance.Circle(nearestSelected.X, nearestSelected.Y, nearestSelected.Radius * 3, Color.Blue);
+
+            var allierIntersectNearestAllyCircle = selectedUnits
+                .Where(x => PointIsWithinCircle(nearestSelected.X, nearestSelected.Y, range, x.X, x.Y))
+                .ToArray();
+            var powerAlly =
+                allierIntersectNearestAllyCircle.Select(x => GetAttachPowerCoefAgainstTypes(currentSelectedUnitType, nearestEnemy.Type)).Sum()
+                * EnemyPowerToDodge;
+            var alX = (int)(nearestEnemy.X / PpSize);
+            var aly = (int)(nearestEnemy.Y / PpSize);
+            //----
+
+            //if (currentSelectedUnitType == VehicleType.Helicopter)
+            //{
+
+            //}
+
+            //PotentialFieldsHelper.ApplyPower(PotentialFields, enX, enY, RangePowerMask7, enemyPower * 1000);
+            //PotentialFieldsHelper.ApplyPower(PotentialFields, alX, aly, RangePowerMask7, -powerAlly * 1000);
+
+
+
+
+            if (allierIntersectNearestAllyCircle.Length > enemiesInerestEnemyCircle.Length)
+            {
+                var coef = (float)allierIntersectNearestAllyCircle.Length / enemiesInerestEnemyCircle.Length;
+                if (coef > 1.1)
+                {
+                    coef = 1.1F;
+                }
+
+                enemyPower *= coef;
+            }
+
+            PotentialFieldsHelper.ApplyPower(PotentialFields, enX, enY, RangePowerMask7, -enemyPower);
+
+            //PotentialFieldsHelper.ApplyPower(PotentialFields, enX, enY, RangePowerMask7, enemyPower * 1000);
+            //PotentialFieldsHelper.ApplyPower(PotentialFields, alX, aly, RangePowerMask7, -powerAlly * 1000);
+        }
+
+        private static float GetAttachPowerCoefAgainstTypes(VehicleType attackerType, VehicleType victimType)
+        {
+            if (attackerType == VehicleType.Fighter)
+            {
+                if (victimType == VehicleType.Fighter)
+                    return 1;
+                if (victimType == VehicleType.Helicopter)
+                    return 1.5F;
+                if (victimType == VehicleType.Tank)
+                    return 0;
+                if (victimType == VehicleType.Ifv)
+                    return 0;
+                if (victimType == VehicleType.Arrv)
+                    return 0;
+            }
+            else if (attackerType == VehicleType.Helicopter)
+            {
+                if (victimType == VehicleType.Fighter)
+                    return 0.66F;
+                if (victimType == VehicleType.Helicopter)
+                    return 1;
+                if (victimType == VehicleType.Tank)
+                    return 1.5F;
+                if (victimType == VehicleType.Ifv)
+                    return 1;
+                if (victimType == VehicleType.Arrv)
+                    return 2;
+            }
+            else if (attackerType == VehicleType.Tank)
+            {
+                if (victimType == VehicleType.Fighter)
+                    return 0;
+                if (victimType == VehicleType.Helicopter)
+                    return 0.66F;
+                if (victimType == VehicleType.Tank)
+                    return 1;
+                if (victimType == VehicleType.Ifv)
+                    return 1.5F;
+                if (victimType == VehicleType.Arrv)
+                    return 2;
+            }
+            else if (attackerType == VehicleType.Ifv)
+            {
+                if (victimType == VehicleType.Fighter)
+                    return 2;
+                if (victimType == VehicleType.Helicopter)
+                    return 1;
+                if (victimType == VehicleType.Tank)
+                    return 0.66F;
+                if (victimType == VehicleType.Ifv)
+                    return 1;
+                if (victimType == VehicleType.Arrv)
+                    return 2;
+            }
+            else if (attackerType == VehicleType.Arrv)
+            {
+                if (victimType == VehicleType.Fighter)
+                    return 0;
+                if (victimType == VehicleType.Helicopter)
+                    return 0;
+                if (victimType == VehicleType.Tank)
+                    return 0;
+                if (victimType == VehicleType.Ifv)
+                    return 0;
+                if (victimType == VehicleType.Arrv)
+                    return 0;
+            }
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Вернуть список юнитов, которые могут атаковать переданный тип
+        /// </summary>
+        /// <param name="vehicleType"></param>
+        /// <returns></returns>
+        private static VehicleType[] GetUnitTypesCanAttackThisType(VehicleType vehicleType)
+        {
+            if (vehicleType == VehicleType.Fighter)
+            {
+                return new[]{VehicleType.Fighter, VehicleType.Helicopter, VehicleType.Ifv };
+            }
+            else if (vehicleType == VehicleType.Helicopter)
+            {
+                return new[] { VehicleType.Fighter, VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank };
+            }
+            else if (vehicleType == VehicleType.Tank)
+            {
+                return new[] { VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank };
+            }
+            else if (vehicleType == VehicleType.Ifv)
+            {
+                return new[] { VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank };
+            }
+            else if (vehicleType == VehicleType.Arrv)
+            {
+                return new[] { VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank };
+            }
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Вернуть список юнитов, которых может атаковать переданный тип
+        /// </summary>
+        /// <param name="vehicleType"></param>
+        /// <returns></returns>
+        private static VehicleType[] GetUnitTypesThisTypeCanAttack(VehicleType vehicleType)
+        {
+            if (vehicleType == VehicleType.Fighter)
+            {
+                return new[] { VehicleType.Fighter, VehicleType.Helicopter};
+            }
+            else if (vehicleType == VehicleType.Helicopter)
+            {
+                return new[] { VehicleType.Fighter, VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank, VehicleType.Arrv };
+            }
+            else if (vehicleType == VehicleType.Tank)
+            {
+                return new[] {VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank, VehicleType.Arrv };
+            }
+            else if (vehicleType == VehicleType.Ifv)
+            {
+                return new[] { VehicleType.Fighter, VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank, VehicleType.Arrv };
+            }
+            else if (vehicleType == VehicleType.Arrv)
+            {
+                return new VehicleType[0];
+            }
+            throw new NotImplementedException();
         }
 
         public static void ApplyHealPower()
@@ -532,6 +575,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return Color.FromArgb(100, (int)(fieldValue * 255), (int)(255 - fieldValue * 255), 0);
         }
 
+        /// <summary>
+        /// Может вернуть исходную клетку
+        /// </summary>
+        /// <param name="cx"></param>
+        /// <param name="cy"></param>
+        /// <returns></returns>
         public static Point2D GetNextSafest_PP_PointByWorldXY(double cx, double cy)
         {
             var cellX = (int)cx / PpSize;
@@ -546,6 +595,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         private static List<Point2D> GetPoinsAround(double x, double y)
         {
             var result = new List<Point2D>(9);
+
+            result.Add(new Point2D(x, y));
 
             if (x > 0 && y > 0)
             {
@@ -623,7 +674,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 var cellX = (int)allyDodgeUnit.X / PpSize;
                 var cellY = (int)allyDodgeUnit.Y / PpSize;
 
-                ApplyPower(PotentialFields, cellX, cellY, RangePowerMask5, AllyDodgePower);
+                ApplyPower(PotentialFields, cellX, cellY, RangePowerMask3, AllyDodgePower);
             }
         }
 

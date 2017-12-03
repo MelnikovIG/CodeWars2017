@@ -8,7 +8,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public class ConfigurationHelper
     {
-        public static bool EnableNuclearStrike = true;
+        public static bool EnableNuclearStrike = false;
 
         public static int MovesCoutToScale = 15;
 
