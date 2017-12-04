@@ -175,7 +175,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 var maxX = cluster.Max(x => x.X);
                 var maxY = cluster.Max(x => x.Y);
 
-                RewindClient.RewindClient.Instance.Rectangle(minX, minY, maxX, maxY, Color.FromArgb(100, 255,0,0));
+                RewindClient.RewindClient.Instance.Rectangle(minX - 10, minY - 10, maxX + 10, maxY + 10,
+                    Color.FromArgb(100, 255, 0, 0));
             }
         }
     }
