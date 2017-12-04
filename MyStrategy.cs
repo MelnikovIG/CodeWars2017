@@ -38,6 +38,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             FacilityHelper.UpdateFacilitiesStates();
 
 #if DEBUG
+            DbScanHelper.DrawClusters();
             FacilityHelper.DrawFacilities();
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
