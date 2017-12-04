@@ -37,8 +37,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             UpdateVehiclesStates(me, world, game, rewindClient);
             FacilityHelper.UpdateFacilitiesStates();
 
+            var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type)).ToList();
+            var clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
+
 #if DEBUG
-            DbScanHelper.DrawClusters();
+            DbScanHelper.DrawClusters(clusters);
             FacilityHelper.DrawFacilities();
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
@@ -184,7 +187,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
             else
             {
-                PotentialFieldsHelper.AppendEnemyPowerToDodge();
+                PotentialFieldsHelper.AppendEnemyPowerToDodgeV2(clusters);
                 PotentialFieldsHelper.ApplyHealPower();
             }
             PotentialFieldsHelper.ApplyFacilitiesPower();

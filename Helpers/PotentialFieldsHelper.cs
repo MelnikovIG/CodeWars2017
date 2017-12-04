@@ -183,7 +183,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
         }
 
-        public static void AppendEnemyPowerToDodge()
+        public static void AppendEnemyPowerToDodgeV1()
         {
             var powerMask = RangePowerMask7;
 
@@ -412,88 +412,339 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
         }
 
+        public static void AppendEnemyPowerToDodgeV2(List<List<DbScanHelper.Point>> clusters)
+        {
+            //var fieldMyGroup = new float[PpSize, PpSize];
+            //var fieldEnemies = new float[PpSize, PpSize];
+            //var fieldEnemiesUnbeatable = new float[PpSize, PpSize];
+
+            //var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
+
+            //if (currentSelectedGroup.VehicleType != VehicleType.Arrv)
+            //{
+            //    foreach (var selectedUnit in selectedUnits)
+            //    {
+            //        var cXSel = (int)selectedUnit.X / PpSize;
+            //        var cYSel = (int)selectedUnit.Y / PpSize;
+            //        ApplyPower(fieldMyGroup, cXSel, cYSel, powerMask, 100);
+            //    }
+            //}
+
+            var basePower = EnemyPowerToDodge;
+
+            var currentSelectedGroup = GroupHelper.CurrentGroup;
+            var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
+            var myGroupPower = selectedUnits.Length * basePower;
+
+            foreach (var enemies in clusters)
+            {
+                var enemyPower = 0F;
+
+                var ex = enemies.Sum(x => x.X) / enemies.Count;
+                var ey = enemies.Sum(x => x.Y) / enemies.Count;
+
+                var eCellX = (int)ex / PpSize;
+                var eCellY = (int)ey / PpSize;
+
+                if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
+                {
+                    foreach (var enemy in enemies)
+                    {
+                        var power = (float)basePower;
+
+                        if (enemy.Type == VehicleType.Fighter)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Helicopter)
+                        {
+                            power = basePower * 0.6F;
+                        }
+                        else if (enemy.Type == VehicleType.Ifv)
+                        {
+                            power = basePower * 0.4F;
+                        }
+                        else if (enemy.Type == VehicleType.Tank)
+                        {
+                            power = basePower * 0;
+                        }
+                        else if (enemy.Type == VehicleType.Arrv)
+                        {
+                            power = basePower * 0;
+                        }
+
+                        enemyPower += power;
+                    }
+                }
+                else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
+                {
+                    foreach (var enemy in enemies)
+                    {
+                        var cellX = (int)enemy.X / PpSize;
+                        var cellY = (int)enemy.Y / PpSize;
+
+                        var power = (float)basePower;
+
+                        if (enemy.Type == VehicleType.Fighter)
+                        {
+                            power = basePower * 1.4F;
+                        }
+                        else if (enemy.Type == VehicleType.Helicopter)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Ifv)
+                        {
+                            power = basePower * 0.6F;
+                        }
+                        else if (enemy.Type == VehicleType.Tank)
+                        {
+                            power = basePower * 0.6F;
+                        }
+                        else if (enemy.Type == VehicleType.Arrv)
+                        {
+                            power = basePower * 0F;
+                        }
+
+                        enemyPower += power;
+                    }
+                }
+                else if (currentSelectedGroup.VehicleType == VehicleType.Tank)
+                {
+                    foreach (var enemy in enemies)
+                    {
+                        var cellX = (int)enemy.X / PpSize;
+                        var cellY = (int)enemy.Y / PpSize;
+
+                        var power = (float)basePower;
+
+                        if (enemy.Type == VehicleType.Fighter)
+                        {
+                            power = basePower * 0;
+                        }
+                        else if (enemy.Type == VehicleType.Helicopter)
+                        {
+                            power = basePower * 1.4F;
+                        }
+                        else if (enemy.Type == VehicleType.Ifv)
+                        {
+                            power = basePower * 0.6F;
+                        }
+                        else if (enemy.Type == VehicleType.Tank)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Arrv)
+                        {
+                            power = basePower * 0F;
+                        }
+
+                        enemyPower += power;
+                    }
+                }
+                else if (currentSelectedGroup.VehicleType == VehicleType.Ifv)
+                {
+                    foreach (var enemy in enemies)
+                    {
+                        var cellX = (int)enemy.X / PpSize;
+                        var cellY = (int)enemy.Y / PpSize;
+
+                        var power = (float)basePower;
+
+                        if (enemy.Type == VehicleType.Fighter)
+                        {
+                            power = basePower * 0.01F;
+                        }
+                        else if (enemy.Type == VehicleType.Helicopter)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Ifv)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Tank)
+                        {
+                            power = basePower * 1.5F;
+                        }
+                        else if (enemy.Type == VehicleType.Arrv)
+                        {
+                            power = basePower * 0F;
+                        }
+
+                        enemyPower += power;
+                    }
+                }
+                else if (currentSelectedGroup.VehicleType == VehicleType.Arrv)
+                {
+                    foreach (var enemy in enemies)
+                    {
+                        var cellX = (int)enemy.X / PpSize;
+                        var cellY = (int)enemy.Y / PpSize;
+
+                        var power = (float)basePower;
+
+                        if (enemy.Type == VehicleType.Fighter)
+                        {
+                            power = basePower * 0;
+                        }
+                        else if (enemy.Type == VehicleType.Helicopter)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Ifv)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Tank)
+                        {
+                            power = basePower * 1;
+                        }
+                        else if (enemy.Type == VehicleType.Arrv)
+                        {
+                            power = basePower * 0; //Чтобы не сталкиваться
+                        }
+
+                        enemyPower += power;
+                    }
+                }
+
+                var canAttackSomeone = enemies.Any(x => GetUnitTypesThisTypeCanAttack(currentSelectedGroup.VehicleType).Contains(x.Type));
+
+                if (canAttackSomeone)
+                {
+                    if (enemyPower > myGroupPower)
+                    {
+                        var pwr = enemyPower - myGroupPower;
+                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, pwr);
+                    }
+                    else
+                    {
+                        var pwr = enemyPower - myGroupPower;
+                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, pwr);
+                    }
+                }
+                else
+                {
+                    ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, enemyPower);
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Вернуть список юнитов, которых может атаковать переданный тип
+        /// </summary>
+        /// <param name="vehicleType"></param>
+        /// <returns></returns>
+        private static VehicleType[] GetUnitTypesThisTypeCanAttack(VehicleType vehicleType)
+        {
+            if (vehicleType == VehicleType.Fighter)
+            {
+                return new[] { VehicleType.Fighter, VehicleType.Helicopter };
+            }
+            else if (vehicleType == VehicleType.Helicopter)
+            {
+                return new[] { VehicleType.Fighter, VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank, VehicleType.Arrv };
+            }
+            else if (vehicleType == VehicleType.Tank)
+            {
+                return new[] { VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank, VehicleType.Arrv };
+            }
+            else if (vehicleType == VehicleType.Ifv)
+            {
+                return new[] { VehicleType.Fighter, VehicleType.Helicopter, VehicleType.Ifv, VehicleType.Tank, VehicleType.Arrv };
+            }
+            else if (vehicleType == VehicleType.Arrv)
+            {
+                return new VehicleType[0];
+            }
+            throw new NotImplementedException();
+        }
+
+
         public static void ApplyHealPower()
         {
-            var currentSelectedGroup = GroupHelper.CurrentGroup;
-            var healPower = HealPower;
+            //var currentSelectedGroup = GroupHelper.CurrentGroup;
+            //var healPower = HealPower;
 
-            //Сделаем притиягивание к вертолетам или самолетам
-            if (currentSelectedGroup.VehicleType == VehicleType.Arrv)
-            {
-                var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
-                if (helicopters.Count > 0)
-                {
-                    var cx = helicopters.Sum(x => x.X) / helicopters.Count;
-                    var cy = helicopters.Sum(x => x.Y) / helicopters.Count;
+            ////Сделаем притиягивание к вертолетам или самолетам
+            //if (currentSelectedGroup.VehicleType == VehicleType.Arrv)
+            //{
+            //    var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
+            //    if (helicopters.Count > 0)
+            //    {
+            //        var cx = helicopters.Sum(x => x.X) / helicopters.Count;
+            //        var cy = helicopters.Sum(x => x.Y) / helicopters.Count;
 
-                    var cellX = (int)cx / PpSize;
-                    var cellY = (int)cy / PpSize;
+            //        var cellX = (int)cx / PpSize;
+            //        var cellY = (int)cy / PpSize;
 
-                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
-                }
+            //        ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
+            //    }
 
-                var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
-                if (fighters.Count > 0)
-                {
-                    var cx = fighters.Sum(x => x.X) / fighters.Count;
-                    var cy = fighters.Sum(x => x.Y) / fighters.Count;
+            //    var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
+            //    if (fighters.Count > 0)
+            //    {
+            //        var cx = fighters.Sum(x => x.X) / fighters.Count;
+            //        var cy = fighters.Sum(x => x.Y) / fighters.Count;
 
-                    var cellX = (int)cx / PpSize;
-                    var cellY = (int)cy / PpSize;
+            //        var cellX = (int)cx / PpSize;
+            //        var cellY = (int)cy / PpSize;
 
-                    ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
-                }
-            }
-            //Сделаем притиягивание самолетов к хилкам, если они ранены
-            else if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
-            {
-                var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
-                if (fighters.Count > 0)
-                {
-                    var currentDurability = fighters.Sum(x => x.Durability);
-                    var maxDurability = GlobalHelper.Game.FighterDurability * fighters.Count;
-                    var needHeal = ((float) currentDurability / maxDurability) < FliersToHealDurabilityFactor;
+            //        ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
+            //    }
+            //}
+            ////Сделаем притиягивание самолетов к хилкам, если они ранены
+            //else if (currentSelectedGroup.VehicleType == VehicleType.Fighter)
+            //{
+            //    var fighters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Fighter).ToList();
+            //    if (fighters.Count > 0)
+            //    {
+            //        var currentDurability = fighters.Sum(x => x.Durability);
+            //        var maxDurability = GlobalHelper.Game.FighterDurability * fighters.Count;
+            //        var needHeal = ((float) currentDurability / maxDurability) < FliersToHealDurabilityFactor;
 
-                    if (needHeal)
-                    {
-                        var healers = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Arrv).ToList();
-                        if (healers.Count > 0)
-                        {
-                            var cx = healers.Sum(x => x.X) / healers.Count;
-                            var cy = healers.Sum(x => x.Y) / healers.Count;
+            //        if (needHeal)
+            //        {
+            //            var healers = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Arrv).ToList();
+            //            if (healers.Count > 0)
+            //            {
+            //                var cx = healers.Sum(x => x.X) / healers.Count;
+            //                var cy = healers.Sum(x => x.Y) / healers.Count;
 
-                            var cellX = (int)cx / PpSize;
-                            var cellY = (int)cy / PpSize;
-                            ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
-                        }
-                    }
-                }
-            }
-            //Сделаем притиягивание вертолетов к хилкам, если они ранены
-            else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
-            {
-                var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
-                if (helicopters.Count > 0)
-                {
-                    var currentDurability = helicopters.Sum(x => x.Durability);
-                    var maxDurability = GlobalHelper.Game.HelicopterDurability * helicopters.Count;
-                    var needHeal = ((float)currentDurability / maxDurability) < FliersToHealDurabilityFactor;
+            //                var cellX = (int)cx / PpSize;
+            //                var cellY = (int)cy / PpSize;
+            //                ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
+            //            }
+            //        }
+            //    }
+            //}
+            ////Сделаем притиягивание вертолетов к хилкам, если они ранены
+            //else if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
+            //{
+            //    var helicopters = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Helicopter).ToList();
+            //    if (helicopters.Count > 0)
+            //    {
+            //        var currentDurability = helicopters.Sum(x => x.Durability);
+            //        var maxDurability = GlobalHelper.Game.HelicopterDurability * helicopters.Count;
+            //        var needHeal = ((float)currentDurability / maxDurability) < FliersToHealDurabilityFactor;
 
-                    if (needHeal)
-                    {
-                        var healers = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Arrv).ToList();
-                        if (healers.Count > 0)
-                        {
-                            var cx = healers.Sum(x => x.X) / healers.Count;
-                            var cy = healers.Sum(x => x.Y) / healers.Count;
+            //        if (needHeal)
+            //        {
+            //            var healers = UnitHelper.UnitsAlly.Where(x => x.Type == VehicleType.Arrv).ToList();
+            //            if (healers.Count > 0)
+            //            {
+            //                var cx = healers.Sum(x => x.X) / healers.Count;
+            //                var cy = healers.Sum(x => x.Y) / healers.Count;
 
-                            var cellX = (int)cx / PpSize;
-                            var cellY = (int)cy / PpSize;
-                            ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
-                        }
-                    }
-                }
-            }
+            //                var cellX = (int)cx / PpSize;
+            //                var cellY = (int)cy / PpSize;
+            //                ApplyPower(PotentialFields, cellX, cellY, RangePowerMask49, -healPower);
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         public static bool PointIsWithinCircle(double circleCenterPointX, double circleCenterPointY, double circleRadius, double pointToCheckX, double pointToCheckY)

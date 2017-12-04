@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 
 namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
@@ -15,12 +16,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             public const int UNCLASSIFIED = 0;
             public double X;
             public double Y;
+            public VehicleType Type { get; }
             public int ClusterId;
 
-            public Point(double x, double y)
+            public Point(double x, double y, VehicleType vehicleType)
             {
                 this.X = x;
                 this.Y = y;
+                Type = vehicleType;
             }
 
             //public override string ToString()
@@ -163,21 +166,18 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
         }
 
-        public static void DrawClusters()
+        public static void DrawClusters(List<List<Point>> clusters)
         {
-            var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new Point(x.X, x.Y)).ToList();
+            //foreach (var cluster in clusters)
+            //{
+            //    var minX = cluster.Min(x => x.X);
+            //    var minY = cluster.Min(x => x.Y);
+            //    var maxX = cluster.Max(x => x.X);
+            //    var maxY = cluster.Max(x => x.Y);
 
-            var clusters = GetClusters(enemyPoints, 100, 1);
-            foreach (var cluster in clusters)
-            {
-                var minX = cluster.Min(x => x.X);
-                var minY = cluster.Min(x => x.Y);
-                var maxX = cluster.Max(x => x.X);
-                var maxY = cluster.Max(x => x.Y);
-
-                RewindClient.RewindClient.Instance.Rectangle(minX - 10, minY - 10, maxX + 10, maxY + 10,
-                    Color.FromArgb(100, 255, 0, 0));
-            }
+            //    RewindClient.RewindClient.Instance.Rectangle(minX - 2, minY - 2, maxX + 2, maxY + 2,
+            //        Color.FromArgb(100, 0, 255, 255));
+            //}
         }
     }
 }
