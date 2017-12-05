@@ -227,8 +227,29 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
 
                     var nextPpPoint = PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
-                    rewindClient.Rectangle(nextPpPoint.X * size, nextPpPoint.Y * size, (nextPpPoint.X + 1) * size,
-                        (nextPpPoint.Y + 1) * size, Color.Black);
+                    var quartCellLength = PotentialFieldsHelper.PpSize * 0.25;
+#if DEBUG
+                    rewindClient.Rectangle(
+                        nextPpPoint.X * size + quartCellLength,
+                        nextPpPoint.Y * size + quartCellLength,
+                        (nextPpPoint.X + 1) * size - quartCellLength,
+                        (nextPpPoint.Y + 1) * size - quartCellLength,
+                        Color.Black);
+#endif
+
+                    var nextPpPointX = nextPpPoint.X * size + size / 2d;
+                    var nextPpPointY = nextPpPoint.Y * size + size / 2d;
+
+                    //Если достаточно подойти к цели, отдадим управление дргому отряду
+                    if (PotentialFieldsHelper.GetDistanceTo(nextPpPointX, nextPpPointY, cx, cy) < quartCellLength)
+                    {
+                        var isSelectSuccess = GroupHelper.SelectNextGroup();
+                        if (isSelectSuccess)
+                        {
+                            currentSelectedGroup.Moved = false;
+                            return;
+                        }
+                    }
 
                     var vx = nextPpPoint.X * size + size / 2d - cx;
                     var vy = nextPpPoint.Y * size + size / 2d - cy;

@@ -792,6 +792,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return result;
         }
 
+        /// <summary>
+        /// Может вернуть исходную клетку
+        /// </summary>
+        /// <param name="cx"></param>
+        /// <param name="cy"></param>
+        /// <returns></returns>
         public static Point2D GetNextSafest_PP_PointByWorldXY(double cx, double cy)
         {
             var cellX = (int)cx / PpSize;
@@ -806,6 +812,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         private static List<Point2D> GetPoinsAround(double x, double y)
         {
             var result = new List<Point2D>(9);
+
+            result.Add(new Point2D(x, y));
 
             if (x > 0 && y > 0)
             {
