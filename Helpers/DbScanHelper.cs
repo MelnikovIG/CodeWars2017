@@ -98,7 +98,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static List<List<Point>> GetClusters(List<Point> points, double eps, int minPts)
         {
-            if (points == null) return null;
+            if (points == null || points.Count == 0) return new List<List<Point>>();
             List<List<Point>> clusters = new List<List<Point>>();
             eps *= eps; // square eps
             int clusterId = 1;
