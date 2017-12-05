@@ -780,7 +780,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static Color GetColorFromValue(float fieldValue)
         {
-            return Color.FromArgb(100, (int)(fieldValue * 255), (int)(255 - fieldValue * 255), 0);
+            return GetColorFromRedYellowGreenGradient(fieldValue * 100);
+        }
+
+        private static Color GetColorFromRedYellowGreenGradient(double percentage)
+        {
+            var green = (percentage > 50 ? 1 - 2 * (percentage - 50) / 100.0 : 1.0) * 255;
+            var red = (percentage > 50 ? 1.0 : 2 * percentage / 100.0) * 255;
+            var blue = 0.0;
+            Color result = Color.FromArgb(100, (int)red, (int)green, (int)blue);
+            return result;
         }
 
         public static Point2D GetNextSafest_PP_PointByWorldXY(double cx, double cy)

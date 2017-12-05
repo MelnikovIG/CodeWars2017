@@ -26,11 +26,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 Type = vehicleType;
             }
 
-            //public override string ToString()
-            //{
-            //    return String.Format("({0}, {1})", X, Y);
-            //}
-
             public static double DistanceSquared(Point p1, Point p2)
             {
                 var diffX = p2.X - p1.X;
@@ -38,63 +33,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 return diffX * diffX + diffY * diffY;
             }
         }
-
-        //static void Main()
-        //{
-        //    List<Point> points = new List<Point>();
-        //    // sample data
-        //    points.Add(new Point(0, 100));
-        //    points.Add(new Point(0, 200));
-        //    points.Add(new Point(0, 275));
-        //    points.Add(new Point(100, 150));
-        //    points.Add(new Point(200, 100));
-        //    points.Add(new Point(250, 200));
-        //    points.Add(new Point(0, 300));
-        //    points.Add(new Point(100, 200));
-        //    points.Add(new Point(600, 700));
-        //    points.Add(new Point(650, 700));
-        //    points.Add(new Point(675, 700));
-        //    points.Add(new Point(675, 710));
-        //    points.Add(new Point(675, 720));
-        //    points.Add(new Point(50, 400));
-        //    double eps = 100.0;
-        //    int minPts = 3;
-        //    List<List<Point>> clusters = GetClusters(points, eps, minPts);
-        //    Console.Clear();
-        //    // print points to console
-        //    Console.WriteLine("The {0} points are :\n", points.Count);
-        //    foreach (Point p in points) Console.Write(" {0} ", p);
-        //    Console.WriteLine();
-        //    // print clusters to console
-        //    int total = 0;
-        //    for (int i = 0; i < clusters.Count; i++)
-        //    {
-        //        int count = clusters[i].Count;
-        //        total += count;
-        //        string plural = (count != 1) ? "s" : "";
-        //        Console.WriteLine("\nCluster {0} consists of the following {1} point{2} :\n", i + 1, count, plural);
-        //        foreach (Point p in clusters[i]) Console.Write(" {0} ", p);
-        //        Console.WriteLine();
-        //    }
-        //    // print any points which are NOISE
-        //    total = points.Count - total;
-        //    if (total > 0)
-        //    {
-        //        string plural = (total != 1) ? "s" : "";
-        //        string verb = (total != 1) ? "are" : "is";
-        //        Console.WriteLine("\nThe following {0} point{1} {2} NOISE :\n", total, plural, verb);
-        //        foreach (Point p in points)
-        //        {
-        //            if (p.ClusterId == Point.NOISE) Console.Write(" {0} ", p);
-        //        }
-        //        Console.WriteLine();
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("\nNo points are NOISE");
-        //    }
-        //    Console.ReadKey();
-        //}
 
         public static List<List<Point>> GetClusters(List<Point> points, double eps, int minPts)
         {
