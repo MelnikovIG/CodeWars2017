@@ -26,6 +26,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         //Поможет в случае потери завода
         public VehicleType? LastAssignedVehicleType { get; set; }
+        //Кол-во юнитов для производства
+        public int ProductionCount { get; set; }
     }
 
     public static class FacilityHelper
@@ -100,24 +102,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                     var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
 
-                    var facilityCreatedUnitsToCreateGroupCount = ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount1;
-
-                    if (UnitHelper.UnitsEnemy.Length > 0)
-                    {
-                        var alliestToEnemyCoef = (float)UnitHelper.UnitsAlly.Length / UnitHelper.UnitsEnemy.Length;
-                        if (alliestToEnemyCoef > 1.5)
-                        {
-                            facilityCreatedUnitsToCreateGroupCount =
-                                ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount3;
-                        }
-                        else if (alliestToEnemyCoef > 1.1)
-                        {
-                            facilityCreatedUnitsToCreateGroupCount =
-                                ConfigurationHelper.FacilityCreatedUnitsToCreateGroupCount2;
-                        }
-                    }
-
-                    if (createdUnassignedUnits.Length >= facilityCreatedUnitsToCreateGroupCount)
+                    if (facility.ProductionCount > 0 && createdUnassignedUnits.Length >= facility.ProductionCount)
                     {
                         //Если набрали достаточно юнитов, создаем группу
                         if (!facilitiesToCreateGroup.Contains(facility))

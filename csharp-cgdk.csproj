@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Custom\Point2D.cs" />
     <Compile Include="Helpers\ActionHelper.cs" />
+    <Compile Include="Helpers\BattleHelper.cs" />
     <Compile Include="Helpers\ConfigurationHelper.cs" />
     <Compile Include="Helpers\DbScanHelper.cs" />
     <Compile Include="Helpers\FacilityHelper.cs" />

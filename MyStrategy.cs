@@ -79,7 +79,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 else if (task is StartProduction)
                 {
                     var sp = task as StartProduction;
-                    FacilityProductionHelper.StartFactoryProduction(sp.Facility);
+                    FacilityProductionHelper.StartFactoryProduction(sp.Facility, clusters);
                     return;
                 }
                 else if (task is NuclearStrike)
@@ -100,7 +100,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var facility = facilitiesToAddProdution[0];
                     facilitiesToAddProdution.Remove(facility);
 
-                    FacilityProductionHelper.StartFactoryProduction(facility);
+                    FacilityProductionHelper.StartFactoryProduction(facility, clusters);
                     return;
                 }
 
@@ -187,7 +187,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
             else
             {
-                PotentialFieldsHelper.AppendEnemyPowerToDodgeV2(clusters);
+                PotentialFieldsHelper.AppendEnemyPowerToDodge(clusters);
                 PotentialFieldsHelper.ApplyHealPower();
             }
             PotentialFieldsHelper.ApplyFacilitiesPower();

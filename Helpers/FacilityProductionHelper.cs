@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 using System.Linq;
 
@@ -10,34 +11,80 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static List<FacilityEx> FacilitiesToCreateGroup { get; set; } = new List<FacilityEx>();
 
-        public static void StartFactoryProduction(FacilityEx facility)
+        public static int FacilityUnitInRow { get; } = 11;
+        public static int MaxCountToCreate { get; } = FacilityUnitInRow * FacilityUnitInRow;
+
+        public static void StartFactoryProduction(FacilityEx facility, List<List<DbScanHelper.Point>> clusters)
         {
-            var productionType = GetVehicleTypeToStartProduction();
-            facility.LastAssignedVehicleType = productionType;
-            ActionHelper.StartFactoryProduction(facility.Id, productionType);
+            var productionParams = GetStartProductionParams(clusters);
+            facility.LastAssignedVehicleType = productionParams.VehicleType;
+            facility.ProductionCount = productionParams.Count;
+            ActionHelper.StartFactoryProduction(facility.Id, productionParams.VehicleType);
         }
 
-        private static VehicleType GetVehicleTypeToStartProduction()
+        private static StartProductionParams GetStartProductionParams(List<List<DbScanHelper.Point>> clusters)
         {
-            var vehicleType = VehicleType.Tank;
-
-            var alliesCanProduct = UnitHelper.UnitsAlly.Where(x => x.Type != VehicleType.Arrv).ToArray();
-
-            if (alliesCanProduct.Length > 0)
+            if (clusters.Count == 0)
             {
-                var aliesByType = alliesCanProduct.GroupBy(x => x.Type).Select(x => new
-                {
-                    X = x.Key,
-                    Count = x.Count()
-                }).ToList();
-
-                var minAllyCount = aliesByType.Min(x => x.Count);
-                var minAlly = aliesByType.First(x => x.Count == minAllyCount);
-                vehicleType = minAlly.X;
+                return new StartProductionParams(VehicleType.Tank, MaxCountToCreate);
             }
 
-            return vehicleType;
-        }
+            var clustersOrder = clusters.OrderByDescending(x => x.Count).ToList();
 
+            var productionVehicleTypes = new[]
+            {
+                VehicleType.Tank,
+                VehicleType.Ifv,
+                VehicleType.Helicopter,
+                VehicleType.Fighter
+            };
+
+            var basePower = PotentialFieldsHelper.EnemyPowerToDodge;
+
+            foreach (var cluster in clustersOrder)
+            {
+                foreach (var productionVehicleType in productionVehicleTypes)
+                {
+                    var res = BattleHelper.CalculatePower(cluster, productionVehicleType, basePower);
+                    if (!res.CanAttackSomeone) 
+                        continue;
+
+                    //Нельзя произвести юнитов сильнее отряда
+                    if (res.EnemyPower > MaxCountToCreate * basePower)
+                    {
+                        continue;
+                    }
+
+                    if (Math.Abs(res.EnemyPower) < PotentialFieldsHelper.Epsilon)
+                    {
+                        return new StartProductionParams(productionVehicleType, MaxCountToCreate/2);
+                    }
+
+                    var powerToCreate = res.EnemyPower * 1.2;
+                    var count = (int)(powerToCreate / basePower);
+
+                    if (count > MaxCountToCreate)
+                    {
+                        count = MaxCountToCreate;
+                    }
+
+                    return new StartProductionParams(productionVehicleType, count);
+                }
+            }
+
+            return new StartProductionParams(VehicleType.Tank, MaxCountToCreate);
+        }
+    }
+
+    public class StartProductionParams
+    {
+        public VehicleType VehicleType { get; }
+        public int Count { get; }
+
+        public StartProductionParams(VehicleType vehicleType, int count)
+        {
+            VehicleType = vehicleType;
+            Count = count;
+        }
     }
 }
