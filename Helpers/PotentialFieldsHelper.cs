@@ -189,7 +189,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             var currentSelectedGroup = GroupHelper.CurrentGroup;
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-            var myGroupPower = selectedUnits.Length * basePower;
+            var myGroupPower = selectedUnits
+                .Sum(x => BattleHelper.GetPowerHealthMulitplier(currentSelectedGroup.VehicleType, x.Durability))
+                * basePower;
 
             foreach (var enemies in clusters)
             {

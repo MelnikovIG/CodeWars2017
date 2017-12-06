@@ -37,7 +37,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             UpdateVehiclesStates(me, world, game, rewindClient);
             FacilityHelper.UpdateFacilitiesStates();
 
-            var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type)).ToList();
+            var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type, x.Durability)).ToList();
             var clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
 
 #if DEBUG

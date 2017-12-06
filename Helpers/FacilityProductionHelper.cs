@@ -49,6 +49,41 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     if (!res.CanAttackSomeone) 
                         continue;
 
+                    //Если уже производится отряд сильнее или есть, то не делаем еще раз такойже
+                    var currentGroupsOfType = GroupHelper.Groups.Where(x => x.VehicleType == productionVehicleType)
+                        .ToArray();
+
+                    var anyExistGroupStronger = currentGroupsOfType.Any(x =>
+                    {
+                        var groupUnits = UnitHelper.UnitsAlly.Where(y => y.Groups.Contains(x.Id)).ToArray();
+                        var existGroupPower =
+                            groupUnits.Sum(y => BattleHelper.GetPowerHealthMulitplier(x.VehicleType, y.Durability)) *
+                            basePower;
+                        return existGroupPower > res.EnemyPower;
+                    });
+
+                    if (anyExistGroupStronger)
+                    {
+                        continue;
+                    }
+
+                    var producingFactories = FacilityHelper.Facilities.Select(x => x.Value)
+                        .Where(x => x.Side == Side.Our)
+                        .Where(x => x.Type == FacilityType.VehicleFactory)
+                        .Where(x => x.VehicleType != null && x.VehicleType == productionVehicleType)
+                        .ToArray();
+
+                    var isAnyProducingStronger = producingFactories.Any(x =>
+                    {
+                        var facPower = x.ProductionCount * basePower;
+                        return facPower > res.EnemyPower;
+                    });
+
+                    if (isAnyProducingStronger)
+                    {
+                        continue;
+                    }
+
                     //Нельзя произвести юнитов сильнее отряда
                     if (res.EnemyPower > MaxCountToCreate * basePower)
                     {

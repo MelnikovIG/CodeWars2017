@@ -17,13 +17,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             public double X;
             public double Y;
             public VehicleType Type { get; }
+            public int Durability { get; }
             public int ClusterId;
 
-            public Point(double x, double y, VehicleType vehicleType)
+            public Point(double x, double y, VehicleType vehicleType, int durability)
             {
                 this.X = x;
                 this.Y = y;
                 Type = vehicleType;
+                Durability = durability;
             }
 
             public static double DistanceSquared(Point p1, Point p2)

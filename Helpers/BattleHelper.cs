@@ -40,6 +40,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                             power = basePower * 0;
                         }
 
+                        power *= GetPowerHealthMulitplier(enemy.Type, enemy.Durability);
+
                         enemyPower += power;
                     }
                 }
@@ -69,6 +71,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         {
                             power = basePower * 0F;
                         }
+
+                        power *= GetPowerHealthMulitplier(enemy.Type, enemy.Durability);
 
                         enemyPower += power;
                     }
@@ -100,6 +104,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                             power = basePower * 0F;
                         }
 
+                        power *= GetPowerHealthMulitplier(enemy.Type, enemy.Durability);
+
                         enemyPower += power;
                     }
                 }
@@ -130,6 +136,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                             power = basePower * 0F;
                         }
 
+                        power *= GetPowerHealthMulitplier(enemy.Type, enemy.Durability);
+
                         enemyPower += power;
                     }
                 }
@@ -159,6 +167,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         {
                             power = basePower * 0; //Чтобы не сталкиваться
                         }
+
+                        power *= GetPowerHealthMulitplier(enemy.Type, enemy.Durability);
 
                         enemyPower += power;
                     }
@@ -196,6 +206,32 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             {
                 return new VehicleType[0];
             }
+            throw new NotImplementedException();
+        }
+
+        public static float GetPowerHealthMulitplier(VehicleType vehicleType, int health)
+        {
+            if (vehicleType == VehicleType.Fighter)
+            {
+                return (float)health / GlobalHelper.Game.FighterDurability;
+            }
+            else if (vehicleType == VehicleType.Helicopter)
+            {
+                return (float)health / GlobalHelper.Game.HelicopterDurability;
+            }
+            else if (vehicleType == VehicleType.Tank)
+            {
+                return (float)health / GlobalHelper.Game.TankDurability;
+            }
+            else if (vehicleType == VehicleType.Ifv)
+            {
+                return (float)health / GlobalHelper.Game.IfvDurability;
+            }
+            else if (vehicleType == VehicleType.Arrv)
+            {
+                return (float)health / GlobalHelper.Game.ArrvDurability;
+            }
+
             throw new NotImplementedException();
         }
     }
