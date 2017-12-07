@@ -302,11 +302,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             //}
         }
 
-        public static bool PointIsWithinCircle(double circleCenterPointX, double circleCenterPointY, double circleRadius, double pointToCheckX, double pointToCheckY)
-        {
-            return (Math.Pow(pointToCheckX - circleCenterPointX, 2) + Math.Pow(pointToCheckY - circleCenterPointY, 2)) < (Math.Pow(circleRadius, 2));
-        }
-
         public static void Normalize()
         {
             var minPower = (from float x in PotentialFields select x).Min();

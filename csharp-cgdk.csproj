@@ -81,8 +81,10 @@
     <Compile Include="Helpers\DbScanHelper.cs" />
     <Compile Include="Helpers\FacilityHelper.cs" />
     <Compile Include="Helpers\FacilityProductionHelper.cs" />
+    <Compile Include="Helpers\GeometryHelper.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
     <Compile Include="Helpers\GroupHelper.cs" />
+    <Compile Include="Helpers\NuclearStrikeHelper.cs" />
     <Compile Include="Helpers\PotentialFieldsHelper.cs" />
     <Compile Include="Helpers\QueueHelper.cs" />
     <Compile Include="Helpers\UnitHelper.cs" />

@@ -88,7 +88,35 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     ActionHelper.NuclearStrike(ns.VehicleId, ns.X, ns.Y);
                     return;
                 }
+                else if (task is SelectUnits)
+                {
+                    var sn = task as SelectUnits;
+                    ActionHelper.Select(
+                        sn.Left,
+                        sn.Top,
+                        sn.Right,
+                        sn.Bottom,
+                        sn.VehicleType);
+                    return;
+                }
+                else if (task is Scale)
+                {
+                    var sc = task as Scale;
+                    ActionHelper.Scale(sc.X, sc.Y, sc.Factor);
+                    return;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+                
 
+                return;
+            }
+
+            var nucStrikeProcessed = NuclearStrikeHelper.ProcessNuclearStrike(GlobalHelper.MoveAllowed);
+            if (nucStrikeProcessed && GlobalHelper.MoveAllowed)
+            {
                 return;
             }
 
@@ -281,7 +309,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     .Where(x =>
                     {
                         var visionRange = GetVisionRangeByWeather(selectedUnit);
-                        return PotentialFieldsHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange, x.X, x.Y);
+                        return GeometryHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange, x.X, x.Y);
                     }).ToArray();
 
                 foreach (var enemyUnitInRange in enemyUnitsInRange)
@@ -315,7 +343,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             {
                 double totalDamage = 0;
                 var allEnemiesFromEnemyRange = UnitHelper.UnitsEnemy
-                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                    .Where(x => GeometryHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
                         nsRange, x.X, x.Y)).ToArray();
 
                 foreach (var enemyFromEnemyRange in allEnemiesFromEnemyRange)
@@ -337,7 +365,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
 
                 var allAlliesFromEnemyRange = UnitHelper.UnitsAlly
-                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                    .Where(x => GeometryHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
                         nsRange, x.X, x.Y)).ToArray();
 
                 foreach (var allyFromEnemyRange in allAlliesFromEnemyRange)
