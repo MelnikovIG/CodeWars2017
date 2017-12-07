@@ -43,11 +43,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             UpdateVehiclesStates(me, world, game, rewindClient);
             FacilityHelper.UpdateFacilitiesStates();
 
-            var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type, x.Durability)).ToList();
-            var clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
+            Lazy<List<List<DbScanHelper.Point>>> lazyClusters = new Lazy<List<List<DbScanHelper.Point>>>(() =>
+            {
+                var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type, x.Durability)).ToList();
+                List<List<DbScanHelper.Point>> clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
+                return clusters;
+            });
 
 #if DEBUG
-            DbScanHelper.DrawClusters(clusters);
+            DbScanHelper.DrawClusters(lazyClusters.Value);
             FacilityHelper.DrawFacilities();
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
@@ -85,7 +89,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 else if (task is StartProduction)
                 {
                     var sp = task as StartProduction;
-                    FacilityProductionHelper.StartFactoryProduction(sp.Facility, clusters);
+                    FacilityProductionHelper.StartFactoryProduction(sp.Facility, lazyClusters.Value);
                     return;
                 }
                 else if (task is NuclearStrike)
@@ -140,7 +144,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var facility = facilitiesToAddProdution[0];
                     facilitiesToAddProdution.Remove(facility);
 
-                    FacilityProductionHelper.StartFactoryProduction(facility, clusters);
+                    FacilityProductionHelper.StartFactoryProduction(facility, lazyClusters.Value);
                     return;
                 }
 
@@ -242,7 +246,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
             else
             {
-                PotentialFieldsHelper.AppendEnemyPowerToDodge(clusters);
+                PotentialFieldsHelper.AppendEnemyPowerToDodge(lazyClusters.Value);
                 PotentialFieldsHelper.ApplyHealPower();
             }
             PotentialFieldsHelper.ApplyFacilitiesPower();
