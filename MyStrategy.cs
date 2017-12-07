@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
+using Newtonsoft.Json;
 using RewindClient;
 using Side = Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers.Side;
 
@@ -20,6 +21,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             var rewindClient = RewindClient.RewindClient.Instance;
 
             MoveEx(me, world, game, move, rewindClient);
+
+#if DEBUG
+            var jsonMove = JsonConvert.SerializeObject(move);
+            rewindClient.Message(jsonMove);
+#endif
 
             rewindClient.End();
         }
