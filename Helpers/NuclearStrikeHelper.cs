@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 
 namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public static class NuclearStrikeHelper
     {
         public static NuclearStrikeState NuclearStrikeState { get; set; } = NuclearStrikeState.None;
-        public static bool IsEnemyNuclearStrikeExecuting => GlobalHelper.Enemy.NextNuclearStrikeTickIndex >= 0;
-        public static double EnemyNuclearStrikeX => GlobalHelper.Enemy.NextNuclearStrikeX;
-        public static double EnemyNuclearStrikeY => GlobalHelper.Enemy.NextNuclearStrikeY;
+        public static Player Enemy => GlobalHelper.Enemy;
+        public static bool IsEnemyNuclearStrikeExecuting => Enemy.NextNuclearStrikeTickIndex >= 0;
+        public static double EnemyNuclearStrikeX => Enemy.NextNuclearStrikeX;
+        public static double EnemyNuclearStrikeY => Enemy.NextNuclearStrikeY;
 
         public static bool ProcessNuclearStrike(bool moveAllowed)
         {
