@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
+#if DEBUG
 using Newtonsoft.Json;
+#endif
 using RewindClient;
 using Side = Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers.Side;
 
