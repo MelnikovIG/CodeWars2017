@@ -23,8 +23,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             MoveEx(me, world, game, move, rewindClient);
 
 #if DEBUG
-            var jsonMove = JsonConvert.SerializeObject(move);
-            rewindClient.Message(jsonMove);
+            //var jsonMove = JsonConvert.SerializeObject(move);
+            //rewindClient.Message(jsonMove);
 #endif
 
             rewindClient.End();
@@ -109,6 +109,12 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 {
                     var sc = task as Scale;
                     ActionHelper.Scale(sc.X, sc.Y, sc.Factor);
+                    return;
+                }
+                else if (task is SelectGroup)
+                {
+                    var sG = task as SelectGroup;
+                    ActionHelper.SelectGroup(sG.Group);
                     return;
                 }
                 else
@@ -196,6 +202,21 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                 if (me.RemainingNuclearStrikeCooldownTicks <= 0)
                 {
+                    //var unit = UnitHelper.UnitsAlly.First();
+
+                    //var vr = GetVisionRangeByWeather(unit);
+
+                    //var maxRange =
+                    //    UnitHelper.UnitsAlly
+                    //        .Where(x => PotentialFieldsHelper.GetDistanceTo(x.X, x.Y, unit.X, unit.Y) < vr)
+                    //        .Max(x => PotentialFieldsHelper.GetDistanceTo(x.X, x.Y, unit.X, unit.Y));
+
+                    //var targetUnit =
+                    //    UnitHelper.UnitsAlly.First(x => PotentialFieldsHelper.GetDistanceTo(x.X, x.Y, unit.X, unit.Y) == maxRange);
+
+                    //ActionHelper.NuclearStrike(unit.Id, targetUnit.X, targetUnit.Y);
+                    //return;
+
                     var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits);
 
                     if (hasTargetToNuclearAttack.Success)

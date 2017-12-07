@@ -55,6 +55,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     }
 
     /// <summary>
+    /// Выбор группы
+    /// </summary>
+    public class SelectGroup : QueueTask
+    {
+        public Group Group { get; }
+
+        public SelectGroup(Group @group)
+        {
+            Group = @group;
+        }
+    }
+
+    /// <summary>
     /// Добавление выбранных юнитов в группу
     /// </summary>
     public class AddSelecteUnitsToNewGroupTask : QueueTask

@@ -6,11 +6,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public static class NuclearStrikeHelper
     {
+        private static MyLivingUnit[] allyUnitsInRangeOfNuclearStrike;
         public static NuclearStrikeState NuclearStrikeState { get; set; } = NuclearStrikeState.None;
         public static Player Enemy => GlobalHelper.Enemy;
         public static bool IsEnemyNuclearStrikeExecuting => Enemy.NextNuclearStrikeTickIndex >= 0;
-        public static double EnemyNuclearStrikeX => Enemy.NextNuclearStrikeX;
-        public static double EnemyNuclearStrikeY => Enemy.NextNuclearStrikeY;
+
+        private static double LastEnemyNuclearStrikeX { get; set; }
+        private static double LastEnemyNuclearStrikeY { get; set; }
 
         public static bool ProcessNuclearStrike(bool moveAllowed)
         {
@@ -18,11 +20,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             if (isEmenyExecutingNs)
             {
+
+                LastEnemyNuclearStrikeX = Enemy.NextNuclearStrikeX;
+                LastEnemyNuclearStrikeY = Enemy.NextNuclearStrikeY;
+
                 switch (NuclearStrikeState)
                 {
                     case NuclearStrikeState.None:
-                        var anyUnitsInRangeOfNuclearStrike = CheckAnyUnitsInRangeOfNuclearStrike();
-                        if (anyUnitsInRangeOfNuclearStrike)
+                        allyUnitsInRangeOfNuclearStrike = GetAllyUnitsInRangeOfNuclearStrike();
+                        if (allyUnitsInRangeOfNuclearStrike.Length > 0)
                         {
                             MakeSpread(moveAllowed);
                             NuclearStrikeState = NuclearStrikeState.Spread;
@@ -30,6 +36,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         }
                         break;
                     case NuclearStrikeState.Spread:
+                        return true;
                         break;
                     case NuclearStrikeState.Gather:
                         throw new Exception();
@@ -42,6 +49,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 switch (NuclearStrikeState)
                 {
                     case NuclearStrikeState.None:
+                        return false;
                         break;
                     case NuclearStrikeState.Spread:
                         MakeGather(moveAllowed);
@@ -50,59 +58,82 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         break;
                     case NuclearStrikeState.Gather:
                         NuclearStrikeState = NuclearStrikeState.None;
+                        return false;
                         break;
                     default: throw new Exception();
                 }
+
             }
 
             return false;
         }
 
-        private static bool CheckAnyUnitsInRangeOfNuclearStrike()
+        private static MyLivingUnit[] GetAllyUnitsInRangeOfNuclearStrike()
         {
             var nsRadius = GlobalHelper.Game.TacticalNuclearStrikeRadius;
 
             var allyUnitsInEnemyNs = UnitHelper.UnitsAlly
                 .Where(x => 
-                GeometryHelper.PointIsWithinCircle(EnemyNuclearStrikeX, EnemyNuclearStrikeY, nsRadius, x.X, x.Y))
-                .Any();
+                GeometryHelper.PointIsWithinCircle(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, nsRadius, x.X, x.Y))
+                .ToArray();
 
             return allyUnitsInEnemyNs;
         }
 
-        private static void MakeGather(bool moveAllowed)
+        private static void MakeSpread(bool moveAllowed)
         {
             var nsRadius = GlobalHelper.Game.TacticalNuclearStrikeRadius;
 
             if (moveAllowed)
             {
                 ActionHelper.Select(
-                    EnemyNuclearStrikeX - nsRadius,
-                    EnemyNuclearStrikeY - nsRadius,
-                    EnemyNuclearStrikeX + nsRadius,
-                    EnemyNuclearStrikeY + nsRadius);
+                    LastEnemyNuclearStrikeX - nsRadius,
+                    LastEnemyNuclearStrikeY - nsRadius,
+                    LastEnemyNuclearStrikeX + nsRadius,
+                    LastEnemyNuclearStrikeY + nsRadius
+                );
+                QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
             }
             else
             {
                 QueueHelper.Queue.Enqueue(new SelectUnits(
-                    EnemyNuclearStrikeX - nsRadius,
-                    EnemyNuclearStrikeY - nsRadius,
-                    EnemyNuclearStrikeX + nsRadius,
-                    EnemyNuclearStrikeY + nsRadius));
+                    LastEnemyNuclearStrikeX - nsRadius,
+                    LastEnemyNuclearStrikeY - nsRadius,
+                    LastEnemyNuclearStrikeX + nsRadius,
+                    LastEnemyNuclearStrikeY + nsRadius
+                    ));
+                QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
             }
-
-            QueueHelper.Queue.Enqueue(new Scale(EnemyNuclearStrikeX, EnemyNuclearStrikeY, 0.1));
         }
 
-        private static void MakeSpread(bool moveAllowed)
+        private static void MakeGather(bool moveAllowed)
         {
-            if (moveAllowed)
+            //TODO: useMoveAllowed 
+
+            var groups = allyUnitsInRangeOfNuclearStrike
+                .Where(x => x.Groups.Length > 0)
+                .GroupBy(x => x.Groups[0])
+                .ToArray();
+
+            foreach (var group in groups)
             {
-                ActionHelper.Scale(EnemyNuclearStrikeX, EnemyNuclearStrikeY, 10);
-            }
-            else
-            {
-                QueueHelper.Queue.Enqueue(new Scale(EnemyNuclearStrikeX, EnemyNuclearStrikeY, 10));
+                var chosenGroup = GroupHelper.Groups[group.Key - 1];
+
+                //var isNucleatorInGroup = group.Select(x => x.Id).Contains(GlobalHelper.Me.NextNuclearStrikeVehicleId);
+                //if (isNucleatorInGroup)
+                //{
+                //    continue;
+                //}
+
+                if (GroupHelper.CurrentGroup != chosenGroup)
+                {
+                    QueueHelper.Queue.Enqueue(new SelectGroup(chosenGroup));
+
+                    for (int i = 0; i < 7; i++)
+                    {
+                        QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 0.1));
+                    }
+                }
             }
         }
     }
