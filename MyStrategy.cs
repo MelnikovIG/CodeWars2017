@@ -18,14 +18,30 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
     {
         private static int PrepareStep = 0;
         private static bool Prepared = false;
+        private static string EndOfString = " ";
 
         public void Move(Player me, World world, Game game, Move move)
         {
             var rewindClient = RewindClient.RewindClient.Instance;
 
+#if DEBUG
+            rewindClient.Message($"Queue length before move: {QueueHelper.Queue.Count}" + EndOfString);
+            foreach (var queueItem in QueueHelper.Queue)
+            {
+                rewindClient.Message(queueItem.ToString() + EndOfString);
+            }
+            rewindClient.Message("-----------------------------------" + EndOfString);
+#endif
+
             MoveEx(me, world, game, move, rewindClient);
 
 #if DEBUG
+            rewindClient.Message("-----------------------------------" + EndOfString);
+            rewindClient.Message($"Queue length after move: {QueueHelper.Queue.Count}" + EndOfString);
+            foreach (var queueItem in QueueHelper.Queue)
+            {
+                rewindClient.Message(queueItem.ToString() + EndOfString);
+            }
             //var jsonMove = JsonConvert.SerializeObject(move);
             //rewindClient.Message(jsonMove);
 #endif
