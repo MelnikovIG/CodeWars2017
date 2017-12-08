@@ -133,7 +133,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
 
             var nucStrikeProcessed = NuclearStrikeHelper.ProcessNuclearStrike(GlobalHelper.MoveAllowed);
-            if (nucStrikeProcessed && GlobalHelper.MoveAllowed)
+            if (nucStrikeProcessed)
             {
                 return;
             }
