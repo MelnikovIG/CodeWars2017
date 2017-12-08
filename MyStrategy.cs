@@ -5,6 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
+#if DEBUG
+using Newtonsoft.Json;
+#endif
 using RewindClient;
 using Side = Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers.Side;
 
@@ -20,6 +23,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             var rewindClient = RewindClient.RewindClient.Instance;
 
             MoveEx(me, world, game, move, rewindClient);
+
+#if DEBUG
+            //var jsonMove = JsonConvert.SerializeObject(move);
+            //rewindClient.Message(jsonMove);
+#endif
 
             rewindClient.End();
         }
@@ -37,11 +45,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             UpdateVehiclesStates(me, world, game, rewindClient);
             FacilityHelper.UpdateFacilitiesStates();
 
-            var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type, x.Durability)).ToList();
-            var clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
+            Lazy<List<List<DbScanHelper.Point>>> lazyClusters = new Lazy<List<List<DbScanHelper.Point>>>(() =>
+            {
+                var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type, x.Durability)).ToList();
+                List<List<DbScanHelper.Point>> clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
+                return clusters;
+            });
 
 #if DEBUG
-            DbScanHelper.DrawClusters(clusters);
+            DbScanHelper.DrawClusters(lazyClusters.Value);
             FacilityHelper.DrawFacilities();
             DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
@@ -79,7 +91,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 else if (task is StartProduction)
                 {
                     var sp = task as StartProduction;
-                    FacilityProductionHelper.StartFactoryProduction(sp.Facility, clusters);
+                    FacilityProductionHelper.StartFactoryProduction(sp.Facility, lazyClusters.Value);
                     return;
                 }
                 else if (task is NuclearStrike)
@@ -88,7 +100,41 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     ActionHelper.NuclearStrike(ns.VehicleId, ns.X, ns.Y);
                     return;
                 }
+                else if (task is SelectUnits)
+                {
+                    var sn = task as SelectUnits;
+                    ActionHelper.Select(
+                        sn.Left,
+                        sn.Top,
+                        sn.Right,
+                        sn.Bottom,
+                        sn.VehicleType);
+                    return;
+                }
+                else if (task is Scale)
+                {
+                    var sc = task as Scale;
+                    ActionHelper.Scale(sc.X, sc.Y, sc.Factor);
+                    return;
+                }
+                else if (task is SelectGroup)
+                {
+                    var sG = task as SelectGroup;
+                    ActionHelper.SelectGroup(sG.Group);
+                    return;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+                
 
+                return;
+            }
+
+            var nucStrikeProcessed = NuclearStrikeHelper.ProcessNuclearStrike(GlobalHelper.MoveAllowed);
+            if (nucStrikeProcessed)
+            {
                 return;
             }
 
@@ -100,7 +146,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var facility = facilitiesToAddProdution[0];
                     facilitiesToAddProdution.Remove(facility);
 
-                    FacilityProductionHelper.StartFactoryProduction(facility, clusters);
+                    FacilityProductionHelper.StartFactoryProduction(facility, lazyClusters.Value);
                     return;
                 }
 
@@ -162,6 +208,21 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                 if (me.RemainingNuclearStrikeCooldownTicks <= 0)
                 {
+                    //var unit = UnitHelper.UnitsAlly.First();
+
+                    //var vr = GetVisionRangeByWeather(unit);
+
+                    //var maxRange =
+                    //    UnitHelper.UnitsAlly
+                    //        .Where(x => PotentialFieldsHelper.GetDistanceTo(x.X, x.Y, unit.X, unit.Y) < vr)
+                    //        .Max(x => PotentialFieldsHelper.GetDistanceTo(x.X, x.Y, unit.X, unit.Y));
+
+                    //var targetUnit =
+                    //    UnitHelper.UnitsAlly.First(x => PotentialFieldsHelper.GetDistanceTo(x.X, x.Y, unit.X, unit.Y) == maxRange);
+
+                    //ActionHelper.NuclearStrike(unit.Id, targetUnit.X, targetUnit.Y);
+                    //return;
+
                     var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits);
 
                     if (hasTargetToNuclearAttack.Success)
@@ -187,7 +248,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
             else
             {
-                PotentialFieldsHelper.AppendEnemyPowerToDodge(clusters);
+                PotentialFieldsHelper.AppendEnemyPowerToDodge(lazyClusters.Value);
                 PotentialFieldsHelper.ApplyHealPower();
             }
             PotentialFieldsHelper.ApplyFacilitiesPower();
@@ -281,7 +342,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     .Where(x =>
                     {
                         var visionRange = GetVisionRangeByWeather(selectedUnit);
-                        return PotentialFieldsHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange, x.X, x.Y);
+                        return GeometryHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange, x.X, x.Y);
                     }).ToArray();
 
                 foreach (var enemyUnitInRange in enemyUnitsInRange)
@@ -315,7 +376,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             {
                 double totalDamage = 0;
                 var allEnemiesFromEnemyRange = UnitHelper.UnitsEnemy
-                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                    .Where(x => GeometryHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
                         nsRange, x.X, x.Y)).ToArray();
 
                 foreach (var enemyFromEnemyRange in allEnemiesFromEnemyRange)
@@ -337,7 +398,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
 
                 var allAlliesFromEnemyRange = UnitHelper.UnitsAlly
-                    .Where(x => PotentialFieldsHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
+                    .Where(x => GeometryHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
                         nsRange, x.X, x.Y)).ToArray();
 
                 foreach (var allyFromEnemyRange in allAlliesFromEnemyRange)
