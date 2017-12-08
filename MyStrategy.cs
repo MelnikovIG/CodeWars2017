@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Custom;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
 #if DEBUG
@@ -300,6 +301,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                     var nextPpPointX = nextPpPoint.X * size + size / 2d;
                     var nextPpPointY = nextPpPoint.Y * size + size / 2d;
+
+                    //Хак по задержке вертов при старте, тянемся к ифвам
+                    if (currentSelectedGroup.VehicleType == VehicleType.Helicopter && world.TickIndex < 1000)
+                    {
+                         var ifvGroup = GroupHelper.Groups.FirstOrDefault(x => x.VehicleType == VehicleType.Ifv);
+                        if (ifvGroup != null)
+                        {
+                            var ifvUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(ifvGroup.Id)).ToArray();
+                            var nextPpPointX1 = ifvUnits.Sum(x => x.X) / ifvUnits.Length / PotentialFieldsHelper.PpSize;
+                            var nextPpPointY1 = ifvUnits.Sum(x => x.Y) / ifvUnits.Length / PotentialFieldsHelper.PpSize;
+                            nextPpPoint = new Point2D(nextPpPointX1, nextPpPointY1);
+                        }
+                    }
 
                     //Если достаточно подойти к цели, отдадим управление дргому отряду
                     if (PotentialFieldsHelper.GetDistanceTo(nextPpPointX, nextPpPointY, cx, cy) < quartCellLength)
