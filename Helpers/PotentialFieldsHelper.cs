@@ -25,7 +25,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static float[,] RangePowerMask5 = CreatePfEx(5);
         public static float[,] RangePowerMask7 = CreatePfEx(7);
-        public static float[,] RangePowerMask49 = CreatePfEx(49); //Притягиваем на 2/3 карты
+        public static float[,] RangePowerMask49 = CreatePfEx(49); //влияние на 2/3 карты
 
         public static void Clear()
         {
@@ -208,7 +208,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 if (canAttackSomeone)
                 {
                     var pwr = enemyPower - myGroupPower;
-                    ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, pwr);
+                    if (pwr >= 0)
+                    {
+                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, pwr);
+                    }
+                    else
+                    {
+                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask49, pwr);
+                    }
                 }
                 else
                 {
