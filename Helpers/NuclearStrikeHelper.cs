@@ -87,6 +87,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         private static void MakeSpread(bool moveAllowed)
         {
+            var groupLength = groupsInNuclearStrike.Length;
+
             //TODO: useMoveAllowed 
             foreach (var group in groupsInNuclearStrike)
             {
@@ -94,7 +96,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                 if (GroupHelper.CurrentGroup != chosenGroup)
                 {
-                    if (moveAllowed)
+                    //Был баг с 2мя действиями за ход
+                    if (moveAllowed && groupLength < 2)
                     {
                         ActionHelper.SelectGroup(chosenGroup);
                     }
@@ -106,7 +109,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
                 else
                 {
-                    if (moveAllowed)
+                    //Был баг с 2мя действиями за ход
+                    if (moveAllowed && groupLength < 2)
                     {
                         ActionHelper.Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10);
                     }
@@ -144,7 +148,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         private static void MakeGather(bool moveAllowed)
         {
-            //TODO: useMoveAllowed 
+            //TODO: useMoveAllowed (aware multimove if many groups)
+            
 
             foreach (var group in groupsInNuclearStrike)
             {

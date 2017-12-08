@@ -106,7 +106,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         {
             if (GlobalHelper.Move.Action != null)
             {
-                throw new Exception("Действие уже задано на этом ходу");
+                //Чтобы выводилось в лог игры сделаем такой тип исключение, обычные не ловятся
+                throw new IndexOutOfRangeException("CustomEx: Действие уже задано на этом ходу");
             }
         }
     }
