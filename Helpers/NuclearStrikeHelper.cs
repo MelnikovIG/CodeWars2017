@@ -6,7 +6,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 {
     public static class NuclearStrikeHelper
     {
-        private static MyLivingUnit[] allyUnitsInRangeOfNuclearStrike;
+        private static IGrouping<int, MyLivingUnit>[] groupsInNuclearStrike;
         public static NuclearStrikeState NuclearStrikeState { get; set; } = NuclearStrikeState.None;
         public static Player Enemy => GlobalHelper.Enemy;
         public static bool IsEnemyNuclearStrikeExecuting => Enemy.NextNuclearStrikeTickIndex >= 0;
@@ -27,9 +27,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 switch (NuclearStrikeState)
                 {
                     case NuclearStrikeState.None:
-                        allyUnitsInRangeOfNuclearStrike = GetAllyUnitsInRangeOfNuclearStrike();
+                        var allyUnitsInRangeOfNuclearStrike = GetAllyUnitsInRangeOfNuclearStrike();
                         if (allyUnitsInRangeOfNuclearStrike.Length > 0)
                         {
+                             groupsInNuclearStrike = allyUnitsInRangeOfNuclearStrike
+                                .Where(x => x.Groups.Length > 0)
+                                .GroupBy(x => x.Groups[0])
+                                .ToArray();
+
                             MakeSpread(moveAllowed);
                             NuclearStrikeState = NuclearStrikeState.Spread;
                             return true;
@@ -82,57 +87,77 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         private static void MakeSpread(bool moveAllowed)
         {
-            var nsRadius = GlobalHelper.Game.TacticalNuclearStrikeRadius;
+            //TODO: useMoveAllowed 
+            foreach (var group in groupsInNuclearStrike)
+            {
+                var chosenGroup = GroupHelper.Groups[group.Key - 1];
 
-            if (moveAllowed)
-            {
-                ActionHelper.Select(
-                    LastEnemyNuclearStrikeX - nsRadius,
-                    LastEnemyNuclearStrikeY - nsRadius,
-                    LastEnemyNuclearStrikeX + nsRadius,
-                    LastEnemyNuclearStrikeY + nsRadius
-                );
-                QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
+                if (GroupHelper.CurrentGroup != chosenGroup)
+                {
+                    if (moveAllowed)
+                    {
+                        ActionHelper.SelectGroup(chosenGroup);
+                    }
+                    else
+                    {
+                        QueueHelper.Queue.Enqueue(new SelectGroup(chosenGroup));
+                    }
+                    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
+                }
+                else
+                {
+                    if (moveAllowed)
+                    {
+                        ActionHelper.Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10);
+                    }
+                    else
+                    {
+                        QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
+                    }
+                }
+
             }
-            else
-            {
-                QueueHelper.Queue.Enqueue(new SelectUnits(
-                    LastEnemyNuclearStrikeX - nsRadius,
-                    LastEnemyNuclearStrikeY - nsRadius,
-                    LastEnemyNuclearStrikeX + nsRadius,
-                    LastEnemyNuclearStrikeY + nsRadius
-                    ));
-                QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
-            }
+
+            //var nsRadius = GlobalHelper.Game.TacticalNuclearStrikeRadius;
+
+            //if (moveAllowed)
+            //{
+            //    ActionHelper.Select(
+            //        LastEnemyNuclearStrikeX - nsRadius,
+            //        LastEnemyNuclearStrikeY - nsRadius,
+            //        LastEnemyNuclearStrikeX + nsRadius,
+            //        LastEnemyNuclearStrikeY + nsRadius
+            //    );
+            //    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
+            //}
+            //else
+            //{
+            //    QueueHelper.Queue.Enqueue(new SelectUnits(
+            //        LastEnemyNuclearStrikeX - nsRadius,
+            //        LastEnemyNuclearStrikeY - nsRadius,
+            //        LastEnemyNuclearStrikeX + nsRadius,
+            //        LastEnemyNuclearStrikeY + nsRadius
+            //        ));
+            //    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
+            //}
         }
 
         private static void MakeGather(bool moveAllowed)
         {
             //TODO: useMoveAllowed 
 
-            var groups = allyUnitsInRangeOfNuclearStrike
-                .Where(x => x.Groups.Length > 0)
-                .GroupBy(x => x.Groups[0])
-                .ToArray();
-
-            foreach (var group in groups)
+            foreach (var group in groupsInNuclearStrike)
             {
                 var chosenGroup = GroupHelper.Groups[group.Key - 1];
-
-                //var isNucleatorInGroup = group.Select(x => x.Id).Contains(GlobalHelper.Me.NextNuclearStrikeVehicleId);
-                //if (isNucleatorInGroup)
-                //{
-                //    continue;
-                //}
 
                 if (GroupHelper.CurrentGroup != chosenGroup)
                 {
                     QueueHelper.Queue.Enqueue(new SelectGroup(chosenGroup));
+                }
 
-                    for (int i = 0; i < 7; i++)
-                    {
-                        QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 0.1));
-                    }
+                for (int i = 0; i < 7; i++)
+                {
+                    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 0.1));
                 }
             }
         }
