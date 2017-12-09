@@ -217,19 +217,29 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         if (pwr >= 0)
                         {
                             //Если атакуют вертов, попробуем укрыться за Ifv
-                            if (currentSelectedGroup.VehicleType == VehicleType.Helicopter && pwr > 0)
+                            if (currentSelectedGroup.VehicleType == VehicleType.Helicopter
+                                && enemies.Any(x => x.Type == VehicleType.Fighter)
+                                && pwr > 0)
                             {
-                                var ifvGroup = GroupHelper.Groups.FirstOrDefault(x => x.VehicleType == VehicleType.Ifv);
-                                if (ifvGroup != null)
+                                var sx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
+                                var sy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
+
+                                var distanceLow = GetDistancePower2To(sx, sy, ex, ey) < (300 * 300);
+
+                                if (distanceLow)
                                 {
-                                    var ifvUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(ifvGroup.Id)).ToArray();
-                                    var ifvX = ifvUnits.Sum(x => x.X) / ifvUnits.Length;
-                                    var ifvY = ifvUnits.Sum(x => x.Y) / ifvUnits.Length;
+                                    var ifvGroup = GroupHelper.Groups.FirstOrDefault(x => x.VehicleType == VehicleType.Ifv);
+                                    if (ifvGroup != null)
+                                    {
+                                        var ifvUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(ifvGroup.Id)).ToArray();
+                                        var ifvX = ifvUnits.Sum(x => x.X) / ifvUnits.Length;
+                                        var ifvY = ifvUnits.Sum(x => x.Y) / ifvUnits.Length;
 
-                                    var ifvCellX = (int)ifvX / PpSize;
-                                    var ifvCellY = (int)ifvY / PpSize;
+                                        var ifvCellX = (int)ifvX / PpSize;
+                                        var ifvCellY = (int)ifvY / PpSize;
 
-                                    ApplyPower(PotentialFields, ifvCellX, ifvCellY, RangePowerMask49, -(float)ifvUnits.Length * basePower / 2);
+                                        ApplyPower(PotentialFields, ifvCellX, ifvCellY, RangePowerMask49, -(float)ifvUnits.Length * basePower);
+                                    }
                                 }
                             }
 
