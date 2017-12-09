@@ -154,35 +154,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return xRange * xRange + yRange * yRange;
         }
 
-        //NOTE: кривой алгоритм расчета ПП
-        public static void ApplyPowerToNuclearStrike()
-        {
-            var enemies = UnitHelper.Units.Values.Where(x => x.Side == Side.Enemy).ToArray();
-
-            enemies = enemies.Where(x => x.Type != VehicleType.Arrv).ToArray();
-
-            for (int i = 0; i < PpSize; i++)
-            {
-                for (int j = 0; j < PpSize; j++)
-                {
-                    foreach (var enemy in enemies.Take(1))
-                    {
-                        var dx = Math.Abs(enemy.X / PpSize - i);
-                        var dy = Math.Abs(enemy.Y / PpSize - j);
-
-                        var sumDelta = dx + dy;
-                        if (sumDelta < 32)
-                        {
-                            var maxSum = PpSize * 2;
-
-                            var power = (1 - sumDelta / maxSum) * PowerToNuclearStrike;
-                            PotentialFields[i, j] += (float)power;
-                        }
-                    }
-                }
-            }
-        }
-
         public static void AppendEnemyPower(List<List<DbScanHelper.Point>> clusters, bool applyNuclearStrikePower)
         {
             var basePower = EnemyPowerToDodge;

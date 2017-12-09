@@ -269,15 +269,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             var applyNuclearStrikePower = me.RemainingNuclearStrikeCooldownTicks <= 0 &&
                                           ConfigurationHelper.EnableNuclearStrike;
-            //if (me.RemainingNuclearStrikeCooldownTicks <= 0 && ConfigurationHelper.EnableNuclearStrike)
-            //{
-            //    PotentialFieldsHelper.ApplyPowerToNuclearStrike();
-            //}
-            //else
-            //{
-            //    PotentialFieldsHelper.AppendEnemyPower(lazyClusters.Value);
-            //    PotentialFieldsHelper.ApplyHealPower();
-            //}
+
             PotentialFieldsHelper.AppendEnemyPower(lazyClusters.Value, applyNuclearStrikePower);
             PotentialFieldsHelper.ApplyHealPower();
 
