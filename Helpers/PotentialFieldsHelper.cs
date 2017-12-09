@@ -180,7 +180,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
             }
 
-
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
             var myGroupPower = selectedUnits
                 .Sum(x => BattleHelper.GetPowerHealthMulitplier(currentSelectedGroup.VehicleType, x.Durability))
@@ -218,7 +217,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         if (pwr >= 0)
                         {
                             //Если атакуют вертов, попробуем укрыться за Ifv
-                            if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
+                            if (currentSelectedGroup.VehicleType == VehicleType.Helicopter && pwr > 0)
                             {
                                 var ifvGroup = GroupHelper.Groups.FirstOrDefault(x => x.VehicleType == VehicleType.Ifv);
                                 if (ifvGroup != null)
