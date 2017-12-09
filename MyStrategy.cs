@@ -72,7 +72,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 #if DEBUG
             DbScanHelper.DrawClusters(lazyClusters.Value);
             FacilityHelper.DrawFacilities();
-            DrawNuclearStrikes(me, enemy, game, rewindClient);
+            NuclearStrikeHelper.DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
 
             if (!Prepared)
@@ -149,7 +149,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            var nucStrikeProcessed = NuclearStrikeHelper.ProcessNuclearStrike(GlobalHelper.MoveAllowed);
+            var nucStrikeProcessed = NuclearStrikeHelper.ProcessEnemyNuclearStrikeDodge(GlobalHelper.MoveAllowed);
             if (nucStrikeProcessed)
             {
                 return;
@@ -217,7 +217,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                         var nucleator = selectedUnits.FirstOrDefault(x => x.Id == me.NextNuclearStrikeVehicleId);
                         if (nucleator != null)
                         {
-                            ActionHelper.Move(0, 0);
+                            ActionHelper.StopMove();
                             return;
                         }
                     }
@@ -240,7 +240,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     //ActionHelper.NuclearStrike(unit.Id, targetUnit.X, targetUnit.Y);
                     //return;
 
-                    var hasTargetToNuclearAttack = HasTargetToNuclearAttack(selectedUnits);
+                    var hasTargetToNuclearAttack = NuclearStrikeHelper.HasTargetToNuclearAttack(selectedUnits);
 
                     if (hasTargetToNuclearAttack.Success)
                     {
@@ -355,178 +355,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             return;
         }
 
-        private class HasTargetToNuclearAttackResult
-        {
-            public bool Success { get; set; }
-            public MyLivingUnit SelectedUnitRes { get; set; }
-            public MyLivingUnit EnemyRes { get; set; }
-        }
-
-        private HasTargetToNuclearAttackResult HasTargetToNuclearAttack(MyLivingUnit[] selectedUnits)
-        {
-            var allEnemiesCanBeAttacked = new Dictionary<long, List<MyLivingUnit>>();
-
-            foreach (var selectedUnit in selectedUnits)
-            {
-                var enemyUnitsInRange = UnitHelper.UnitsEnemy
-                    .Where(x =>
-                    {
-                        var visionRange = GetVisionRangeByWeather(selectedUnit);
-                        return GeometryHelper.PointIsWithinCircle(selectedUnit.X, selectedUnit.Y, visionRange, x.X, x.Y);
-                    }).ToArray();
-
-                foreach (var enemyUnitInRange in enemyUnitsInRange)
-                {
-                    var enemyId = enemyUnitInRange.Id;
-
-                    if (!allEnemiesCanBeAttacked.ContainsKey(enemyId))
-                    {
-                        allEnemiesCanBeAttacked[enemyId] = new List<MyLivingUnit>();
-                    }
-
-                    allEnemiesCanBeAttacked[enemyId].Add(selectedUnit);
-                }
-            }
-
-            if (allEnemiesCanBeAttacked.Count == 0)
-            {
-                return new HasTargetToNuclearAttackResult()
-                {
-                    Success = false
-                };
-            }
-
-            var enemiesCanBeAttacked = allEnemiesCanBeAttacked.Select(x => UnitHelper.Units[x.Key]).ToList();
-            var nsRange = GlobalHelper.Game.TacticalNuclearStrikeRadius;
-            var nsDamage = GlobalHelper.Game.MaxTacticalNuclearStrikeDamage;
-
-            var enemiesWithDamage = new List<Tuple<MyLivingUnit, double>>(allEnemiesCanBeAttacked.Count);
-
-            foreach (var enemyCanBeAttacked in enemiesCanBeAttacked)
-            {
-                double totalDamage = 0;
-                var allEnemiesFromEnemyRange = UnitHelper.UnitsEnemy
-                    .Where(x => GeometryHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
-                        nsRange, x.X, x.Y)).ToArray();
-
-                foreach (var enemyFromEnemyRange in allEnemiesFromEnemyRange)
-                {
-                    var distance = PotentialFieldsHelper.GetDistanceTo(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
-                        enemyFromEnemyRange.X, enemyFromEnemyRange.Y);
-
-                    //Урон - это расстояние от эпиценра * урон
-                    var damage = ((nsRange - distance) / nsRange) * nsDamage;
-
-                    if (damage > enemyFromEnemyRange.Durability)
-                    {
-                        totalDamage += 100;
-                    }
-                    else
-                    {
-                        totalDamage += damage;
-                    }
-                }
-
-                var allAlliesFromEnemyRange = UnitHelper.UnitsAlly
-                    .Where(x => GeometryHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
-                        nsRange, x.X, x.Y)).ToArray();
-
-                foreach (var allyFromEnemyRange in allAlliesFromEnemyRange)
-                {
-                    var distance = PotentialFieldsHelper.GetDistanceTo(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
-                        allyFromEnemyRange.X, allyFromEnemyRange.Y);
-
-                    //Урон - это расстояние от эпиценра * урон
-                    var damage = ((nsRange - distance) / nsRange) * nsDamage;
-
-                    if (damage > allyFromEnemyRange.Durability)
-                    {
-                        totalDamage -= 100;
-                    }
-                    else
-                    {
-                        totalDamage -= damage;
-                    }
-                }
-
-                enemiesWithDamage.Add(new Tuple<MyLivingUnit, double>(enemyCanBeAttacked, totalDamage));
-            }
-
-            var maxTotalDamage = enemiesWithDamage.Select(x => x.Item2).Max();
-
-            //Выгода по урону не в пользу нас, не планируем удар
-            if (maxTotalDamage < 0)
-            {
-                return new HasTargetToNuclearAttackResult()
-                {
-                    Success = false
-                };
-            }
-
-            var enemyUnitWithMaxDamage = enemiesWithDamage.First(x => Math.Abs(x.Item2 - maxTotalDamage) < 0.00000001).Item1;
-
-#if DEBUG
-            RewindClient.RewindClient.Instance.Circle(enemyUnitWithMaxDamage.X, enemyUnitWithMaxDamage.Y, enemyUnitWithMaxDamage.Radius * 3, Color.Red);
-#endif
-
-            var alliesCanAttackEnemyWithMaxDamage = allEnemiesCanBeAttacked[enemyUnitWithMaxDamage.Id];
-            var alliesWithRange = alliesCanAttackEnemyWithMaxDamage.Select(x => new
-            {
-                Ally = x,
-                Range = PotentialFieldsHelper.GetDistancePower2To(x.X, x.Y, enemyUnitWithMaxDamage.X,
-                    enemyUnitWithMaxDamage.Y)
-            }).ToList();
-
-            var maxRange = alliesWithRange.Select(x => x.Range).Max();
-            var ally = alliesWithRange.First(x => Math.Abs(x.Range - maxRange) < 0.00000001).Ally;
-
-#if DEBUG
-            RewindClient.RewindClient.Instance.Circle(ally.X, ally.Y, ally.Radius * 3, Color.Purple);
-
-            var vr = GetVisionRangeByWeather(ally);
-            RewindClient.RewindClient.Instance.Circle(ally.X, ally.Y, vr, Color.FromArgb(100, 255,0,200));
-#endif
-
-            //TODO: вернуть результат
-            return new HasTargetToNuclearAttackResult()
-            {
-                Success = true,
-                SelectedUnitRes = ally,
-                EnemyRes = enemyUnitWithMaxDamage
-            };
-        }
-
-#if DEBUG
-        private void DrawNuclearStrikes(Player me, Player enemy, Game game, RewindClient.RewindClient rewindClient)
-        {
-            if (me.NextNuclearStrikeTickIndex > 0)
-            {
-                var nx = me.NextNuclearStrikeX;
-                var ny = me.NextNuclearStrikeY;
-                var nr = game.TacticalNuclearStrikeRadius;
-
-                var nunit = UnitHelper.Units[me.NextNuclearStrikeVehicleId];
-
-                rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
-                rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
-                rewindClient.Line(nunit.X, nunit.Y, nx, ny, Color.Black);
-
-                var nsRange = PotentialFieldsHelper.GetDistanceTo(nunit.X, nunit.Y, nx, ny);
-                rewindClient.Message($"NuclearStrikeDistanse: {nsRange}");
-            }
-            if (enemy.NextNuclearStrikeTickIndex > 0)
-            {
-                var nx = enemy.NextNuclearStrikeX;
-                var ny = enemy.NextNuclearStrikeY;
-                var nr = game.TacticalNuclearStrikeRadius;
-
-                var nunit = UnitHelper.Units[enemy.NextNuclearStrikeVehicleId];
-                rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
-                rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
-            }
-        }
-#endif
-
         private RewindClient.UnitType GetRewindClientUitType(VehicleType vehicleType)
         {
             switch (vehicleType)
@@ -602,71 +430,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
             }
 #endif
-        }
-
-        private double GetVisionRangeByWeather(MyLivingUnit livingUnit)
-        {
-            var x = (int)livingUnit.X / PotentialFieldsHelper.PpSize;
-            var y = (int)livingUnit.Y / PotentialFieldsHelper.PpSize;
-
-            double airScale = 1;
-            double groundScale = 1;
-
-            var weaterType = GlobalHelper.World.WeatherByCellXY[x][y];
-            if (weaterType == WeatherType.Clear)
-            {
-                airScale = GlobalHelper.Game.ClearWeatherVisionFactor;
-            }
-            else if (weaterType == WeatherType.Cloud)
-            {
-                airScale = GlobalHelper.Game.CloudWeatherVisionFactor;
-            }
-            else if (weaterType == WeatherType.Rain)
-            {
-                airScale = GlobalHelper.Game.RainWeatherVisionFactor;
-            }
-
-            var terrainType = GlobalHelper.World.TerrainByCellXY[x][y];
-            if (terrainType == TerrainType.Plain)
-            {
-                groundScale = GlobalHelper.Game.PlainTerrainVisionFactor;
-            }
-            else if (terrainType == TerrainType.Forest)
-            {
-                groundScale = GlobalHelper.Game.ForestTerrainVisionFactor;
-            }
-            else if (terrainType == TerrainType.Swamp)
-            {
-                groundScale = GlobalHelper.Game.SwampTerrainVisionFactor;
-            }
-
-            if (livingUnit.Type == VehicleType.Fighter)
-            {
-                var visionRange = GlobalHelper.Game.FighterVisionRange * airScale;
-                return visionRange;
-            }
-            else if (livingUnit.Type == VehicleType.Helicopter)
-            {
-                var visionRange = GlobalHelper.Game.HelicopterVisionRange * airScale;
-                return visionRange;
-            }
-            else if (livingUnit.Type == VehicleType.Tank)
-            {
-                var visionRange = GlobalHelper.Game.TankVisionRange * groundScale;
-                return visionRange;
-            }
-            else if (livingUnit.Type == VehicleType.Ifv)
-            {
-                var visionRange = GlobalHelper.Game.IfvVisionRange * groundScale;
-                return visionRange;
-            }
-            else if (livingUnit.Type == VehicleType.Arrv)
-            {
-                var visionRange = GlobalHelper.Game.ArrvVisionRange * groundScale;
-                return visionRange;
-            }
-
-            throw new NotImplementedException();
         }
 
         private static void PrepareUnits()
