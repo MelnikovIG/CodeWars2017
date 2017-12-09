@@ -39,7 +39,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             catch (Exception e)
             {
                 //TODO: comment on final deploy
-                throw GlobalHelper.GetException(e.Message);
+                //throw GlobalHelper.GetException(e.Message);
             }
 
 #if DEBUG
