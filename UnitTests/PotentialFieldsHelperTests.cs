@@ -15,7 +15,7 @@ namespace UnitTests
         public void GetNextSafest_PP_PointByWorldXY_ShouldNotThrowExceptions(double cx, double cy)
         {
             Assert.DoesNotThrow(() => {
-                PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
+                PotentialFieldsHelper.Get_PP_PointToMove(cx, cy);
             });
         }
     }

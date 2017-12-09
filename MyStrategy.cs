@@ -309,16 +309,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var cx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
                     var cy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
 
-                    var nextPpPoint = PotentialFieldsHelper.GetNextSafest_PP_PointByWorldXY(cx, cy);
+                    var nextPpPoint = PotentialFieldsHelper.Get_PP_PointToMove(cx, cy, 3);
                     var quartCellLength = PotentialFieldsHelper.PpSize * 0.25;
-#if DEBUG
-                    rewindClient.Rectangle(
-                        nextPpPoint.X * size + quartCellLength,
-                        nextPpPoint.Y * size + quartCellLength,
-                        (nextPpPoint.X + 1) * size - quartCellLength,
-                        (nextPpPoint.Y + 1) * size - quartCellLength,
-                        Color.Black);
-#endif
 
                     var nextPpPointX = nextPpPoint.X * size + size / 2d;
                     var nextPpPointY = nextPpPoint.Y * size + size / 2d;
@@ -330,9 +322,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                         if (ifvGroup != null)
                         {
                             var ifvUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(ifvGroup.Id)).ToArray();
-                            var nextPpPointX1 = ifvUnits.Sum(x => x.X) / ifvUnits.Length / PotentialFieldsHelper.PpSize;
-                            var nextPpPointY1 = ifvUnits.Sum(x => x.Y) / ifvUnits.Length / PotentialFieldsHelper.PpSize;
-                            nextPpPoint = new Point2D(nextPpPointX1, nextPpPointY1);
+                            nextPpPointX = ifvUnits.Sum(x => x.X) / ifvUnits.Length;
+                            nextPpPointY = ifvUnits.Sum(x => x.Y) / ifvUnits.Length;
                         }
                     }
 
@@ -347,8 +338,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                         }
                     }
 
-                    var vx = nextPpPoint.X * size + size / 2d - cx;
-                    var vy = nextPpPoint.Y * size + size / 2d - cy;
+                    var vx = nextPpPointX - cx;
+                    var vy = nextPpPointY - cy;
+
+#if  DEBUG
+                    rewindClient.Line(cx, cy, nextPpPointX, nextPpPointY, Color.Black);
+#endif
+
                     ActionHelper.Move(vx, vy);
                 }
 

@@ -340,15 +340,39 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         /// </summary>
         /// <param name="cx"></param>
         /// <param name="cy"></param>
+        /// <param name="steps"></param>
         /// <returns></returns>
-        public static Point2D GetNextSafest_PP_PointByWorldXY(double cx, double cy)
+        public static Point2D Get_PP_PointToMove(double cx, double cy, int steps = 1)
         {
             var cellX = (int)cx / PpSize;
             var cellY = (int)cy / PpSize;
 
-            var aroundPoints = GetPoinsAround(cellX, cellY);
-            var minAroudPointsValue = aroundPoints.Select(x => PotentialFields[(int)x.X, (int)x.Y]).Min();
-            var nextPoint = aroundPoints.FirstOrDefault(x => PotentialFields[(int)x.X, (int)x.Y] == minAroudPointsValue);
+            var currentStep = 1;
+            Point2D nextPoint;
+
+            do
+            {
+                var aroundPoints = GetPoinsAround(cellX, cellY);
+                var minAroudPointsValue = aroundPoints.Select(x => PotentialFields[(int)x.X, (int)x.Y]).Min();
+                nextPoint = aroundPoints.First(x => Math.Abs(PotentialFields[(int)x.X, (int)x.Y] - minAroudPointsValue) < Epsilon);
+
+                cellX = (int)nextPoint.X;
+                cellY = (int)nextPoint.Y;
+
+#if DEBUG
+                var size = PotentialFieldsHelper.PpSize;
+                var quartCellLength = PotentialFieldsHelper.PpSize * 0.25;
+                RewindClient.RewindClient.Instance.Rectangle(
+                    nextPoint.X * size + quartCellLength,
+                    nextPoint.Y * size + quartCellLength,
+                    (nextPoint.X + 1) * size - quartCellLength,
+                    (nextPoint.Y + 1) * size - quartCellLength,
+                    Color.Black);
+#endif
+
+            } while (currentStep++ < steps);
+
+
             return nextPoint;
         }
 
