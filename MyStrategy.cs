@@ -32,8 +32,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             }
             rewindClient.Message("-----------------------------------" + EndOfString);
 #endif
-
-            MoveEx(me, world, game, move, rewindClient);
+            try
+            {
+                MoveEx(me, world, game, move, rewindClient);
+            }
+            catch (Exception e)
+            {
+                //TODO: comment on final deploy
+                throw GlobalHelper.GetException(e.Message);
+            }
 
 #if DEBUG
             rewindClient.Message("-----------------------------------" + EndOfString);
