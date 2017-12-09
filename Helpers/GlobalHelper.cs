@@ -16,5 +16,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static Player Enemy { get; set; }
 
         public static bool MoveAllowed => Me.RemainingActionCooldownTicks == 0;
+
+        public static Exception GetException(string message)
+        {
+            //Такого типа потому что так видно в логах на сайте
+            return new IndexOutOfRangeException(message);
+        }
     }
 }

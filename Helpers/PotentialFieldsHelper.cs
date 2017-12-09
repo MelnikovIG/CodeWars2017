@@ -183,7 +183,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
         }
 
-        public static void AppendEnemyPowerToDodge(List<List<DbScanHelper.Point>> clusters)
+        public static void AppendEnemyPower(List<List<DbScanHelper.Point>> clusters, bool applyNuclearStrikePower)
         {
             var basePower = EnemyPowerToDodge;
 
@@ -192,6 +192,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             var myGroupPower = selectedUnits
                 .Sum(x => BattleHelper.GetPowerHealthMulitplier(currentSelectedGroup.VehicleType, x.Durability))
                 * basePower;
+
+            var totalEnemies = UnitHelper.UnitsEnemy.Length;
+            var minEnemiesToAttack = totalEnemies * ConfigurationHelper.NuclearStrikeTargetEnemiesCoef;
 
             foreach (var enemies in clusters)
             {
@@ -205,21 +208,33 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 var enemyPower = res.EnemyPower;
                 var canAttackSomeone = res.CanAttackSomeone;
 
-                if (canAttackSomeone)
+                //Если готовы нанести ядерный удар
+                if (applyNuclearStrikePower)
                 {
-                    var pwr = enemyPower - myGroupPower;
-                    if (pwr >= 0)
+                    //И врагов в кластере достаточно для удара, сделаем врагов притягиваемыми
+                    if (enemies.Count >= minEnemiesToAttack)
                     {
-                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, pwr);
-                    }
-                    else
-                    {
-                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask49, pwr);
+                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask49, -enemyPower);
                     }
                 }
                 else
                 {
-                    ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, enemyPower);
+                    if (canAttackSomeone)
+                    {
+                        var pwr = enemyPower - myGroupPower;
+                        if (pwr >= 0)
+                        {
+                            ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, pwr);
+                        }
+                        else
+                        {
+                            ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask49, pwr);
+                        }
+                    }
+                    else
+                    {
+                        ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, enemyPower);
+                    }
                 }
             }
 

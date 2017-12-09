@@ -213,16 +213,25 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             var enemiesCanBeAttacked = allEnemiesCanBeAttacked.Select(x => UnitHelper.Units[x.Key]).ToList();
             var nsRange = GlobalHelper.Game.TacticalNuclearStrikeRadius;
-            var nsDamage = GlobalHelper.Game.MaxTacticalNuclearStrikeDamage;
+            var maxNsDamage = GlobalHelper.Game.MaxTacticalNuclearStrikeDamage;
 
             var enemiesWithDamage = new List<Tuple<MyLivingUnit, double>>(allEnemiesCanBeAttacked.Count);
 
+            var totalEnemies = UnitHelper.UnitsEnemy.Length;
+            var minEnemiesToAttack = totalEnemies * ConfigurationHelper.NuclearStrikeTargetEnemiesCoef;
+
             foreach (var enemyCanBeAttacked in enemiesCanBeAttacked)
             {
-                double totalDamage = 0;
                 var allEnemiesFromEnemyRange = UnitHelper.UnitsEnemy
                     .Where(x => GeometryHelper.PointIsWithinCircle(enemyCanBeAttacked.X, enemyCanBeAttacked.Y,
                         nsRange, x.X, x.Y)).ToArray();
+
+                if (allEnemiesFromEnemyRange.Length < minEnemiesToAttack)
+                {
+                    continue;
+                }
+
+                double totalDamage = 0;
 
                 foreach (var enemyFromEnemyRange in allEnemiesFromEnemyRange)
                 {
@@ -230,11 +239,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         enemyFromEnemyRange.X, enemyFromEnemyRange.Y);
 
                     //Урон - это расстояние от эпиценра * урон
-                    var damage = ((nsRange - distance) / nsRange) * nsDamage;
+                    var damage = ((nsRange - distance) / nsRange) * maxNsDamage;
+
+                     var speedDamageCoef = GetDamageCoefficientByVehicleTypeSpeed(enemyFromEnemyRange.Type);
+
+                    damage *= speedDamageCoef;
 
                     if (damage > enemyFromEnemyRange.Durability)
                     {
-                        totalDamage += 100;
+                        totalDamage += maxNsDamage;
                     }
                     else
                     {
@@ -252,7 +265,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         allyFromEnemyRange.X, allyFromEnemyRange.Y);
 
                     //Урон - это расстояние от эпиценра * урон
-                    var damage = ((nsRange - distance) / nsRange) * nsDamage;
+                    var damage = ((nsRange - distance) / nsRange) * maxNsDamage;
 
                     if (damage > allyFromEnemyRange.Durability)
                     {
@@ -265,6 +278,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
 
                 enemiesWithDamage.Add(new Tuple<MyLivingUnit, double>(enemyCanBeAttacked, totalDamage));
+            }
+
+            if (enemiesWithDamage.Count == 0)
+            {
+                return new HasTargetToNuclearAttackResult()
+                {
+                    Success = false
+                };
             }
 
             var maxTotalDamage = enemiesWithDamage.Select(x => x.Item2).Max();
@@ -308,6 +329,48 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 SelectedUnitRes = ally,
                 EnemyRes = enemyUnitWithMaxDamage
             };
+        }
+
+        //TODO: cacheOnceToDictionary
+        private static double GetDamageCoefficientByVehicleTypeSpeed(VehicleType vehicleTypeype)
+        {
+            double coef = 1;
+
+            var minSpeed = new[]
+            {
+                GlobalHelper.Game.FighterSpeed,
+                GlobalHelper.Game.HelicopterSpeed,
+                GlobalHelper.Game.TankSpeed,
+                GlobalHelper.Game.IfvSpeed,
+                GlobalHelper.Game.ArrvSpeed,
+            }.Min();
+
+            if (vehicleTypeype == VehicleType.Fighter)
+            {
+                coef *= minSpeed / GlobalHelper.Game.FighterSpeed;
+            }
+            else if (vehicleTypeype == VehicleType.Helicopter)
+            {
+                coef *= minSpeed / GlobalHelper.Game.HelicopterSpeed;
+            }
+            else if (vehicleTypeype == VehicleType.Tank)
+            {
+                coef *= minSpeed / GlobalHelper.Game.TankSpeed;
+            }
+            else if (vehicleTypeype == VehicleType.Ifv)
+            {
+                coef *= minSpeed / GlobalHelper.Game.IfvSpeed;
+            }
+            else if (vehicleTypeype == VehicleType.Arrv)
+            {
+                coef *= minSpeed / GlobalHelper.Game.ArrvSpeed;
+            }
+            else
+            {
+                throw GlobalHelper.GetException("GetDamageCoefficientByVehicleTypeSpeed unknown type");
+            }
+
+            return coef;
         }
 
         private static double GetVisionRangeByWeather(MyLivingUnit livingUnit)

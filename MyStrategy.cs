@@ -259,15 +259,21 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             var size = PotentialFieldsHelper.PpSize;
             PotentialFieldsHelper.Clear();
-            if (me.RemainingNuclearStrikeCooldownTicks <= 0 && ConfigurationHelper.EnableNuclearStrike)
-            {
-                PotentialFieldsHelper.ApplyPowerToNuclearStrike();
-            }
-            else
-            {
-                PotentialFieldsHelper.AppendEnemyPowerToDodge(lazyClusters.Value);
-                PotentialFieldsHelper.ApplyHealPower();
-            }
+
+            var applyNuclearStrikePower = me.RemainingNuclearStrikeCooldownTicks <= 0 &&
+                                          ConfigurationHelper.EnableNuclearStrike;
+            //if (me.RemainingNuclearStrikeCooldownTicks <= 0 && ConfigurationHelper.EnableNuclearStrike)
+            //{
+            //    PotentialFieldsHelper.ApplyPowerToNuclearStrike();
+            //}
+            //else
+            //{
+            //    PotentialFieldsHelper.AppendEnemyPower(lazyClusters.Value);
+            //    PotentialFieldsHelper.ApplyHealPower();
+            //}
+            PotentialFieldsHelper.AppendEnemyPower(lazyClusters.Value, applyNuclearStrikePower);
+            PotentialFieldsHelper.ApplyHealPower();
+
             PotentialFieldsHelper.ApplyFacilitiesPower();
             PotentialFieldsHelper.AppendAllyUnitsToDodge(selectedUnits);
             PotentialFieldsHelper.Normalize();
