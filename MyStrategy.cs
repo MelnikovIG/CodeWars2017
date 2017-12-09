@@ -315,18 +315,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var nextPpPointX = nextPpPoint.X * size + size / 2d;
                     var nextPpPointY = nextPpPoint.Y * size + size / 2d;
 
-                    //Хак по задержке вертов при старте, тянемся к ифвам
-                    if (currentSelectedGroup.VehicleType == VehicleType.Helicopter && world.TickIndex < 1000)
-                    {
-                         var ifvGroup = GroupHelper.Groups.FirstOrDefault(x => x.VehicleType == VehicleType.Ifv);
-                        if (ifvGroup != null)
-                        {
-                            var ifvUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(ifvGroup.Id)).ToArray();
-                            nextPpPointX = ifvUnits.Sum(x => x.X) / ifvUnits.Length;
-                            nextPpPointY = ifvUnits.Sum(x => x.Y) / ifvUnits.Length;
-                        }
-                    }
-
                     //Если достаточно подойти к цели, отдадим управление дргому отряду
                     if (PotentialFieldsHelper.GetDistanceTo(nextPpPointX, nextPpPointY, cx, cy) < quartCellLength)
                     {

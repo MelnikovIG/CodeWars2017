@@ -160,6 +160,27 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             var basePower = EnemyPowerToDodge;
 
             var currentSelectedGroup = GroupHelper.CurrentGroup;
+
+            //Хак по задержке вертов при старте, тянемся к ифвам
+            if (currentSelectedGroup.VehicleType == VehicleType.Helicopter && GlobalHelper.World.TickIndex < 800)
+            {
+                var ifvGroup = GroupHelper.Groups.FirstOrDefault(x => x.VehicleType == VehicleType.Ifv);
+                if (ifvGroup != null)
+                {
+                    var ifvUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(ifvGroup.Id)).ToArray();
+                    var ifvX = ifvUnits.Sum(x => x.X) / ifvUnits.Length;
+                    var ifvY = ifvUnits.Sum(x => x.Y) / ifvUnits.Length;
+
+                    var eCellX = (int)ifvX / PpSize;
+                    var eCellY = (int)ifvY / PpSize;
+
+                    ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask49, -(float)ifvUnits.Length * basePower / 2);
+
+                    return;
+                }
+            }
+
+
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
             var myGroupPower = selectedUnits
                 .Sum(x => BattleHelper.GetPowerHealthMulitplier(currentSelectedGroup.VehicleType, x.Durability))
@@ -196,6 +217,23 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         var pwr = enemyPower - myGroupPower;
                         if (pwr >= 0)
                         {
+                            //Если атакуют вертов, попробуем укрыться за Ifv
+                            if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
+                            {
+                                var ifvGroup = GroupHelper.Groups.FirstOrDefault(x => x.VehicleType == VehicleType.Ifv);
+                                if (ifvGroup != null)
+                                {
+                                    var ifvUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(ifvGroup.Id)).ToArray();
+                                    var ifvX = ifvUnits.Sum(x => x.X) / ifvUnits.Length;
+                                    var ifvY = ifvUnits.Sum(x => x.Y) / ifvUnits.Length;
+
+                                    var ifvCellX = (int)ifvX / PpSize;
+                                    var ifvCellY = (int)ifvY / PpSize;
+
+                                    ApplyPower(PotentialFields, ifvCellX, ifvCellY, RangePowerMask49, -(float)ifvUnits.Length * basePower / 2);
+                                }
+                            }
+
                             ApplyPower(PotentialFields, eCellX, eCellY, RangePowerMask7, pwr);
                         }
                         else
