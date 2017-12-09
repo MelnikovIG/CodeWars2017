@@ -25,7 +25,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         }
                         else if (enemy.Type == VehicleType.Helicopter)
                         {
-                            power = basePower * 0.2F;
+                            power = basePower * 0.33F;
                         }
                         else if (enemy.Type == VehicleType.Ifv)
                         {
@@ -53,7 +53,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                         if (enemy.Type == VehicleType.Fighter)
                         {
-                            power = basePower * 5F;
+                            power = basePower * 3F;
                         }
                         else if (enemy.Type == VehicleType.Helicopter)
                         {
