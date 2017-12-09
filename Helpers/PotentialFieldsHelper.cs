@@ -17,7 +17,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public const int AllyDodgePower = 50;
         public const int HealPower = 10;
         public const float FliersToHealDurabilityFactor = 0.9F;
-        public const float FactoryPower = -250;
+        public const float FactoryFacilityPower = -500;
+        public const float ControlCenterFacilityPower = -250;
         public const float Epsilon = 0.000000001F;
 
         public static int PpSize = 32;
@@ -482,7 +483,10 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 {
                     for (int j = topPpY; j <= topPpY + 1; j++)
                     {
-                        ApplyPower(PotentialFields, i, j, RangePowerMask49, FactoryPower);
+                        var power = notMyFacility.Type == FacilityType.VehicleFactory
+                            ? FactoryFacilityPower
+                            : ControlCenterFacilityPower;
+                        ApplyPower(PotentialFields, i, j, RangePowerMask49, power);
                     }
                 }
             }
