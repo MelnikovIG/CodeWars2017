@@ -373,7 +373,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return coef;
         }
 
-        private static double GetVisionRangeByWeather(MyLivingUnit livingUnit)
+        public static double GetVisionRangeByWeather(MyLivingUnit livingUnit)
         {
             var x = (int)livingUnit.X / PotentialFieldsHelper.PpSize;
             var y = (int)livingUnit.Y / PotentialFieldsHelper.PpSize;
@@ -458,13 +458,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
             if (enemy.NextNuclearStrikeTickIndex > 0)
             {
-                var nx = enemy.NextNuclearStrikeX;
-                var ny = enemy.NextNuclearStrikeY;
-                var nr = game.TacticalNuclearStrikeRadius;
+                //Врага наводчика может быть не видно
+                if (UnitHelper.Units.ContainsKey(enemy.NextNuclearStrikeVehicleId))
+                {
+                    var nx = enemy.NextNuclearStrikeX;
+                    var ny = enemy.NextNuclearStrikeY;
+                    var nr = game.TacticalNuclearStrikeRadius;
 
-                var nunit = UnitHelper.Units[enemy.NextNuclearStrikeVehicleId];
-                rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
-                rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
+                    var nunit = UnitHelper.Units[enemy.NextNuclearStrikeVehicleId];
+                    rewindClient.Circle(nx, ny, nr, Color.FromArgb(150, 225, 0, 0));
+                    rewindClient.Circle(nunit.X, nunit.Y, nunit.Radius * 2, Color.Black);
+                }
             }
         }
 #endif

@@ -77,6 +77,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             });
 
 #if DEBUG
+            UnitHelper.DrawAllUnits();
             DbScanHelper.DrawClusters(lazyClusters.Value);
             FacilityHelper.DrawFacilities();
             NuclearStrikeHelper.DrawNuclearStrikes(me, enemy, game, rewindClient);
@@ -344,19 +345,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             return;
         }
 
-        private RewindClient.UnitType GetRewindClientUitType(VehicleType vehicleType)
-        {
-            switch (vehicleType)
-            {
-                case VehicleType.Arrv: return UnitType.Arrv;
-                case VehicleType.Fighter: return UnitType.Fighter;
-                case VehicleType.Helicopter: return UnitType.Helicopter;
-                case VehicleType.Ifv: return UnitType.Ifv;
-                case VehicleType.Tank: return UnitType.Tank;
-                default: return UnitType.Unknown;
-            }
-        }
-
         public void UpdateVehiclesStates(Player me, World world, Game game, RewindClient.RewindClient rewindClient)
         {
             var myId = me.Id;
@@ -394,31 +382,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     UnitHelper.Units.Remove(emptyUnit.Key);
                 }
             }
-
-
-#if DEBUG
-            foreach (var unit in UnitHelper.Units.Values)
-            {
-
-                rewindClient.LivingUnit(
-                    unit.X,
-                    unit.Y,
-                    game.VehicleRadius,
-                    unit.Durability,
-                    unit.MaxDurability,
-                    (RewindClient.Side) unit.Side,
-                    0,
-                    GetRewindClientUitType(unit.Type));
-
-                if (unit.IsSelected)
-                {
-                    rewindClient.Circle(unit.X,
-                        unit.Y,
-                        game.VehicleRadius * 3,
-                        Color.FromArgb(200, 255, 255, 0));
-                }
-            }
-#endif
         }
 
         private static void PrepareUnits()
