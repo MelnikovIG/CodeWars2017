@@ -16,8 +16,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 {
     public sealed class MyStrategy : IStrategy
     {
-        private static int PrepareStep = 0;
-        private static bool Prepared = false;
         private static string EndOfString = " ";
 
         public void Move(Player me, World world, Game game, Move move)
@@ -28,7 +26,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             rewindClient.Message($"Queue length before move: {QueueHelper.Queue.Count}" + EndOfString);
             foreach (var queueItem in QueueHelper.Queue)
             {
-                rewindClient.Message(queueItem.ToString() + EndOfString);
+                rewindClient.Message(queueItem.GetType().Name + EndOfString);
             }
             rewindClient.Message("-----------------------------------" + EndOfString);
 #endif
@@ -47,7 +45,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             rewindClient.Message($"Queue length after move: {QueueHelper.Queue.Count}" + EndOfString);
             foreach (var queueItem in QueueHelper.Queue)
             {
-                rewindClient.Message(queueItem.ToString() + EndOfString);
+                rewindClient.Message(queueItem.GetType().Name + EndOfString);
             }
             //var jsonMove = JsonConvert.SerializeObject(move);
             //rewindClient.Message(jsonMove);
@@ -55,6 +53,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             rewindClient.End();
         }
+
+        public static Lazy<List<List<DbScanHelper.Point>>> LazyClusters;
 
         public void MoveEx(Player me, World world, Game game, Move move, RewindClient.RewindClient rewindClient)
         {
@@ -69,7 +69,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             UpdateVehiclesStates(me, world, game, rewindClient);
             FacilityHelper.UpdateFacilitiesStates();
 
-            Lazy<List<List<DbScanHelper.Point>>> lazyClusters = new Lazy<List<List<DbScanHelper.Point>>>(() =>
+            LazyClusters = new Lazy<List<List<DbScanHelper.Point>>>(() =>
             {
                 var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type, x.Durability)).ToList();
                 List<List<DbScanHelper.Point>> clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
@@ -78,25 +78,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
 #if DEBUG
             UnitHelper.DrawAllUnits();
-            DbScanHelper.DrawClusters(lazyClusters.Value);
+            DbScanHelper.DrawClusters(LazyClusters.Value);
             FacilityHelper.DrawFacilities();
             NuclearStrikeHelper.DrawNuclearStrikes(me, enemy, game, rewindClient);
 #endif
 
-            if (!Prepared)
+            if (world.TickIndex == 0)
             {
-                if (!GlobalHelper.MoveAllowed)
-                {
-                    return;
-                }
-
                 PrepareUnits();
-
-                if (!Prepared)
-                {
-                    PrepareStep++;
-                    return;
-                }
             }
 
             if (QueueHelper.Queue.Count > 0)
@@ -107,53 +96,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 }
 
                 var task = QueueHelper.Queue.Dequeue();
-
-                if (task is AddSelecteUnitsToNewGroupTask)
-                {
-                    GroupHelper.CreateFroupForSelected((task as AddSelecteUnitsToNewGroupTask).VehicleType);
-                    return;
-                }
-                else if (task is StartProduction)
-                {
-                    var sp = task as StartProduction;
-                    FacilityProductionHelper.StartFactoryProduction(sp.Facility, lazyClusters.Value);
-                    return;
-                }
-                else if (task is NuclearStrike)
-                {
-                    var ns = task as NuclearStrike;
-                    ActionHelper.NuclearStrike(ns.VehicleId, ns.X, ns.Y);
-                    return;
-                }
-                else if (task is SelectUnits)
-                {
-                    var sn = task as SelectUnits;
-                    ActionHelper.Select(
-                        sn.Left,
-                        sn.Top,
-                        sn.Right,
-                        sn.Bottom,
-                        sn.VehicleType);
-                    return;
-                }
-                else if (task is Scale)
-                {
-                    var sc = task as Scale;
-                    ActionHelper.Scale(sc.X, sc.Y, sc.Factor);
-                    return;
-                }
-                else if (task is SelectGroup)
-                {
-                    var sG = task as SelectGroup;
-                    ActionHelper.SelectGroup(sG.Group);
-                    return;
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-                
-
+                task.Execute();
                 return;
             }
 
@@ -171,7 +114,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                     var facility = facilitiesToAddProdution[0];
                     facilitiesToAddProdution.Remove(facility);
 
-                    FacilityProductionHelper.StartFactoryProduction(facility, lazyClusters.Value);
+                    FacilityProductionHelper.StartFactoryProduction(facility, LazyClusters.Value);
                     return;
                 }
 
@@ -271,7 +214,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             var applyNuclearStrikePower = me.RemainingNuclearStrikeCooldownTicks <= 0 &&
                                           ConfigurationHelper.EnableNuclearStrike;
 
-            PotentialFieldsHelper.AppendEnemyPower(lazyClusters.Value, applyNuclearStrikePower);
+            PotentialFieldsHelper.AppendEnemyPower(LazyClusters.Value, applyNuclearStrikePower);
             PotentialFieldsHelper.ApplyHealPower();
 
             PotentialFieldsHelper.ApplyFacilitiesPower();
@@ -303,7 +246,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
                 if (currentSelectedGroup.MovesCount > 0 && currentSelectedGroup.MovesCount % ConfigurationHelper.MovesCoutToScale == 0)
                 {
-                    ScaleCurrentGroupToCenter();
+                    new ScaleCurrentGroupToCenterTask().Execute();
                 }
                 else
                 {
@@ -386,129 +329,32 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
         private static void PrepareUnits()
         {
-            if (PrepareStep == 0)
-            {
-                SelectUnitsOfType(VehicleType.Fighter);
-                return;
-            }
+            var mapWidth = GlobalHelper.World.Width;
+            var mapHeight = GlobalHelper.World.Height;
 
-            if (PrepareStep == 1)
-            {
-                GroupHelper.CreateFroupForSelected(VehicleType.Fighter);
-                return;
-            }
+            var queue = QueueHelper.Queue;
 
-            if (PrepareStep == 2)
-            {
-                ScaleCurrentGroupToCenter();
-                return;
-            }
+            queue.Enqueue(new SelectUnits(0, 0, mapWidth, mapHeight, VehicleType.Fighter));
+            queue.Enqueue(new AddSelecteUnitsToNewGroupTask(VehicleType.Fighter));
+            queue.Enqueue(new ScaleCurrentGroupToCenterTask());
 
-            if (PrepareStep == 3)
-            {
-                SelectUnitsOfType(VehicleType.Helicopter);
-                return;
-            }
+            queue.Enqueue(new SelectUnits(0, 0, mapWidth, mapHeight, VehicleType.Helicopter));
+            queue.Enqueue(new AddSelecteUnitsToNewGroupTask(VehicleType.Helicopter));
+            queue.Enqueue(new ScaleCurrentGroupToCenterTask());
 
-            if (PrepareStep == 4)
-            {
-                GroupHelper.CreateFroupForSelected(VehicleType.Helicopter);
-                return;
-            }
+            queue.Enqueue(new SelectUnits(0, 0, mapWidth, mapHeight, VehicleType.Tank));
+            queue.Enqueue(new AddSelecteUnitsToNewGroupTask(VehicleType.Tank));
+            queue.Enqueue(new ScaleCurrentGroupToCenterTask());
 
-            if (PrepareStep == 5)
-            {
-                ScaleCurrentGroupToCenter();
-                return;
-            }
+            queue.Enqueue(new SelectUnits(0, 0, mapWidth, mapHeight, VehicleType.Ifv));
+            queue.Enqueue(new AddSelecteUnitsToNewGroupTask(VehicleType.Ifv));
+            queue.Enqueue(new ScaleCurrentGroupToCenterTask());
 
-            if (PrepareStep == 6)
-            {
-                SelectUnitsOfType(VehicleType.Tank);
-                return;
-            }
+            queue.Enqueue(new SelectUnits(0, 0, mapWidth, mapHeight, VehicleType.Arrv));
+            queue.Enqueue(new AddSelecteUnitsToNewGroupTask(VehicleType.Arrv));
+            queue.Enqueue(new ScaleCurrentGroupToCenterTask());
 
-            if (PrepareStep == 7)
-            {
-                GroupHelper.CreateFroupForSelected(VehicleType.Tank);
-                return;
-            }
-
-            if (PrepareStep == 8)
-            {
-                ScaleCurrentGroupToCenter();
-                return;
-            }
-
-            if (PrepareStep == 9)
-            {
-                SelectUnitsOfType(VehicleType.Ifv);
-                return;
-            }
-
-            if (PrepareStep == 10)
-            {
-                GroupHelper.CreateFroupForSelected(VehicleType.Ifv);
-                return;
-            }
-
-            if (PrepareStep == 11)
-            {
-                ScaleCurrentGroupToCenter();
-                return;
-            }
-
-            if (PrepareStep == 12)
-            {
-                SelectUnitsOfType(VehicleType.Arrv);
-                return;
-            }
-
-            if (PrepareStep == 13)
-            {
-                GroupHelper.CreateFroupForSelected(VehicleType.Arrv);
-                return;
-            }
-
-            if (PrepareStep == 14)
-            {
-                ScaleCurrentGroupToCenter();
-                return;
-            }
-
-            if (PrepareStep == 15)
-            {
-                GroupHelper.SelectNextGroup();
-            }
-
-            if (PrepareStep == 16)
-            {
-                Prepared = true;
-            }
-        }
-
-        private static void ScaleCurrentGroupToCenter()
-        {
-            var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
-            var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
-            var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
-
-            ActionHelper.Scale(xScale, yScale, 0.1);
-
-            RewindClient.RewindClient.Instance.Circle(xScale, yScale, 10, Color.Black);
-        }
-
-        private static void SelectUnitsOfType(VehicleType vehicleType)
-        {
-            var fighters = UnitHelper.Units.Select(x => x.Value).Where(x => x.Side == Side.Our)
-                .Where(x => x.Type == vehicleType).ToArray();
-
-            var minX = fighters.Min(x => x.X);
-            var minY = fighters.Min(x => x.Y);
-            var maxX = fighters.Max(x => x.X);
-            var maxY = fighters.Max(x => x.Y);
-
-            ActionHelper.Select(minX, minY, maxX, maxY);
+            queue.Enqueue(new SelectUnits(0, 0, mapWidth, mapHeight, VehicleType.Fighter));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
     public abstract class QueueTask
     {
+        public abstract void Execute();
     }
 
     /// <summary>
@@ -30,6 +32,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             X = x;
             Y = y;
             Factor = factor;
+        }
+
+        public override void Execute()
+        {
+            ActionHelper.Scale(X, Y, Factor);
         }
     }
 
@@ -52,6 +59,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             Bottom = bottom;
             VehicleType = vehicleType;
         }
+
+        public override void Execute()
+        {
+            ActionHelper.Select(Left, Top, Right, Bottom, VehicleType);
+        }
     }
 
     /// <summary>
@@ -64,6 +76,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public SelectGroup(Group @group)
         {
             Group = @group;
+        }
+
+        public override void Execute()
+        {
+            ActionHelper.SelectGroup(Group);
         }
     }
 
@@ -78,6 +95,28 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         {
             VehicleType = vehicleType;
         }
+
+        public override void Execute()
+        {
+            GroupHelper.CreateFroupForSelected(VehicleType);
+        }
+    }
+
+    /// <summary>
+    /// Сжать выбранную группу к центру
+    /// </summary>
+    public class ScaleCurrentGroupToCenterTask : QueueTask
+    {
+        public override void Execute()
+        {
+            var selectedUnitsForScale = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
+            var xScale = selectedUnitsForScale.Sum(x => x.X) / selectedUnitsForScale.Length;
+            var yScale = selectedUnitsForScale.Sum(x => x.Y) / selectedUnitsForScale.Length;
+
+            ActionHelper.Scale(xScale, yScale, 0.1);
+
+            RewindClient.RewindClient.Instance.Circle(xScale, yScale, 10, Color.Black);
+        }
     }
 
     /// <summary>
@@ -90,6 +129,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public StartProduction(FacilityEx facility)
         {
             Facility = facility;
+        }
+
+        public override void Execute()
+        {
+            FacilityProductionHelper.StartFactoryProduction(Facility, MyStrategy.LazyClusters.Value);
         }
     }
 
@@ -107,6 +151,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             VehicleId = vehicleId;
             X = x;
             Y = y;
+        }
+
+        public override void Execute()
+        {
+            ActionHelper.NuclearStrike(VehicleId, X, Y);
         }
     }
 }
