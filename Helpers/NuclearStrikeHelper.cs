@@ -90,68 +90,32 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         private static void MakeSpread(bool moveAllowed)
         {
             var groupLength = groupsInNuclearStrike.Length;
+            var tasks = new List<QueueTask>();
 
-            //TODO: useMoveAllowed 
             foreach (var group in groupsInNuclearStrike)
             {
                 var chosenGroup = GroupHelper.Groups[group.Key - 1];
 
                 if (GroupHelper.CurrentGroup != chosenGroup)
                 {
-                    //Был баг с 2мя действиями за ход
-                    if (moveAllowed && groupLength < 2)
-                    {
-                        ActionHelper.SelectGroup(chosenGroup);
-                    }
-                    else
-                    {
-                        QueueHelper.Queue.Enqueue(new SelectGroup(chosenGroup));
-                    }
-                    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
+                    tasks.Add(new SelectGroup(chosenGroup));
                 }
-                else
-                {
-                    //Был баг с 2мя действиями за ход
-                    if (moveAllowed && groupLength < 2)
-                    {
-                        ActionHelper.Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10);
-                    }
-                    else
-                    {
-                        QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
-                    }
-                }
-
+                tasks.Add(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
             }
 
-            //var nsRadius = GlobalHelper.Game.TacticalNuclearStrikeRadius;
+            if (groupLength > 0 && moveAllowed)
+            {
+                tasks[0].Execute();
+                tasks.RemoveAt(0);
+            }
 
-            //if (moveAllowed)
-            //{
-            //    ActionHelper.Select(
-            //        LastEnemyNuclearStrikeX - nsRadius,
-            //        LastEnemyNuclearStrikeY - nsRadius,
-            //        LastEnemyNuclearStrikeX + nsRadius,
-            //        LastEnemyNuclearStrikeY + nsRadius
-            //    );
-            //    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
-            //}
-            //else
-            //{
-            //    QueueHelper.Queue.Enqueue(new SelectUnits(
-            //        LastEnemyNuclearStrikeX - nsRadius,
-            //        LastEnemyNuclearStrikeY - nsRadius,
-            //        LastEnemyNuclearStrikeX + nsRadius,
-            //        LastEnemyNuclearStrikeY + nsRadius
-            //        ));
-            //    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 10));
-            //}
+            tasks.ForEach(QueueHelper.Queue.Enqueue);
         }
 
         private static void MakeGather(bool moveAllowed)
         {
-            //TODO: useMoveAllowed (aware multimove if many groups)
-            
+            var groupLength = groupsInNuclearStrike.Length;
+            var tasks = new List<QueueTask>();
 
             foreach (var group in groupsInNuclearStrike)
             {
@@ -159,16 +123,23 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                 if (GroupHelper.CurrentGroup != chosenGroup)
                 {
-                    QueueHelper.Queue.Enqueue(new SelectGroup(chosenGroup));
+                    tasks.Add(new SelectGroup(chosenGroup));
                 }
 
-                for (int i = 0; i < 7; i++)
+                for (var i = 0; i < 7; i++)
                 {
-                    QueueHelper.Queue.Enqueue(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 0.1));
+                    tasks.Add(new Scale(LastEnemyNuclearStrikeX, LastEnemyNuclearStrikeY, 0.1));
                 }
             }
-        }
 
+            if (groupLength > 0 && moveAllowed)
+            {
+                tasks[0].Execute();
+                tasks.RemoveAt(0);
+            }
+
+            tasks.ForEach(QueueHelper.Queue.Enqueue);
+        }
 
         public class HasTargetToNuclearAttackResult
         {
