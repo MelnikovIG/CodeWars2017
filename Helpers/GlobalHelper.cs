@@ -14,7 +14,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static Game Game { get; set; }
         public static Player Me { get; set; }
         public static Player Enemy { get; set; }
-
+        public static GameMode Mode => Game.IsFogOfWarEnabled ? GameMode.FacFow : GameMode.FacNoFow;
         public static bool MoveAllowed => Me.RemainingActionCooldownTicks == 0;
 
         public static Exception GetException(string message)
@@ -22,5 +22,23 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             //Такого типа потому что так видно в логах на сайте
             return new IndexOutOfRangeException(message);
         }
+    }
+
+    public enum GameMode
+    {
+        /// <summary>
+        /// Без зданий, без тумана
+        /// </summary>
+        NoFacNoFow,
+        
+        /// <summary>
+        /// Здания, без тумана
+        /// </summary>
+        FacNoFow,
+
+        /// <summary>
+        /// Здания , с туманом
+        /// </summary>
+        FacFow
     }
 }

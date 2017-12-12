@@ -21,5 +21,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         /// Значение от 0 до 1;
         /// </summary>
         public static double NuclearStrikeTargetEnemiesCoef = 0.03;
+
+        /// <summary>
+        /// Количество тиков , после которых нужно перепроверить вражеское/нейтральное здание
+        /// </summary>
+        public static int TicksCountToRecheckFacility = 1000;
+
+
+        private const double RecheckFacilityDistanse = 70;
+        /// <summary>
+        /// Дистанция до цента здания от центра группы, когда оно считается проверенным
+        /// </summary>
+        public static double RecheckFacilityDistansePow2 = RecheckFacilityDistanse * RecheckFacilityDistanse;
     }
 }

@@ -28,13 +28,23 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public VehicleType? LastAssignedVehicleType { get; set; }
         //Кол-во юнитов для производства
         public int ProductionCount { get; set; }
+
+        /// <summary>
+        /// В какой тик здание последний раз было видимым
+        /// </summary>
+        public int LastVisitedTick { get; set; } = -ConfigurationHelper.TicksCountToRecheckFacility;
+
+        /// <summary>
+        /// Сколько тиков прошло с моменты последнего визита
+        /// </summary>
+        public int LastVisitTicksAgo => GlobalHelper.World.TickIndex - LastVisitedTick;
     }
 
     public static class FacilityHelper
     {
         public static Dictionary<long, FacilityEx> Facilities =  new Dictionary<long, FacilityEx>();
         public static FacilityEx[] MyFacilities = Facilities.Select(x => x.Value).Where(x => x.Side == Side.Our).ToArray();
-        public static FacilityEx[] EnemyFacilities = Facilities.Select(x => x.Value).Where(x => x.Side == Side.Enemy).ToArray();
+        public static FacilityEx[] NotMyFacilities = Facilities.Select(x => x.Value).Where(x => x.Side != Side.Our).ToArray();
 
         public static void UpdateFacilitiesStates()
         {
@@ -108,6 +118,37 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         if (!facilitiesToCreateGroup.Contains(facility))
                         {
                             facilitiesToCreateGroup.Add(facility);
+                        }
+                    }
+                }
+            }
+
+            if (GlobalHelper.Mode == GameMode.FacFow)
+            {
+                foreach (var myGroup in GroupHelper.Groups)
+                {
+                    var groupUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(myGroup.Id)).ToArray();
+                    var xCenter = groupUnits.Sum(x => x.X) / groupUnits.Length;
+                    var yCenter = groupUnits.Sum(x => x.Y) / groupUnits.Length;
+
+                    foreach (var facility in FacilityHelper.Facilities.Values)
+                    {
+                        if (facility.Side == Side.Our)
+                        {
+                            facility.LastVisitedTick = GlobalHelper.World.TickIndex;
+                        }
+                        else
+                        {
+                            var fx = facility.Left + GlobalHelper.Game.FacilityWidth / 2;
+                            var fy = facility.Top + GlobalHelper.Game.FacilityHeight / 2;
+
+                            var currentDistance = GeometryHelper.GetDistancePower2To(xCenter, yCenter, fx, fy);
+                            var recheckDistancePow2 = ConfigurationHelper.RecheckFacilityDistansePow2;
+
+                            if (currentDistance <= recheckDistancePow2)
+                            {
+                                facility.LastVisitedTick = GlobalHelper.World.TickIndex;
+                            }
                         }
                     }
                 }
@@ -217,6 +258,16 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         facility.Left + facilityWidth,
                         facility.Top + facilityHeight + 10,
                         Color.DarkGray);
+                }
+
+                if (facility.LastVisitTicksAgo >= ConfigurationHelper.TicksCountToRecheckFacility)
+                {
+                    rewindClient.Rectangle(
+                        facility.Left,
+                        facility.Top,
+                        facility.Left + facilityWidth,
+                        facility.Top + facilityHeight,
+                        Color.FromArgb(150, 0, 0, 0));
                 }
             }
 #endif

@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Custom;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers;
 using Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Model;
-#if DEBUG
-using Newtonsoft.Json;
-#endif
-using RewindClient;
 using Side = Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers.Side;
 
 namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
@@ -37,7 +31,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             catch (Exception e)
             {
                 //TODO: comment on final deploy
-                //throw GlobalHelper.GetException(e.Message);
+                throw GlobalHelper.GetException(e.Message);
             }
 
 #if DEBUG
@@ -47,8 +41,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
             {
                 rewindClient.Message(queueItem.GetType().Name + EndOfString);
             }
-            //var jsonMove = JsonConvert.SerializeObject(move);
-            //rewindClient.Message(jsonMove);
 #endif
 
             rewindClient.End();

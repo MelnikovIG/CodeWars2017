@@ -43,14 +43,14 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
 
 
-                if (unit.Side == Side.Our)
-                {
-                    rewindClient.Circle(unit.X,
-                        unit.Y,
-                        NuclearStrikeHelper.GetVisionRangeByWeather(unit),
-                        Color.FromArgb(5, 0, 0, 255),
-                        1);
-                }
+                //if (unit.Side == Side.Our)
+                //{
+                //    rewindClient.Circle(unit.X,
+                //        unit.Y,
+                //        NuclearStrikeHelper.GetVisionRangeByWeather(unit),
+                //        Color.FromArgb(5, 0, 0, 255),
+                //        1);
+                //}
             }
 #endif
         }

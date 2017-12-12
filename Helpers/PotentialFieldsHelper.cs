@@ -148,13 +148,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             return Math.Sqrt(xRange * xRange + yRange * yRange);
         }
 
-        public static double GetDistancePower2To(double x1, double y1, double x2, double y2)
-        {
-            double xRange = x2 - x1;
-            double yRange = y2 - y1;
-            return xRange * xRange + yRange * yRange;
-        }
-
         public static void AppendEnemyPower(List<List<DbScanHelper.Point>> clusters, bool applyNuclearStrikePower)
         {
             var basePower = EnemyPowerToDodge;
@@ -224,7 +217,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                                 var sx = selectedUnits.Sum(x => x.X) / selectedUnits.Length;
                                 var sy = selectedUnits.Sum(x => x.Y) / selectedUnits.Length;
 
-                                var distanceLow = GetDistancePower2To(sx, sy, ex, ey) < (300 * 300);
+                                var distanceLow = GeometryHelper.GetDistancePower2To(sx, sy, ex, ey) < (300 * 300);
 
                                 if (distanceLow)
                                 {
@@ -512,14 +505,38 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void ApplyFacilitiesPower()
         {
+            var notMyFacilities = FacilityHelper.Facilities.Values.Where(x => x.Side != Side.Our).ToArray();
+
             var currentSelectedGroup = GroupHelper.CurrentGroup;
             if (currentSelectedGroup.VehicleType == VehicleType.Fighter ||
                 currentSelectedGroup.VehicleType == VehicleType.Helicopter)
             {
+                if (GlobalHelper.Mode == GameMode.FacFow)
+                {
+                    //Если нужно перепроверить здание, дадим ему ПП для летающих
+                    var notMyFacilitiesToRecheck = notMyFacilities
+                        .Where(x => x.LastVisitTicksAgo >= ConfigurationHelper.TicksCountToRecheckFacility)
+                        .ToArray();
+
+                    foreach (var notMyFacility in notMyFacilitiesToRecheck)
+                    {
+                        var topPpX = (int) (notMyFacility.Left / PpSize);
+                        var topPpY = (int) (notMyFacility.Top / PpSize);
+
+                        for (int i = topPpX; i <= topPpX + 1; i++)
+                        {
+                            for (int j = topPpY; j <= topPpY + 1; j++)
+                            {
+                                var power = notMyFacility.Type == FacilityType.VehicleFactory
+                                    ? FactoryFacilityPower
+                                    : ControlCenterFacilityPower;
+                                ApplyPower(PotentialFields, i, j, RangePowerMask49, power);
+                            }
+                        }
+                    }
+                }
                 return;
             }
-
-            var notMyFacilities = FacilityHelper.Facilities.Values.Where(x => x.Side != Side.Our).ToArray();
 
             foreach (var notMyFacility in notMyFacilities)
             {
@@ -538,24 +555,25 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 }
             }
 
-            var myFacilitiesControlCenter = FacilityHelper.Facilities.Values
-                .Where(x => x.Side != Side.Our)
-                .Where(x => x.Type == FacilityType.ControlCenter)
-                .ToArray();
+            //Отталкивание от своих заводов? x.Side != Side.Our
+            //var myFacilitiesControlCenter = FacilityHelper.Facilities.Values
+            //    .Where(x => x.Side != Side.Our)
+            //    .Where(x => x.Type == FacilityType.ControlCenter)
+            //    .ToArray();
 
-            foreach (var myFacilityControlCenter in myFacilitiesControlCenter)
-            {
-                var topPpX = (int)(myFacilityControlCenter.Left / PpSize);
-                var topPpY = (int)(myFacilityControlCenter.Top / PpSize);
+            //foreach (var myFacilityControlCenter in myFacilitiesControlCenter)
+            //{
+            //    var topPpX = (int)(myFacilityControlCenter.Left / PpSize);
+            //    var topPpY = (int)(myFacilityControlCenter.Top / PpSize);
 
-                for (int i = topPpX; i <= topPpX + 1; i++)
-                {
-                    for (int j = topPpY; j <= topPpY + 1; j++)
-                    {
-                        ApplyPower(PotentialFields, i, j, RangePowerMask49, BaseWorldCenterPower);
-                    }
-                }
-            }
+            //    for (int i = topPpX; i <= topPpX + 1; i++)
+            //    {
+            //        for (int j = topPpY; j <= topPpY + 1; j++)
+            //        {
+            //            ApplyPower(PotentialFields, i, j, RangePowerMask49, BaseWorldCenterPower);
+            //        }
+            //    }
+            //}
         }
     }
 }

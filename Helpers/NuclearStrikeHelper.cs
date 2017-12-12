@@ -280,7 +280,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             var alliesWithRange = alliesCanAttackEnemyWithMaxDamage.Select(x => new
             {
                 Ally = x,
-                Range = PotentialFieldsHelper.GetDistancePower2To(x.X, x.Y, enemyUnitWithMaxDamage.X,
+                Range = GeometryHelper.GetDistancePower2To(x.X, x.Y, enemyUnitWithMaxDamage.X,
                     enemyUnitWithMaxDamage.Y)
             }).ToList();
 
