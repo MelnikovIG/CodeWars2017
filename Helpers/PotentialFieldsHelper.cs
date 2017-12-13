@@ -527,10 +527,18 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         {
                             for (int j = topPpY; j <= topPpY + 1; j++)
                             {
-                                var power = notMyFacility.Type == FacilityType.VehicleFactory
-                                    ? FactoryFacilityPower
-                                    : ControlCenterFacilityPower;
-                                ApplyPower(PotentialFields, i, j, RangePowerMask49, power);
+                                if (notMyFacility.Type == FacilityType.VehicleFactory)
+                                {
+                                    ApplyPower(PotentialFields, i, j, RangePowerMask49, FactoryFacilityPower);
+                                }
+                                else
+                                {
+                                    //Контрол центры интересны только вертам, самолетами туда не летим
+                                    if (currentSelectedGroup.VehicleType == VehicleType.Helicopter)
+                                    {
+                                        ApplyPower(PotentialFields, i, j, RangePowerMask49, ControlCenterFacilityPower);
+                                    }
+                                }
                             }
                         }
                     }
