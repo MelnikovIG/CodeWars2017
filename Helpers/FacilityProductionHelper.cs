@@ -19,8 +19,18 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             var productionParams = GetStartProductionParams(clusters);
             facility.LastAssignedVehicleType = productionParams.VehicleType;
             facility.ProductionCount = productionParams.Count;
+            facility.FacilityGroupCreating = false;
             ActionHelper.StartFactoryProduction(facility.Id, productionParams.VehicleType);
         }
+
+        public static void StopFactoryProduction(FacilityEx facility)
+        {
+            facility.LastAssignedVehicleType = null;
+            facility.ProductionCount =  0;
+            facility.FacilityGroupCreating = false;
+            ActionHelper.StopFactoryProduction(facility.Id);
+        }
+
 
         private static StartProductionParams GetStartProductionParams(List<List<DbScanHelper.Point>> clusters)
         {

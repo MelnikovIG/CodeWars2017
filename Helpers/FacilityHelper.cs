@@ -38,6 +38,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         /// Сколько тиков прошло с моменты последнего визита
         /// </summary>
         public int LastVisitTicksAgo => GlobalHelper.World.TickIndex - LastVisitedTick;
+
+        public bool FacilityGroupCreating { get; set; } = false;
     }
 
     public static class FacilityHelper
@@ -48,6 +50,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static void UpdateFacilitiesStates()
         {
+            var facilityWidth = GlobalHelper.Game.FacilityWidth;
+            var facilityHeight = GlobalHelper.Game.FacilityHeight;
+
             var worldFacilities = GlobalHelper.World.Facilities;
 
             foreach (var worldFacility in worldFacilities)
@@ -84,42 +89,46 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 facility.GotMineThisTick = gotMineThisTick;
                 facility.LostMineThisTick = lostMineThisTick;
 
-                var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
-                var facilitiesToCreateGroup = FacilityProductionHelper.FacilitiesToCreateGroup;
+
                 if (facility.Type == FacilityType.VehicleFactory)
                 {
                     if (gotMineThisTick)
                     {
-                        if (!facilitiesToAddProdution.Contains(facility))
-                        {
-                            facilitiesToAddProdution.Add(facility);
-                        }
+                        QueueHelper.Queue.Enqueue(new StartProduction(facility));
                     }
-
-                    if (lostMineThisTick)
+                    else
                     {
-                        if (facilitiesToAddProdution.Contains(facility))
-                        {
-                            facilitiesToAddProdution.Remove(facility);
-                        }
+                        var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
+                        var needCreateGroupFromProducingUnits =
+                            lostMineThisTick ||
+                            (facility.ProductionCount > 0 && createdUnassignedUnits.Length >= facility.ProductionCount);
 
-                        //Если потеряли завод, создаем в группу все что есть
-                        if (!facilitiesToCreateGroup.Contains(facility))
+                        if (needCreateGroupFromProducingUnits)
                         {
-                            facilitiesToCreateGroup.Add(facility);
+                            if (!facility.FacilityGroupCreating)
+                            {
+                                facility.FacilityGroupCreating = true;
+                                QueueHelper.Queue.Enqueue(new SelectUnits(facility.Left, facility.Top,
+                                    facility.Left + facilityWidth, facility.Top + facilityHeight,
+                                    facility.LastAssignedVehicleType));
+                                QueueHelper.Queue.Enqueue(
+                                    new AddSelecteUnitsToNewGroupTask(facility.LastAssignedVehicleType.Value));
+                                QueueHelper.Queue.Enqueue(new StartProduction(facility));
+                            }
                         }
+                        //else
+                        //{
+                        //    if (facility.Side == Side.Our)
+                        //    {
+                        //        var stopFactoryProdution = false;
+                        //        if (stopFactoryProdution)
+                        //        {
+                        //            QueueHelper.Queue.Enqueue(new StopProduction(facility));
+                        //        }
+                        //    }
+                        //}
                     }
 
-                    var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
-
-                    if (facility.ProductionCount > 0 && createdUnassignedUnits.Length >= facility.ProductionCount)
-                    {
-                        //Если набрали достаточно юнитов, создаем группу
-                        if (!facilitiesToCreateGroup.Contains(facility))
-                        {
-                            facilitiesToCreateGroup.Add(facility);
-                        }
-                    }
                 }
             }
 
@@ -152,6 +161,33 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         }
                     }
                 }
+            }
+        }
+
+        private static void AddFacilityToProductionIfNotExist(FacilityEx facility)
+        {
+            var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
+            if (!facilitiesToAddProdution.Contains(facility))
+            {
+                facilitiesToAddProdution.Add(facility);
+            }
+        }
+
+        private static void RemoveFacilityFromProductionIfNotExist(FacilityEx facility)
+        {
+            var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
+            if (facilitiesToAddProdution.Contains(facility))
+            {
+                facilitiesToAddProdution.Remove(facility);
+            }
+        }
+
+        private static void AddFacilityCreateGroupIfNotExist(FacilityEx facility)
+        {
+            var facilitiesToCreateGroup = FacilityProductionHelper.FacilitiesToCreateGroup;
+            if (!facilitiesToCreateGroup.Contains(facility))
+            {
+                facilitiesToCreateGroup.Add(facility);
             }
         }
 

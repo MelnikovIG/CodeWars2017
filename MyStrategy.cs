@@ -98,45 +98,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
                 return;
             }
 
-            if (GlobalHelper.MoveAllowed)
-            {
-                var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
-                if (facilitiesToAddProdution.Count > 0)
-                {
-                    var facility = facilitiesToAddProdution[0];
-                    facilitiesToAddProdution.Remove(facility);
-
-                    FacilityProductionHelper.StartFactoryProduction(facility, LazyClusters.Value);
-                    return;
-                }
-
-                var facilitiesToCreateGroup = FacilityProductionHelper.FacilitiesToCreateGroup;
-                if (facilitiesToCreateGroup.Count > 0 && ConfigurationHelper.FacilityCreateGroupEnabled)
-                {
-                    var facility = facilitiesToCreateGroup[0];
-                    facilitiesToCreateGroup.Remove(facility);
-
-                    var facilityWidth = GlobalHelper.Game.FacilityWidth;
-                    var facilityHeight = GlobalHelper.Game.FacilityHeight;
-
-                    if (facility.LastAssignedVehicleType != null)
-                    {
-                        ActionHelper.Select(
-                            facility.Left,
-                            facility.Top,
-                            facility.Left + facilityWidth,
-                            facility.Top + facilityHeight,
-                            facility.LastAssignedVehicleType);
-
-                        QueueHelper.Queue.Enqueue(new AddSelecteUnitsToNewGroupTask(facility.LastAssignedVehicleType.Value));
-
-                        QueueHelper.Queue.Enqueue(new StartProduction(facility));
-
-                        return;
-                    }
-                }
-            }
-
             var selectedUnits = UnitHelper.UnitsAlly.Where(x => x.Groups.Contains(GroupHelper.CurrentGroup.Id)).ToArray();
 
             if (selectedUnits.Length == 0)

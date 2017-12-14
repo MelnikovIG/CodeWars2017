@@ -138,6 +138,24 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
     }
 
     /// <summary>
+    /// Остановка производства на заводе
+    /// </summary>
+    public class StopProduction : QueueTask
+    {
+        public readonly FacilityEx Facility;
+
+        public StopProduction(FacilityEx facility)
+        {
+            Facility = facility;
+        }
+
+        public override void Execute()
+        {
+            FacilityProductionHelper.StopFactoryProduction(Facility);
+        }
+    }
+
+    /// <summary>
     /// Нанесение ядерного удара противнику
     /// </summary>
     public class NuclearStrike : QueueTask
