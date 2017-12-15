@@ -40,6 +40,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public int LastVisitTicksAgo => GlobalHelper.World.TickIndex - LastVisitedTick;
 
         public bool FacilityGroupCreating { get; set; } = false;
+        public bool ProductionInProgress { get; set; }
     }
 
     public static class FacilityHelper
@@ -89,11 +90,31 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 facility.GotMineThisTick = gotMineThisTick;
                 facility.LostMineThisTick = lostMineThisTick;
 
-
                 if (facility.Type == FacilityType.VehicleFactory)
                 {
+                    var needStopProduction = GlobalHelper.Game.TickCount - GlobalHelper.World.TickIndex <
+                                             ConfigurationHelper.StopProductionWhenTicksToEndGameRemaining;
+
+                    //Если захватили здание
                     if (gotMineThisTick)
                     {
+                        //И можно стартовать производствао
+                        if (needStopProduction)
+                        {
+                            facility.ProductionInProgress = false;
+                            //Не будем стопать, так как только что захватили
+                            //QueueHelper.Queue.Enqueue(new StopProduction(facility));
+                        }
+                        else
+                        {
+                            facility.ProductionInProgress = true;
+                            QueueHelper.Queue.Enqueue(new StartProduction(facility));
+                        }
+                    }
+                    //Если производство было остановлено и можно запускать заного
+                    else if (!facility.ProductionInProgress && !needStopProduction && facility.Side == Side.Our)
+                    {
+                        facility.ProductionInProgress = true;
                         QueueHelper.Queue.Enqueue(new StartProduction(facility));
                     }
                     else
@@ -111,22 +132,39 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                                 QueueHelper.Queue.Enqueue(new SelectUnits(facility.Left, facility.Top,
                                     facility.Left + facilityWidth, facility.Top + facilityHeight,
                                     facility.LastAssignedVehicleType));
-                                QueueHelper.Queue.Enqueue(
-                                    new AddSelecteUnitsToNewGroupTask(facility.LastAssignedVehicleType.Value));
-                                QueueHelper.Queue.Enqueue(new StartProduction(facility));
+
+                                var vehicleType = facility.LastAssignedVehicleType ?? VehicleType.Tank;
+
+                                QueueHelper.Queue.Enqueue(new AddSelecteUnitsToNewGroupTask(vehicleType));
+
+                                if (needStopProduction)
+                                {
+                                    facility.ProductionInProgress = false;
+                                    QueueHelper.Queue.Enqueue(new StopProduction(facility));
+                                }
+                                else
+                                {
+                                    facility.ProductionInProgress = true;
+                                    QueueHelper.Queue.Enqueue(new StartProduction(facility));
+                                }
                             }
                         }
-                        //else
-                        //{
-                        //    if (facility.Side == Side.Our)
-                        //    {
-                        //        var stopFactoryProdution = false;
-                        //        if (stopFactoryProdution)
-                        //        {
-                        //            QueueHelper.Queue.Enqueue(new StopProduction(facility));
-                        //        }
-                        //    }
-                        //}
+                        else if(needStopProduction && facility.Side == Side.Our && facility.ProductionInProgress)
+                        {
+                            if (createdUnassignedUnits.Length > 0)
+                            {
+                                QueueHelper.Queue.Enqueue(new SelectUnits(facility.Left, facility.Top,
+                                    facility.Left + facilityWidth, facility.Top + facilityHeight,
+                                    facility.LastAssignedVehicleType));
+
+                                var vehicleType = facility.LastAssignedVehicleType ?? VehicleType.Tank;
+
+                                QueueHelper.Queue.Enqueue(new AddSelecteUnitsToNewGroupTask(vehicleType));
+                            }
+
+                            facility.ProductionInProgress = false;
+                            QueueHelper.Queue.Enqueue(new StopProduction(facility));
+                        }
                     }
 
                 }

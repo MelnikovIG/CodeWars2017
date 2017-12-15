@@ -29,9 +29,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
 
         private const double RecheckFacilityDistanse = 70;
+
         /// <summary>
         /// Дистанция до цента здания от центра группы, когда оно считается проверенным
         /// </summary>
         public static double RecheckFacilityDistansePow2 = RecheckFacilityDistanse * RecheckFacilityDistanse;
+
+        /// <summary>
+        /// За  сколько тиков до конца игры останавливать производство и создавать группы
+        /// </summary>
+        public static int StopProductionWhenTicksToEndGameRemaining = 1000;
     }
 }
