@@ -40,6 +40,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         /// </summary>
         public static double RecheckFacilityDistansePow2 = RecheckFacilityDistanse * RecheckFacilityDistanse;
 
+   
+        private const double EnemyNearOurFacilityWarningRange = 100;
+        /// <summary>
+        /// Дистанция до цента здания от центра группы, когда оно считается проверенным
+        /// </summary>
+        public static double EnemyNearOurFacilityWarningRangePow2 = EnemyNearOurFacilityWarningRange * EnemyNearOurFacilityWarningRange;
+
         /// <summary>
         /// За  сколько тиков до конца игры останавливать производство и создавать группы
         /// </summary>

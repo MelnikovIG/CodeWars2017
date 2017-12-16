@@ -58,15 +58,15 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk
 
             var enemy = GlobalHelper.Enemy;
 
-            UpdateVehiclesStates(me, world, game, rewindClient);
-            FacilityHelper.UpdateFacilitiesStates();
-
             LazyClusters = new Lazy<List<List<DbScanHelper.Point>>>(() =>
             {
                 var enemyPoints = UnitHelper.UnitsEnemy.Select(x => new DbScanHelper.Point(x.X, x.Y, x.Type, x.Durability)).ToList();
                 List<List<DbScanHelper.Point>> clusters = DbScanHelper.GetClusters(enemyPoints, 15, 1);
                 return clusters;
             });
+
+            UpdateVehiclesStates(me, world, game, rewindClient);
+            FacilityHelper.UpdateFacilitiesStates();
 
 #if DEBUG
             UnitHelper.DrawAllUnits();

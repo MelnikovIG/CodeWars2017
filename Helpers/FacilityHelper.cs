@@ -92,7 +92,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                 if (facility.Type == FacilityType.VehicleFactory)
                 {
-                    var needStopProduction = NeedStopProduction();
+                    var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
+                    var needStopProduction = NeedStopProduction(facility, createdUnassignedUnits);
 
                     //Если захватили здание
                     if (gotMineThisTick)
@@ -118,7 +119,6 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     }
                     else
                     {
-                        var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
                         var needCreateGroupFromProducingUnits =
                             lostMineThisTick ||
                             (facility.ProductionCount > 0 && createdUnassignedUnits.Length >= facility.ProductionCount);
@@ -201,7 +201,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
         }
 
-        private static bool NeedStopProduction()
+        private static bool NeedStopProduction(FacilityEx facility, MyLivingUnit[] createdUnassignedUnits)
         {
             var isProductionTickExceed = GlobalHelper.Game.TickCount - GlobalHelper.World.TickIndex <
                                        ConfigurationHelper.StopProductionWhenTicksToEndGameRemaining;
@@ -216,7 +216,57 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                                      : UnitHelper.UnitsAlly.Length - UnitHelper.UnitsEnemy.Length > 300)
                                  && GlobalHelper.World.TickIndex > 10000;
 
+            var clusters = MyStrategy.LazyClusters.Value;
+            //var res = BattleHelper.CalculatePower(enemies, currentSelectedGroup.VehicleType, basePower);
             var isEnemyCanBeatProducingGroupTooClose = false;
+            if (facility.Side == Side.Our && clusters.Count > 0 && createdUnassignedUnits.Length > 0)
+            {
+                var vehicleType = createdUnassignedUnits[0].Type;
+
+                var basePower = PotentialFieldsHelper.EnemyPowerToDodge;
+
+                var facilityUnitsX = createdUnassignedUnits.Sum(x => x.X) / createdUnassignedUnits.Length;
+                var facilityUnitsY = createdUnassignedUnits.Sum(x => x.Y) / createdUnassignedUnits.Length;
+
+                isEnemyCanBeatProducingGroupTooClose = clusters.Any(cluster =>
+                {
+                    var clusterUnitsX = cluster.Sum(x => x.X) / cluster.Count;
+                    var clusterUnitsY = cluster.Sum(x => x.Y) / cluster.Count;
+
+                    var isInRange =
+                        GeometryHelper.GetDistancePower2To(facilityUnitsX, facilityUnitsY, clusterUnitsX, clusterUnitsY)
+                        <= ConfigurationHelper.EnemyNearOurFacilityWarningRangePow2;
+
+                    if (!isInRange)
+                    {
+                        return false;
+                    }
+
+                    var res = BattleHelper.CalculatePower(cluster, vehicleType, PotentialFieldsHelper.EnemyPowerToDodge);
+
+                    var enemyPower = res.EnemyPower;
+                    var canAttackSomeone = res.CanAttackSomeone;
+
+                    var existGroupPower =
+                        createdUnassignedUnits.Sum(y => BattleHelper.GetPowerHealthMulitplier(y.Type, y.Durability)) *
+                        basePower;
+
+                    var needStayOnFacility = true;
+
+                    //Если строящаяся группа сильнее или чуть чуть слабее, то не уходим
+                    if (existGroupPower * 1.2 > enemyPower)
+                    {
+                        needStayOnFacility = canAttackSomeone;
+                    }
+                    else
+                    {
+                        //Если у врага нулевая сила, никуда не уходим
+                        needStayOnFacility = (Math.Abs(enemyPower) < PotentialFieldsHelper.Epsilon);
+                    }
+
+                    return !needStayOnFacility;
+                });
+            }
 
             var result = isProductionTickExceed || isUnitsTooMuch || isEnemyCanBeatProducingGroupTooClose/*|| testStopProduction*/;
 
