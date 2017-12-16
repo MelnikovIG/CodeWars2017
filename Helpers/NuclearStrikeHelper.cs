@@ -188,8 +188,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
             var enemiesWithDamage = new List<Tuple<MyLivingUnit, double>>(allEnemiesCanBeAttacked.Count);
 
-            var totalEnemies = UnitHelper.UnitsEnemy.Length;
-            var minEnemiesToAttack = totalEnemies * ConfigurationHelper.NuclearStrikeTargetEnemiesCoef;
+            var minEnemiesToAttack = GetMinEnemiesToAttackNuclearStrike();
 
             foreach (var enemyCanBeAttacked in enemiesCanBeAttacked)
             {
@@ -300,6 +299,25 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 SelectedUnitRes = ally,
                 EnemyRes = enemyUnitWithMaxDamage
             };
+        }
+
+        public static int GetMinEnemiesToAttackNuclearStrike()
+        {
+            if (GlobalHelper.Mode == GameMode.FacFow)
+            {
+                if (GlobalHelper.World.TickIndex <= ConfigurationHelper.TickIndexFowBeforeIgnoreSmallGroups)
+                {
+                    return (int) (500 * ConfigurationHelper.NuclearStrikeTargetEnemiesCoef);
+                }
+                else
+                {
+                    return (int)(UnitHelper.UnitsEnemy.Length * ConfigurationHelper.NuclearStrikeTargetEnemiesCoef);
+                }
+            }
+            else
+            {
+                return (int)(UnitHelper.UnitsEnemy.Length * ConfigurationHelper.NuclearStrikeTargetEnemiesCoef);
+            }
         }
 
         //TODO: cacheOnceToDictionary

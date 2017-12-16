@@ -92,8 +92,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                 if (facility.Type == FacilityType.VehicleFactory)
                 {
-                    var needStopProduction = GlobalHelper.Game.TickCount - GlobalHelper.World.TickIndex <
-                                             ConfigurationHelper.StopProductionWhenTicksToEndGameRemaining;
+                    var needStopProduction = NeedStopProduction();
 
                     //Если захватили здание
                     if (gotMineThisTick)
@@ -202,31 +201,31 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
             }
         }
 
-        private static void AddFacilityToProductionIfNotExist(FacilityEx facility)
+        private static bool NeedStopProduction()
         {
-            var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
-            if (!facilitiesToAddProdution.Contains(facility))
-            {
-                facilitiesToAddProdution.Add(facility);
-            }
-        }
+            var isProductionTickExceed = GlobalHelper.Game.TickCount - GlobalHelper.World.TickIndex <
+                                       ConfigurationHelper.StopProductionWhenTicksToEndGameRemaining;
 
-        private static void RemoveFacilityFromProductionIfNotExist(FacilityEx facility)
-        {
-            var facilitiesToAddProdution = FacilityProductionHelper.FacilitiesToAddProdution;
-            if (facilitiesToAddProdution.Contains(facility))
-            {
-                facilitiesToAddProdution.Remove(facility);
-            }
-        }
+            //var testStopProduction = (GlobalHelper.World.TickIndex / 1000) % 2 == 1;
 
-        private static void AddFacilityCreateGroupIfNotExist(FacilityEx facility)
-        {
-            var facilitiesToCreateGroup = FacilityProductionHelper.FacilitiesToCreateGroup;
-            if (!facilitiesToCreateGroup.Contains(facility))
+            //Остановим производство, если слишком много юнитов
+            //Для варианта с туманом, если их больше n
+            //Для варианта без тумана, если количество превышает кол-во врага в n раз
+            var isUnitsTooMuch = (GlobalHelper.Mode == GameMode.FacFow
+                                     ? UnitHelper.UnitsAlly.Length > 750
+                                     : UnitHelper.UnitsAlly.Length - UnitHelper.UnitsEnemy.Length > 300)
+                                 && GlobalHelper.World.TickIndex > 10000;
+
+            var isEnemyCanBeatProducingGroupTooClose = false;
+
+            var result = isProductionTickExceed || isUnitsTooMuch || isEnemyCanBeatProducingGroupTooClose/*|| testStopProduction*/;
+
+            if (result)
             {
-                facilitiesToCreateGroup.Add(facility);
+                var a = 0;
             }
+
+            return result;
         }
 
         public static void DrawFacilities()

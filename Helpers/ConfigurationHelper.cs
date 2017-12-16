@@ -23,6 +23,11 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static double NuclearStrikeTargetEnemiesCoef = 0.03;
 
         /// <summary>
+        /// Если туман войны, то до этого тика по другому рассчитываем процент кол-ва для кидания бомбы
+        /// </summary>
+        public static int TickIndexFowBeforeIgnoreSmallGroups = 3000;
+
+        /// <summary>
         /// Количество тиков , после которых нужно перепроверить вражеское/нейтральное здание
         /// </summary>
         public static int TicksCountToRecheckFacility = 1000;

@@ -11,8 +11,9 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
         public static List<FacilityEx> FacilitiesToCreateGroup { get; set; } = new List<FacilityEx>();
 
-        public static int FacilityUnitInRow { get; } = 11;
-        public static int MaxCountToCreate { get; } = FacilityUnitInRow * FacilityUnitInRow;
+        //public const int FacilityUnitInRow = 11;
+        //public const int MaxCountToCreate = FacilityUnitInRow * FacilityUnitInRow;
+        public const int MaxCountToCreate = 30;
 
         public static void StartFactoryProduction(FacilityEx facility, List<List<DbScanHelper.Point>> clusters)
         {

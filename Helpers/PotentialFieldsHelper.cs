@@ -178,8 +178,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 .Sum(x => BattleHelper.GetPowerHealthMulitplier(currentSelectedGroup.VehicleType, x.Durability))
                 * basePower;
 
-            var totalEnemies = UnitHelper.UnitsEnemy.Length;
-            var minEnemiesToAttack = totalEnemies * ConfigurationHelper.NuclearStrikeTargetEnemiesCoef;
+            var minEnemiesToAttack = NuclearStrikeHelper.GetMinEnemiesToAttackNuclearStrike();
 
             foreach (var enemies in clusters)
             {
