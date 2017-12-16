@@ -208,6 +208,19 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         /// <returns></returns>
         private static bool CanStartProduction(FacilityEx facility, MyLivingUnit[] createdUnassignedUnits)
         {
+            var isProductionTickExceed = GlobalHelper.Game.TickCount - GlobalHelper.World.TickIndex <
+                                         ConfigurationHelper.StopProductionWhenTicksToEndGameRemaining;
+
+            //var testStopProduction = (GlobalHelper.World.TickIndex / 1000) % 2 == 1;
+
+            //Остановим производство, если слишком много юнитов
+            //Для варианта с туманом, если их больше n
+            //Для варианта без тумана, если количество превышает кол-во врага в n раз
+            var isUnitsTooMuch = (GlobalHelper.Mode == GameMode.FacFow
+                                     ? UnitHelper.UnitsAlly.Length > 750
+                                     : UnitHelper.UnitsAlly.Length - UnitHelper.UnitsEnemy.Length > 300)
+                                 && GlobalHelper.World.TickIndex > 10000;
+
             var clusters = MyStrategy.LazyClusters.Value;
 
             var facilityX = facility.Left + GlobalHelper.Game.FacilityWidth / 2;
@@ -225,7 +238,8 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 return isInRange;
             });
 
-            return !isEnemyNear;
+            var result = !isProductionTickExceed && !isUnitsTooMuch && !isEnemyNear;
+            return result;
         }
 
         private static bool NeedStopProduction(FacilityEx facility, MyLivingUnit[] createdUnassignedUnits)
