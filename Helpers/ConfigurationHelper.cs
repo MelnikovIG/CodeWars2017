@@ -42,10 +42,17 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
    
         private const double EnemyNearOurFacilityWarningRange = 90;
+        private const double EnemyNearOurFacilityWarningLostRange = EnemyNearOurFacilityWarningRange * 1.2;
+
         /// <summary>
         /// Дистанция до цента здания от центра группы, когда оно считается проверенным
         /// </summary>
         public static double EnemyNearOurFacilityWarningRangePow2 = EnemyNearOurFacilityWarningRange * EnemyNearOurFacilityWarningRange;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static double EnemyNearOurFacilityWarningLostRangePow2 = EnemyNearOurFacilityWarningLostRange * EnemyNearOurFacilityWarningLostRange;
 
         /// <summary>
         /// За  сколько тиков до конца игры останавливать производство и создавать группы

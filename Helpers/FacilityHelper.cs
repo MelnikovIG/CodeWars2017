@@ -233,7 +233,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
 
                 var isInRange =
                     GeometryHelper.GetDistancePower2To(facilityX, facilityY, clusterUnitsX, clusterUnitsY)
-                    <= ConfigurationHelper.EnemyNearOurFacilityWarningRangePow2;
+                    <= ConfigurationHelper.EnemyNearOurFacilityWarningLostRangePow2;
 
                 return isInRange;
             });
