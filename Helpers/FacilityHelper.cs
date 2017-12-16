@@ -292,12 +292,13 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                         createdUnassignedUnits.Sum(y => BattleHelper.GetPowerHealthMulitplier(y.Type, y.Durability)) *
                         basePower;
 
-                    var needStayOnFacility = true;
+                    bool needStayOnFacility;
 
                     //Если строящаяся группа сильнее или чуть чуть слабее, то не уходим
                     if (existGroupPower * 1.2 > enemyPower)
                     {
-                        needStayOnFacility = canAttackSomeone;
+                        needStayOnFacility = true;
+                        //needStayOnFacility = canAttackSomeone;
                     }
                     else
                     {

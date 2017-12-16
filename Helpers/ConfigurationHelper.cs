@@ -41,7 +41,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
         public static double RecheckFacilityDistansePow2 = RecheckFacilityDistanse * RecheckFacilityDistanse;
 
    
-        private const double EnemyNearOurFacilityWarningRange = 100;
+        private const double EnemyNearOurFacilityWarningRange = 90;
         /// <summary>
         /// Дистанция до цента здания от центра группы, когда оно считается проверенным
         /// </summary>
