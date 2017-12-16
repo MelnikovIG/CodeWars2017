@@ -94,25 +94,24 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                 {
                     var createdUnassignedUnits = facility.GetCreatedUnassignedUnits();
                     var needStopProduction = NeedStopProduction(facility, createdUnassignedUnits);
+                    var canStartProduction = CanStartProduction(facility, createdUnassignedUnits);
 
                     //Если захватили здание
                     if (gotMineThisTick)
                     {
                         //И можно стартовать производствао
-                        if (needStopProduction)
-                        {
-                            facility.ProductionInProgress = false;
-                            //Не будем стопать, так как только что захватили
-                            //QueueHelper.Queue.Enqueue(new StopProduction(facility));
-                        }
-                        else
+                        if (canStartProduction)
                         {
                             facility.ProductionInProgress = true;
                             QueueHelper.Queue.Enqueue(new StartProduction(facility));
                         }
+                        else
+                        {
+                            facility.ProductionInProgress = false;
+                        }
                     }
                     //Если производство было остановлено и можно запускать заного
-                    else if (!facility.ProductionInProgress && !needStopProduction && facility.Side == Side.Our)
+                    else if (!facility.ProductionInProgress && canStartProduction && facility.Side == Side.Our)
                     {
                         facility.ProductionInProgress = true;
                         QueueHelper.Queue.Enqueue(new StartProduction(facility));
@@ -141,7 +140,7 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                                     facility.ProductionInProgress = false;
                                     QueueHelper.Queue.Enqueue(new StopProduction(facility));
                                 }
-                                else
+                                else if(canStartProduction)
                                 {
                                     facility.ProductionInProgress = true;
                                     QueueHelper.Queue.Enqueue(new StartProduction(facility));
@@ -199,6 +198,34 @@ namespace Com.CodeGame.CodeWars2017.DevKit.CSharpCgdk.Helpers
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Пока примитивная логика, не стартуем если враги есть рядом
+        /// </summary>
+        /// <param name="facility"></param>
+        /// <param name="createdUnassignedUnits"></param>
+        /// <returns></returns>
+        private static bool CanStartProduction(FacilityEx facility, MyLivingUnit[] createdUnassignedUnits)
+        {
+            var clusters = MyStrategy.LazyClusters.Value;
+
+            var facilityX = facility.Left + GlobalHelper.Game.FacilityWidth / 2;
+            var facilityY = facility.Top + GlobalHelper.Game.FacilityHeight / 2;
+
+            var isEnemyNear = clusters.Any(cluster =>
+            {
+                var clusterUnitsX = cluster.Sum(x => x.X) / cluster.Count;
+                var clusterUnitsY = cluster.Sum(x => x.Y) / cluster.Count;
+
+                var isInRange =
+                    GeometryHelper.GetDistancePower2To(facilityX, facilityY, clusterUnitsX, clusterUnitsY)
+                    <= ConfigurationHelper.EnemyNearOurFacilityWarningRangePow2;
+
+                return isInRange;
+            });
+
+            return !isEnemyNear;
         }
 
         private static bool NeedStopProduction(FacilityEx facility, MyLivingUnit[] createdUnassignedUnits)
